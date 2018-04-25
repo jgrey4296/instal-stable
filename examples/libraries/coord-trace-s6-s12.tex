@@ -1,0 +1,554 @@
+
+\documentclass{article}
+%\usepackage[a4paper,margin=0cm]{geometry}
+\usepackage{todonotes}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{tikz}
+\pagestyle{empty}
+\thispagestyle{empty}
+\usetikzlibrary{shadows}
+\usetikzlibrary{decorations}
+\usetikzlibrary{shapes}
+\usetikzlibrary{arrows}
+\usetikzlibrary{calc}
+\usetikzlibrary{fit}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{positioning}
+\usetikzlibrary{chains}
+\usetikzlibrary{scopes}
+% \usetikzlibrary{matrix}
+% \usepackage{pgfgantt}
+\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+% \usepackage[T1]{fontenc}
+\usepackage[normalem]{ulem}
+\begin{document}
+
+\newcommand{\Esix}{\begin{tabular}{>{\centering}m{\tableWidth}}
+due(\allowbreak{}bob, book1\_a)\\
+\em due(\allowbreak{}bob, book1\_a): libB\\
+due(\allowbreak{}bob, book1\_a): pubA\\
+due(\allowbreak{}bob, book1\_a): libC\\
+issueFine(\allowbreak{}bob, book1\_a): pubA\\
+
+\end{tabular}}
+
+\newcommand{\Eseven}{\begin{tabular}{>{\centering}m{\tableWidth}}
+borrow(\allowbreak{}bob, book3\_a)\\
+\em borrow(\allowbreak{}bob, book3\_a): libC\\
+borrow(\allowbreak{}bob, book3\_a): pubA\\
+borrow(\allowbreak{}bob, book3\_a): libB\\
+intBorrow(\allowbreak{}bob, book3\_a): libB\\
+intBorrow(\allowbreak{}bob, book3\_a): pubA\\
+viol(\allowbreak{}borrow(\allowbreak{}bob, book3\_a)): libC\\
+
+\end{tabular}}
+
+\newcommand{\Eeight}{\begin{tabular}{>{\centering}m{\tableWidth}}
+return(\allowbreak{}bob, book2\_a)\\
+\em intReturn(\allowbreak{}bob, book2\_a): pubA\\
+return(\allowbreak{}bob, book2\_a): libB\\
+return(\allowbreak{}bob, book2\_a): pubA\\
+return(\allowbreak{}bob, book2\_a): libC\\
+viol(\allowbreak{}return(\allowbreak{}bob, book2\_a)): libB\\
+viol(\allowbreak{}return(\allowbreak{}bob, book2\_a)): libC\\
+
+\end{tabular}}
+
+\newcommand{\Enine}{\begin{tabular}{>{\centering}m{\tableWidth}}
+borrow(\allowbreak{}alice, book1\_b)\\
+\em borrow(\allowbreak{}alice, book1\_b): libC\\
+borrow(\allowbreak{}alice, book1\_b): pubA\\
+borrow(\allowbreak{}alice, book1\_b): libB\\
+intBorrow(\allowbreak{}alice, book1\_b): libC\\
+intBorrow(\allowbreak{}alice, book1\_b): pubA\\
+viol(\allowbreak{}borrow(\allowbreak{}alice, book1\_b)): libB\\
+
+\end{tabular}}
+
+\newcommand{\Eten}{\begin{tabular}{>{\centering}m{\tableWidth}}
+borrow(\allowbreak{}alice, book2\_a)\\
+\em borrow(\allowbreak{}alice, book2\_a): libC\\
+borrow(\allowbreak{}alice, book2\_a): libB\\
+borrow(\allowbreak{}alice, book2\_a): pubA\\
+intBorrow(\allowbreak{}alice, book2\_a): libC\\
+intBorrow(\allowbreak{}alice, book2\_a): pubA\\
+viol(\allowbreak{}borrow(\allowbreak{}alice, book2\_a)): libB\\
+
+\end{tabular}}
+
+\newcommand{\Eeleven}{\begin{tabular}{>{\centering}m{\tableWidth}}
+borrow(\allowbreak{}alice, book1\_c)\\
+\em borrow(\allowbreak{}alice, book1\_c): libC\\
+borrow(\allowbreak{}alice, book1\_c): libB\\
+borrow(\allowbreak{}alice, book1\_c): pubA\\
+intBorrow(\allowbreak{}alice, book1\_c): libC\\
+intBorrow(\allowbreak{}alice, book1\_c): pubA\\
+viol(\allowbreak{}borrow(\allowbreak{}alice, book1\_c)): libB\\
+
+\end{tabular}}
+
+\newcommand{\Ssix}{\begin{minipage}{\tableWidth}\raggedright\begin{description}[align=left,leftmargin=1em,noitemsep,labelsep=\parindent]
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{{allowance(\allowbreak{}alice, 3): pubA}}
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item{{available(\allowbreak{}book1\_c): libC}}
+\item{{available(\allowbreak{}book2\_c): libC}}
+\item{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+\item\textbf{{borrowed(\allowbreak{}bob, book2\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book3\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book1\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book2\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book1\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book4\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book1\_b): libB}}
+%% \item{{inCollection(\allowbreak{}book2\_b): libB}}
+%% \item{{live(\allowbreak{}libC): libC}}
+%% \item{{live(\allowbreak{}pubA): pubA}}
+%% \item{{live(\allowbreak{}libB): libB}}
+\item{{loans(\allowbreak{}alice, 0): libC}}
+\item{{loans(\allowbreak{}alice, 0): pubA}}
+\item\textbf{{loans(\allowbreak{}bob, 2): pubA}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+\item{{member(\allowbreak{}bob): libB}}
+%% \item{{next(\allowbreak{}4, 5): libB}}
+%% \item{{next(\allowbreak{}0, 1): libB}}
+%% \item{{next(\allowbreak{}4, 5): pubA}}
+%% \item{{next(\allowbreak{}0, 1): libC}}
+%% \item{{next(\allowbreak{}1, 2): libC}}
+%% \item{{next(\allowbreak{}2, 3): libC}}
+%% \item{{next(\allowbreak{}3, 4): libC}}
+%% \item{{next(\allowbreak{}4, 5): libC}}
+%% \item{{next(\allowbreak{}0, 1): pubA}}
+%% \item{{next(\allowbreak{}1, 2): pubA}}
+%% \item{{next(\allowbreak{}2, 3): pubA}}
+%% \item{{next(\allowbreak{}3, 4): pubA}}
+%% \item{{next(\allowbreak{}1, 2): libB}}
+%% \item{{next(\allowbreak{}2, 3): libB}}
+%% \item{{next(\allowbreak{}3, 4): libB}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item{\sout{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_a), due(\allowbreak{}bob, book1\_a), issueFine(\allowbreak{}bob, book1\_a)): pubA}}
+\item\textbf{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book2\_a), due(\allowbreak{}bob, book2\_a), issueFine(\allowbreak{}bob, book2\_a)): pubA}}
+\item{{onLoan(\allowbreak{}book1\_a): pubA}}
+\item\textbf{{onLoan(\allowbreak{}book2\_a): pubA}}
+%% \item{{registeredUser(\allowbreak{}alice): libC}}
+%% \item{{registeredUser(\allowbreak{}alice): pubA}}
+%% \item{{registeredUser(\allowbreak{}bob): pubA}}
+%% \item{{registeredUser(\allowbreak{}bob): libB}}
+\end{description}\end{minipage}}
+
+\newcommand{\Sseven}{\begin{minipage}{\tableWidth}\raggedright\begin{description}[align=left,leftmargin=1em,noitemsep,labelsep=\parindent]
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{allowance(\allowbreak{}alice, 3): pubA}}
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book1\_c): libC}}
+\item{{available(\allowbreak{}book2\_c): libC}}
+\item{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+\item{{borrowed(\allowbreak{}bob, book2\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book1\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book2\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book4\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book1\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book3\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book1\_b): libB}}
+%% \item{{inCollection(\allowbreak{}book2\_b): libB}}
+\item\textbf{{inDebt(\allowbreak{}bob, book1\_a): pubA}}
+%% \item{{live(\allowbreak{}libC): libC}}
+%% \item{{live(\allowbreak{}pubA): pubA}}
+%% \item{{live(\allowbreak{}libB): libB}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item{{loans(\allowbreak{}alice, 0): pubA}}
+\item{{loans(\allowbreak{}alice, 0): libC}}
+\item{{loans(\allowbreak{}bob, 2): pubA}}
+\item{{member(\allowbreak{}bob): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+%% \item{{next(\allowbreak{}1, 2): libB}}
+%% \item{{next(\allowbreak{}3, 4): libC}}
+%% \item{{next(\allowbreak{}1, 2): libC}}
+%% \item{{next(\allowbreak{}0, 1): libB}}
+%% \item{{next(\allowbreak{}4, 5): pubA}}
+%% \item{{next(\allowbreak{}4, 5): libB}}
+%% \item{{next(\allowbreak{}0, 1): libC}}
+%% \item{{next(\allowbreak{}2, 3): libC}}
+%% \item{{next(\allowbreak{}4, 5): libC}}
+%% \item{{next(\allowbreak{}0, 1): pubA}}
+%% \item{{next(\allowbreak{}1, 2): pubA}}
+%% \item{{next(\allowbreak{}2, 3): pubA}}
+%% \item{{next(\allowbreak{}3, 4): pubA}}
+%% \item{{next(\allowbreak{}2, 3): libB}}
+%% \item{{next(\allowbreak{}3, 4): libB}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book2\_a), due(\allowbreak{}bob, book2\_a), issueFine(\allowbreak{}bob, book2\_a)): pubA}}
+\item{{onLoan(\allowbreak{}book2\_a): pubA}}
+\item{{onLoan(\allowbreak{}book1\_a): pubA}}
+%% \item{{registeredUser(\allowbreak{}alice): libC}}
+%% \item{{registeredUser(\allowbreak{}bob): libB}}
+%% \item{{registeredUser(\allowbreak{}alice): pubA}}
+%% \item{{registeredUser(\allowbreak{}bob): pubA}}
+\end{description}\end{minipage}}
+
+\newcommand{\Seight}{\begin{minipage}{\tableWidth}\raggedright\begin{description}[align=left,leftmargin=1em,noitemsep,labelsep=\parindent]
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{{allowance(\allowbreak{}alice, 3): pubA}}
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{available(\allowbreak{}book2\_c): libC}}
+\item{{available(\allowbreak{}book1\_c): libC}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+\item{\sout{borrowed(\allowbreak{}bob, book2\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_b): libB}}
+%% \item{{inCollection(\allowbreak{}book1\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book4\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book1\_b): libB}}
+%% \item{{inCollection(\allowbreak{}book2\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book1\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book3\_a): pubA}}
+\item{{inDebt(\allowbreak{}bob, book1\_a): pubA}}
+%% \item{{live(\allowbreak{}libB): libB}}
+%% \item{{live(\allowbreak{}pubA): pubA}}
+%% \item{{live(\allowbreak{}libC): libC}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item{{loans(\allowbreak{}alice, 0): pubA}}
+\item{\sout{loans(\allowbreak{}bob, 2): pubA}}
+\item{{loans(\allowbreak{}alice, 0): libC}}
+\item{{member(\allowbreak{}bob): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+%% \item{{next(\allowbreak{}4, 5): libB}}
+%% \item{{next(\allowbreak{}0, 1): pubA}}
+%% \item{{next(\allowbreak{}4, 5): libC}}
+%% \item{{next(\allowbreak{}2, 3): libB}}
+%% \item{{next(\allowbreak{}3, 4): libC}}
+%% \item{{next(\allowbreak{}4, 5): pubA}}
+%% \item{{next(\allowbreak{}0, 1): libC}}
+%% \item{{next(\allowbreak{}1, 2): libC}}
+%% \item{{next(\allowbreak{}1, 2): pubA}}
+%% \item{{next(\allowbreak{}2, 3): pubA}}
+%% \item{{next(\allowbreak{}1, 2): libB}}
+%% \item{{next(\allowbreak{}3, 4): libB}}
+%% \item{{next(\allowbreak{}2, 3): libC}}
+%% \item{{next(\allowbreak{}3, 4): pubA}}
+%% \item{{next(\allowbreak{}0, 1): libB}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item{\sout{obl(\allowbreak{}intReturn(\allowbreak{}bob, book2\_a), due(\allowbreak{}bob, book2\_a), issueFine(\allowbreak{}bob, book2\_a)): pubA}}
+\item{{onLoan(\allowbreak{}book1\_a): pubA}}
+\item{\sout{onLoan(\allowbreak{}book2\_a): pubA}}
+%% \item{{registeredUser(\allowbreak{}bob): libB}}
+%% \item{{registeredUser(\allowbreak{}alice): libC}}
+%% \item{{registeredUser(\allowbreak{}alice): pubA}}
+%% \item{{registeredUser(\allowbreak{}bob): pubA}}
+\end{description}\end{minipage}}
+
+\newcommand{\Snine}{\begin{minipage}{\tableWidth}\raggedright\begin{description}[align=left,leftmargin=1em,noitemsep,labelsep=\parindent]
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{allowance(\allowbreak{}alice, 3): pubA}}
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{{available(\allowbreak{}book1\_c): libC}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item\textbf{{available(\allowbreak{}book2\_a): pubA}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book2\_c): libC}}
+\item{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_b): libB}}
+%% \item{{inCollection(\allowbreak{}book1\_b): libB}}
+%% \item{{inCollection(\allowbreak{}book3\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book1\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book2\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book1\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book4\_a): pubA}}
+\item{{inDebt(\allowbreak{}bob, book1\_a): pubA}}
+%% \item{{live(\allowbreak{}libB): libB}}
+%% \item{{live(\allowbreak{}pubA): pubA}}
+%% \item{{live(\allowbreak{}libC): libC}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item{{loans(\allowbreak{}alice, 0): libC}}
+\item{{loans(\allowbreak{}alice, 0): pubA}}
+\item\textbf{{loans(\allowbreak{}bob, 1): pubA}}
+\item{{member(\allowbreak{}bob): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+%% \item{{next(\allowbreak{}4, 5): libB}}
+%% \item{{next(\allowbreak{}3, 4): libB}}
+%% \item{{next(\allowbreak{}2, 3): libB}}
+%% \item{{next(\allowbreak{}1, 2): libB}}
+%% \item{{next(\allowbreak{}0, 1): libB}}
+%% \item{{next(\allowbreak{}0, 1): pubA}}
+%% \item{{next(\allowbreak{}2, 3): libC}}
+%% \item{{next(\allowbreak{}1, 2): libC}}
+%% \item{{next(\allowbreak{}3, 4): libC}}
+%% \item{{next(\allowbreak{}3, 4): pubA}}
+%% \item{{next(\allowbreak{}0, 1): libC}}
+%% \item{{next(\allowbreak{}4, 5): libC}}
+%% \item{{next(\allowbreak{}1, 2): pubA}}
+%% \item{{next(\allowbreak{}2, 3): pubA}}
+%% \item{{next(\allowbreak{}4, 5): pubA}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item\textbf{{normalUser(\allowbreak{}bob): pubA}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{onLoan(\allowbreak{}book1\_a): pubA}}
+%% \item{{registeredUser(\allowbreak{}bob): libB}}
+%% \item{{registeredUser(\allowbreak{}alice): libC}}
+%% \item{{registeredUser(\allowbreak{}alice): pubA}}
+%% \item{{registeredUser(\allowbreak{}bob): pubA}}
+\end{description}\end{minipage}}
+
+\newcommand{\Sten}{\begin{minipage}{\tableWidth}\raggedright\begin{description}[align=left,leftmargin=1em,noitemsep,labelsep=\parindent]
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{allowance(\allowbreak{}alice, 3): pubA}}
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{\sout{available(\allowbreak{}book2\_a): pubA}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book2\_c): libC}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book1\_c): libC}}
+\item{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_b): libB}}
+%% \item{{inCollection(\allowbreak{}book1\_b): libB}}
+%% \item{{inCollection(\allowbreak{}book4\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book3\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book1\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book1\_c): libC}}
+\item{{inDebt(\allowbreak{}bob, book1\_a): pubA}}
+%% \item{{live(\allowbreak{}libB): libB}}
+%% \item{{live(\allowbreak{}pubA): pubA}}
+%% \item{{live(\allowbreak{}libC): libC}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item{{loans(\allowbreak{}bob, 1): pubA}}
+\item{\sout{loans(\allowbreak{}alice, 0): pubA}}
+\item{{loans(\allowbreak{}alice, 0): libC}}
+\item{{member(\allowbreak{}alice): libC}}
+\item{{member(\allowbreak{}bob): libB}}
+%% \item{{next(\allowbreak{}4, 5): libB}}
+%% \item{{next(\allowbreak{}3, 4): libB}}
+%% \item{{next(\allowbreak{}2, 3): libB}}
+%% \item{{next(\allowbreak{}1, 2): libB}}
+%% \item{{next(\allowbreak{}0, 1): libB}}
+%% \item{{next(\allowbreak{}4, 5): pubA}}
+%% \item{{next(\allowbreak{}1, 2): pubA}}
+%% \item{{next(\allowbreak{}0, 1): pubA}}
+%% \item{{next(\allowbreak{}3, 4): libC}}
+%% \item{{next(\allowbreak{}2, 3): libC}}
+%% \item{{next(\allowbreak{}1, 2): libC}}
+%% \item{{next(\allowbreak{}0, 1): libC}}
+%% \item{{next(\allowbreak{}2, 3): pubA}}
+%% \item{{next(\allowbreak{}3, 4): pubA}}
+%% \item{{next(\allowbreak{}4, 5): libC}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item{{normalUser(\allowbreak{}bob): pubA}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{onLoan(\allowbreak{}book1\_a): pubA}}
+%% \item{{registeredUser(\allowbreak{}bob): pubA}}
+%% \item{{registeredUser(\allowbreak{}alice): pubA}}
+%% \item{{registeredUser(\allowbreak{}alice): libC}}
+%% \item{{registeredUser(\allowbreak{}bob): libB}}
+\end{description}\end{minipage}}
+
+\newcommand{\Seleven}{\begin{minipage}{\tableWidth}\raggedright\begin{description}[align=left,leftmargin=1em,noitemsep,labelsep=\parindent]
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{allowance(\allowbreak{}alice, 3): pubA}}
+\item{{available(\allowbreak{}book2\_c): libC}}
+\item{\sout{available(\allowbreak{}book1\_c): libC}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+\item\textbf{{borrowed(\allowbreak{}alice, book2\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book1\_b): libB}}
+%% \item{{inCollection(\allowbreak{}book3\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book1\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book2\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book1\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_b): libB}}
+%% \item{{inCollection(\allowbreak{}book4\_a): pubA}}
+\item{{inDebt(\allowbreak{}bob, book1\_a): pubA}}
+%% \item{{live(\allowbreak{}libB): libB}}
+%% \item{{live(\allowbreak{}pubA): pubA}}
+%% \item{{live(\allowbreak{}libC): libC}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item{{loans(\allowbreak{}bob, 1): pubA}}
+\item\textbf{{loans(\allowbreak{}alice, 1): pubA}}
+\item{\sout{loans(\allowbreak{}alice, 0): libC}}
+\item{{member(\allowbreak{}bob): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+%% \item{{next(\allowbreak{}4, 5): libB}}
+%% \item{{next(\allowbreak{}3, 4): libB}}
+%% \item{{next(\allowbreak{}0, 1): libB}}
+%% \item{{next(\allowbreak{}3, 4): pubA}}
+%% \item{{next(\allowbreak{}2, 3): pubA}}
+%% \item{{next(\allowbreak{}0, 1): pubA}}
+%% \item{{next(\allowbreak{}2, 3): libC}}
+%% \item{{next(\allowbreak{}1, 2): libC}}
+%% \item{{next(\allowbreak{}0, 1): libC}}
+%% \item{{next(\allowbreak{}1, 2): pubA}}
+%% \item{{next(\allowbreak{}4, 5): pubA}}
+%% \item{{next(\allowbreak{}2, 3): libB}}
+%% \item{{next(\allowbreak{}1, 2): libB}}
+%% \item{{next(\allowbreak{}3, 4): libC}}
+%% \item{{next(\allowbreak{}4, 5): libC}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{normalUser(\allowbreak{}bob): pubA}}
+\item\textbf{{obl(\allowbreak{}intReturn(\allowbreak{}alice, book2\_a), due(\allowbreak{}alice, book2\_a), issueFine(\allowbreak{}alice, book2\_a)): pubA}}
+\item\textbf{{onLoan(\allowbreak{}book2\_a): pubA}}
+\item{{onLoan(\allowbreak{}book1\_a): pubA}}
+%% \item{{registeredUser(\allowbreak{}bob): libB}}
+%% \item{{registeredUser(\allowbreak{}bob): pubA}}
+%% \item{{registeredUser(\allowbreak{}alice): pubA}}
+%% \item{{registeredUser(\allowbreak{}alice): libC}}
+\end{description}\end{minipage}}
+
+\newcommand{\Stwelve}{\begin{minipage}{\tableWidth}\raggedright\begin{description}[align=left,leftmargin=1em,noitemsep,labelsep=\parindent]
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{allowance(\allowbreak{}alice, 3): pubA}}
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book2\_c): libC}}
+\item{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+\item{{borrowed(\allowbreak{}alice, book2\_a): pubA}}
+\item\textbf{{borrowed(\allowbreak{}alice, book1\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book1\_b): libB}}
+%% \item{{inCollection(\allowbreak{}book1\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book1\_c): libC}}
+%% \item{{inCollection(\allowbreak{}book4\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book3\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_a): pubA}}
+%% \item{{inCollection(\allowbreak{}book2\_b): libB}}
+\item{{inDebt(\allowbreak{}bob, book1\_a): pubA}}
+%% \item{{live(\allowbreak{}libB): libB}}
+%% \item{{live(\allowbreak{}pubA): pubA}}
+%% \item{{live(\allowbreak{}libC): libC}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item{{loans(\allowbreak{}bob, 1): pubA}}
+\item\textbf{{loans(\allowbreak{}alice, 1): libC}}
+\item{{loans(\allowbreak{}alice, 1): pubA}}
+\item{{member(\allowbreak{}alice): libC}}
+\item{{member(\allowbreak{}bob): libB}}
+%% \item{{next(\allowbreak{}4, 5): libB}}
+%% \item{{next(\allowbreak{}3, 4): libB}}
+%% \item{{next(\allowbreak{}2, 3): libB}}
+%% \item{{next(\allowbreak{}1, 2): libB}}
+%% \item{{next(\allowbreak{}2, 3): pubA}}
+%% \item{{next(\allowbreak{}0, 1): pubA}}
+%% \item{{next(\allowbreak{}4, 5): libC}}
+%% \item{{next(\allowbreak{}3, 4): libC}}
+%% \item{{next(\allowbreak{}0, 1): libB}}
+%% \item{{next(\allowbreak{}4, 5): pubA}}
+%% \item{{next(\allowbreak{}3, 4): pubA}}
+%% \item{{next(\allowbreak{}2, 3): libC}}
+%% \item{{next(\allowbreak{}1, 2): pubA}}
+%% \item{{next(\allowbreak{}1, 2): libC}}
+%% \item{{next(\allowbreak{}0, 1): libC}}
+\item{{normalUser(\allowbreak{}bob): pubA}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item{{obl(\allowbreak{}intReturn(\allowbreak{}alice, book2\_a), due(\allowbreak{}alice, book2\_a), issueFine(\allowbreak{}alice, book2\_a)): pubA}}
+\item\textbf{{obl(\allowbreak{}intReturn(\allowbreak{}alice, book1\_c), due(\allowbreak{}alice, book1\_c), issueFine(\allowbreak{}alice, book1\_c)): libC}}
+\item\textbf{{onLoan(\allowbreak{}book1\_c): libC}}
+\item{{onLoan(\allowbreak{}book2\_a): pubA}}
+\item{{onLoan(\allowbreak{}book1\_a): pubA}}
+%% \item{{registeredUser(\allowbreak{}alice): libC}}
+%% \item{{registeredUser(\allowbreak{}bob): libB}}
+%% \item{{registeredUser(\allowbreak{}bob): pubA}}
+%% \item{{registeredUser(\allowbreak{}alice): pubA}}
+\end{description}\end{minipage}}
+
+\newlength{\tableWidth}
+\setlength{\tableWidth}{5cm}
+\begin{longtable}{@{}l@{}}
+\resizebox{\textwidth}{!}{
+\begin{tikzpicture}
+[
+start chain=trace going right,
+start chain=state6 going down,
+start chain=state7 going down,
+start chain=state8 going down,
+start chain=state9 going down,
+start chain=state10 going down,
+start chain=state11 going down,
+start chain=state12 going down,
+node distance=1cm and 5.2cm
+]
+{{ [continue chain=trace]
+\node[circle,draw,on chain=trace](i6) {$S_{6}$};
+\node[circle,draw,on chain=trace](i7) {$S_{7}$};
+\node[circle,draw,on chain=trace](i8) {$S_{8}$};
+\node[circle,draw,on chain=trace](i9) {$S_{9}$};
+\node[circle,draw,on chain=trace](i10) {$S_{10}$};
+\node[circle,draw,on chain=trace](i11) {$S_{11}$};
+\node[circle,draw,on chain=trace](i12) {$S_{12}$};
+{ [continue chain=state6 going below]
+\node [on chain=state6,below=of i6,rectangle,draw,inner frame sep=0pt] (s6) {\Ssix};} % end node and chain
+\draw (i6) -- (s6);
+{ [continue chain=state7 going below]
+\node [on chain=state7,below=of i7,rectangle,draw,inner frame sep=0pt] (s7) {\Sseven};} % end node and chain
+\draw (i7) -- (s7);
+{ [continue chain=state8 going below]
+\node [on chain=state8,below=of i8,rectangle,draw,inner frame sep=0pt] (s8) {\Seight};} % end node and chain
+\draw (i8) -- (s8);
+{ [continue chain=state9 going below]
+\node [on chain=state9,below=of i9,rectangle,draw,inner frame sep=0pt] (s9) {\Snine};} % end node and chain
+\draw (i9) -- (s9);
+{ [continue chain=state10 going below]
+\node [on chain=state10,below=of i10,rectangle,draw,inner frame sep=0pt] (s10) {\Sten};} % end node and chain
+\draw (i10) -- (s10);
+{ [continue chain=state11 going below]
+\node [on chain=state11,below=of i11,rectangle,draw,inner frame sep=0pt] (s11) {\Seleven};} % end node and chain
+\draw (i11) -- (s11);
+{ [continue chain=state12 going below]
+\node [on chain=state12,below=of i12,rectangle,draw,inner frame sep=0pt] (s12) {\Stwelve};} % end node and chain
+\draw (i12) -- (s12);
+}}
+\draw[-latex,thin](i6) -- node[above]{\Esix}(i7);
+\draw[-latex,thin](i7) -- node[above]{\Eseven}(i8);
+\draw[-latex,thin](i8) -- node[above]{\Eeight}(i9);
+\draw[-latex,thin](i9) -- node[above]{\Enine}(i10);
+\draw[-latex,thin](i10) -- node[above]{\Eten}(i11);
+\draw[-latex,thin](i11) -- node[above]{\Eeleven}(i12);
+\end{tikzpicture}}\\
+\end{longtable}
+\end{document}

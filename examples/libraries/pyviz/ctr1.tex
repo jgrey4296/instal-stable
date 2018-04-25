@@ -1,0 +1,315 @@
+% events = 10
+% states = 10
+% nstates = 6
+% display width = 6
+% states_by_row = [[0, 1, 2, 3, 4, 5]]
+
+\begin{longtable}{@{}l@{}}
+% start row=[0, 1, 2, 3, 4, 5] of [[0, 1, 2, 3, 4, 5]]
+
+\resizebox{\textwidth}{!}{
+
+\begin{tikzpicture}
+[
+start chain=trace going right,
+% state chains for 0 through 5
+start chain=state0 going down,
+start chain=state1 going down,
+start chain=state2 going down,
+start chain=state3 going down,
+start chain=state4 going down,
+start chain=state5 going down,
+node distance=1cm and 5.2cm
+]
+% start row=[0, 1, 2, 3, 4, 5], state=0
+{{ [continue chain=trace]
+\node[circle,draw,on chain=trace](i0) {$S_{0}$};
+\draw[color=white](i0)+(180:5.6cm) --node[above]{}(i0);
+\draw(i0)+(-3,0)node[rotate=90,anchor=south]{Answer set=1, source=Result/ctr1.res};
+}
+{ [continue chain=state0 going below]
+\node [on chain=state0,below=of i0,rectangle,draw,inner frame sep=0pt] (s0) {
+% instant 0
+\begin{minipage}{5cm}\raggedright\everypar={\hangindent=1em\hangafter=1}
+\textbf{available(\allowbreak{}book1\_a): pubA}\\
+\textbf{available(\allowbreak{}book1\_b): libB}\\
+\textbf{available(\allowbreak{}book1\_c): libC}\\
+\textbf{available(\allowbreak{}book2\_a): pubA}\\
+\textbf{available(\allowbreak{}book2\_b): libB}\\
+\textbf{available(\allowbreak{}book2\_c): libC}\\
+\textbf{available(\allowbreak{}book3\_a): pubA}\\
+\textbf{available(\allowbreak{}book4\_a): pubA}\\
+\textbf{member(\allowbreak{}alice): libC}\\
+\textbf{member(\allowbreak{}bob): libB}\\
+\end{minipage}
+};
+} % end node and chain
+\draw (i0) -- (s0);
+
+}
+% \pause % uncomment here to animate
+
+% start row=[0, 1, 2, 3, 4, 5], state=1
+{{ [continue chain=trace]
+\node[circle,draw,on chain=trace](i1) {$S_{1}$};
+% label for s_0 -- s_1
+\draw[-latex,thin](i0) -- % t=1
+node[above]{\begin{tabular}{>{\centering}m{5cm}}
+\\
+\em register(\allowbreak{}bob): libC\\
+ register(\allowbreak{}bob): libB\\
+ register(\allowbreak{}bob): pubA\\
+ intRegister(\allowbreak{}bob): pubA\\
+ intRegister(\allowbreak{}bob): libB
+\end{tabular}}
+(i1);
+}
+{ [continue chain=state1 going below]
+\node [on chain=state1,below=of i1,rectangle,draw,inner frame sep=0pt] (s1) {
+% instant 1
+\begin{minipage}{5cm}\raggedright\everypar={\hangindent=1em\hangafter=1}
+\textbf{normalUser(\allowbreak{}bob): libB}\\
+\textbf{normalUser(\allowbreak{}bob): pubA}\\
+\textbf{allowance(\allowbreak{}bob, 2): libB}\\
+\textbf{allowance(\allowbreak{}bob, 2): pubA}\\
+\textbf{loans(\allowbreak{}bob, 0): libB}\\
+\textbf{loans(\allowbreak{}bob, 0): pubA}\\
+allowance(\allowbreak{}bob, 2): libB\\
+allowance(\allowbreak{}bob, 2): pubA\\
+available(\allowbreak{}book1\_a): pubA\\
+available(\allowbreak{}book1\_b): libB\\
+available(\allowbreak{}book1\_c): libC\\
+available(\allowbreak{}book2\_a): pubA\\
+available(\allowbreak{}book2\_b): libB\\
+available(\allowbreak{}book2\_c): libC\\
+available(\allowbreak{}book3\_a): pubA\\
+available(\allowbreak{}book4\_a): pubA\\
+loans(\allowbreak{}bob, 0): libB\\
+loans(\allowbreak{}bob, 0): pubA\\
+member(\allowbreak{}alice): libC\\
+member(\allowbreak{}bob): libB\\
+\end{minipage}
+};
+} % end node and chain
+\draw (i1) -- (s1);
+
+}
+% \pause % uncomment here to animate
+
+% start row=[0, 1, 2, 3, 4, 5], state=2
+{{ [continue chain=trace]
+\node[circle,draw,on chain=trace](i2) {$S_{2}$};
+% label for s_1 -- s_2
+\draw[-latex,thin](i1) -- % t=2
+node[above]{\begin{tabular}{>{\centering}m{5cm}}
+\\
+\em register(\allowbreak{}alice): libC\\
+ register(\allowbreak{}alice): libB\\
+ register(\allowbreak{}alice): pubA\\
+ intRegister(\allowbreak{}alice): pubA\\
+ intRegister(\allowbreak{}alice): libC
+\end{tabular}}
+(i2);
+}
+{ [continue chain=state2 going below]
+\node [on chain=state2,below=of i2,rectangle,draw,inner frame sep=0pt] (s2) {
+% instant 2
+\begin{minipage}{5cm}\raggedright\everypar={\hangindent=1em\hangafter=1}
+\textbf{normalUser(\allowbreak{}alice): libC}\\
+\textbf{normalUser(\allowbreak{}alice): pubA}\\
+\textbf{allowance(\allowbreak{}alice, 2): libC}\\
+\textbf{allowance(\allowbreak{}alice, 2): pubA}\\
+\textbf{loans(\allowbreak{}alice, 0): libC}\\
+\textbf{loans(\allowbreak{}alice, 0): pubA}\\
+allowance(\allowbreak{}alice, 2): libC\\
+allowance(\allowbreak{}bob, 2): libB\\
+allowance(\allowbreak{}bob, 2): pubA\\
+available(\allowbreak{}book1\_a): pubA\\
+available(\allowbreak{}book1\_b): libB\\
+available(\allowbreak{}book1\_c): libC\\
+available(\allowbreak{}book2\_a): pubA\\
+available(\allowbreak{}book2\_b): libB\\
+available(\allowbreak{}book2\_c): libC\\
+available(\allowbreak{}book3\_a): pubA\\
+available(\allowbreak{}book4\_a): pubA\\
+loans(\allowbreak{}alice, 0): libC\\
+loans(\allowbreak{}alice, 0): pubA\\
+loans(\allowbreak{}bob, 0): libB\\
+loans(\allowbreak{}bob, 0): pubA\\
+member(\allowbreak{}alice): libC\\
+member(\allowbreak{}bob): libB\\
+normalUser(\allowbreak{}bob): libB\\
+normalUser(\allowbreak{}bob): pubA\\
+\sout{allowance(\allowbreak{}alice, 2): pubA}\\
+\end{minipage}
+};
+} % end node and chain
+\draw (i2) -- (s2);
+
+}
+% \pause % uncomment here to animate
+
+% start row=[0, 1, 2, 3, 4, 5], state=3
+{{ [continue chain=trace]
+\node[circle,draw,on chain=trace](i3) {$S_{3}$};
+% label for s_2 -- s_3
+\draw[-latex,thin](i2) -- % t=3
+node[above]{\begin{tabular}{>{\centering}m{5cm}}
+\\
+\em extend(\allowbreak{}alice): pubA\\
+ intExtend(\allowbreak{}alice): pubA
+\end{tabular}}
+(i3);
+}
+{ [continue chain=state3 going below]
+\node [on chain=state3,below=of i3,rectangle,draw,inner frame sep=0pt] (s3) {
+% instant 3
+\begin{minipage}{5cm}\raggedright\everypar={\hangindent=1em\hangafter=1}
+\textbf{allowance(\allowbreak{}alice, 3): pubA}\\
+allowance(\allowbreak{}alice, 2): libC\\
+allowance(\allowbreak{}alice, 3): pubA\\
+allowance(\allowbreak{}bob, 2): libB\\
+allowance(\allowbreak{}bob, 2): pubA\\
+available(\allowbreak{}book1\_a): pubA\\
+available(\allowbreak{}book1\_b): libB\\
+available(\allowbreak{}book1\_c): libC\\
+available(\allowbreak{}book2\_a): pubA\\
+available(\allowbreak{}book2\_b): libB\\
+available(\allowbreak{}book2\_c): libC\\
+available(\allowbreak{}book3\_a): pubA\\
+available(\allowbreak{}book4\_a): pubA\\
+loans(\allowbreak{}alice, 0): libC\\
+loans(\allowbreak{}alice, 0): pubA\\
+loans(\allowbreak{}bob, 0): libB\\
+member(\allowbreak{}alice): libC\\
+member(\allowbreak{}bob): libB\\
+normalUser(\allowbreak{}alice): libC\\
+normalUser(\allowbreak{}alice): pubA\\
+normalUser(\allowbreak{}bob): libB\\
+normalUser(\allowbreak{}bob): pubA\\
+\sout{loans(\allowbreak{}bob, 0): pubA}\\
+\end{minipage}
+};
+} % end node and chain
+\draw (i3) -- (s3);
+
+}
+% \pause % uncomment here to animate
+
+% start row=[0, 1, 2, 3, 4, 5], state=4
+{{ [continue chain=trace]
+\node[circle,draw,on chain=trace](i4) {$S_{4}$};
+% label for s_3 -- s_4
+\draw[-latex,thin](i3) -- % t=4
+node[above]{\begin{tabular}{>{\centering}m{5cm}}
+\\
+\em borrow(\allowbreak{}bob, book1\_a): libC\\
+ borrow(\allowbreak{}bob, book1\_a): libB\\
+ borrow(\allowbreak{}bob, book1\_a): pubA\\
+ viol(\allowbreak{}borrow(\allowbreak{}bob, book1\_a)): libC\\
+ intBorrow(\allowbreak{}bob, book1\_a): pubA\\
+ intBorrow(\allowbreak{}bob, book1\_a): libB
+\end{tabular}}
+(i4);
+}
+{ [continue chain=state4 going below]
+\node [on chain=state4,below=of i4,rectangle,draw,inner frame sep=0pt] (s4) {
+% instant 4
+\begin{minipage}{5cm}\raggedright\everypar={\hangindent=1em\hangafter=1}
+\textbf{borrowed(\allowbreak{}bob, book1\_a): pubA}\\
+\textbf{loans(\allowbreak{}bob, 1): pubA}\\
+allowance(\allowbreak{}alice, 2): libC\\
+allowance(\allowbreak{}alice, 3): pubA\\
+allowance(\allowbreak{}bob, 2): libB\\
+allowance(\allowbreak{}bob, 2): pubA\\
+available(\allowbreak{}book1\_b): libB\\
+available(\allowbreak{}book1\_c): libC\\
+available(\allowbreak{}book2\_a): pubA\\
+available(\allowbreak{}book2\_b): libB\\
+available(\allowbreak{}book2\_c): libC\\
+available(\allowbreak{}book3\_a): pubA\\
+available(\allowbreak{}book4\_a): pubA\\
+borrowed(\allowbreak{}bob, book1\_a): pubA\\
+loans(\allowbreak{}alice, 0): libC\\
+loans(\allowbreak{}alice, 0): pubA\\
+loans(\allowbreak{}bob, 0): libB\\
+loans(\allowbreak{}bob, 1): pubA\\
+member(\allowbreak{}alice): libC\\
+member(\allowbreak{}bob): libB\\
+normalUser(\allowbreak{}alice): libC\\
+normalUser(\allowbreak{}alice): pubA\\
+normalUser(\allowbreak{}bob): libB\\
+normalUser(\allowbreak{}bob): pubA\\
+\end{minipage}
+};
+} % end node and chain
+\draw (i4) -- (s4);
+
+}
+% \pause % uncomment here to animate
+
+% start row=[0, 1, 2, 3, 4, 5], state=5
+{{ [continue chain=trace]
+\node[circle,draw,on chain=trace](i5) {$S_{5}$};
+% label for s_4 -- s_5
+\draw[-latex,thin](i4) -- % t=5
+node[above]{\begin{tabular}{>{\centering}m{5cm}}
+\\
+\em borrow(\allowbreak{}alice, book1\_a): libC\\
+ borrow(\allowbreak{}alice, book1\_a): libB\\
+ borrow(\allowbreak{}alice, book1\_a): pubA\\
+ viol(\allowbreak{}borrow(\allowbreak{}alice, book1\_a)): libB\\
+ intBorrow(\allowbreak{}alice, book1\_a): pubA\\
+ intBorrow(\allowbreak{}alice, book1\_a): libC
+\end{tabular}}
+(i5);
+}
+{ [continue chain=state5 going below]
+\node [on chain=state5,below=of i5,rectangle,draw,inner frame sep=0pt] (s5) {
+% instant 5
+\begin{minipage}{5cm}\raggedright\everypar={\hangindent=1em\hangafter=1}
+allowance(\allowbreak{}alice, 2): libC\\
+allowance(\allowbreak{}alice, 3): pubA\\
+allowance(\allowbreak{}bob, 2): libB\\
+allowance(\allowbreak{}bob, 2): pubA\\
+available(\allowbreak{}book1\_b): libB\\
+available(\allowbreak{}book1\_c): libC\\
+available(\allowbreak{}book2\_a): pubA\\
+available(\allowbreak{}book2\_b): libB\\
+available(\allowbreak{}book2\_c): libC\\
+available(\allowbreak{}book3\_a): pubA\\
+available(\allowbreak{}book4\_a): pubA\\
+borrowed(\allowbreak{}bob, book1\_a): pubA\\
+loans(\allowbreak{}alice, 0): libC\\
+loans(\allowbreak{}alice, 0): pubA\\
+loans(\allowbreak{}bob, 0): libB\\
+member(\allowbreak{}alice): libC\\
+member(\allowbreak{}bob): libB\\
+normalUser(\allowbreak{}alice): libC\\
+normalUser(\allowbreak{}alice): pubA\\
+normalUser(\allowbreak{}bob): libB\\
+normalUser(\allowbreak{}bob): pubA\\
+\sout{loans(\allowbreak{}bob, 1): pubA}\\
+\end{minipage}
+};
+} % end node and chain
+\draw (i5) -- (s5);
+
+}
+% \pause % uncomment here to animate
+
+% fill nodes 6 to 5
+
+% dummy arc to complete row
+{ [continue chain=trace]
+\node[on chain=trace] (i6) {};
+\draw[color=white,-latex,dashed](i5) -- (i6);
+}
+% end row=[0, 1, 2, 3, 4, 5] of [[0, 1, 2, 3, 4, 5]]
+
+\end{tikzpicture}
+% close resizebox
+}\\
+
+\end{longtable}
+

@@ -1,0 +1,43 @@
+institution forum;
+
+type Person;
+type Role;
+
+exogenous event ex_register(Person);
+exogenous event ex_post(Person);
+exogenous event ex_ban(Person, Person);
+
+inst event post(Person);
+inst event ban(Person, Person);
+inst event register(Person);
+
+fluent role(Person, Role);
+fluent banned(Person);
+
+violation event insufficientPermissions(Person);
+violation event alreadyRegistered(Person);
+
+ex_register(P) generates register(P) if not role(P, R);
+ex_register(P) generates alreadyRegistered(P) if role(P, R);
+
+ex_post(P) generates post(P) if role(P, R), not banned(P);
+ex_post(P) generates insufficientPermissions(P) if banned(P);
+ex_post(P) generates insufficientPermissions(P) if not role(P, _);
+
+ex_ban(Admin, User) generates ban(Admin, User) if role(Admin, admin);
+ex_ban(Admin, User) generates insufficientPermissions(Admin) if not role(Admin, admin);
+
+register(P) initiates role(P, user);
+
+% Posting is not necessary to model here
+
+ban(Admin, User) initiates banned(User);
+
+
+
+
+initially pow(ex_register(P)), perm(ex_register(P)), perm(register(P));
+initially pow(ex_post(P)), perm(ex_post(P)), perm(post(P));
+initially pow(ex_ban(P, A)), perm(ex_ban(P, A)), perm(ban(P, A)) if P != A;
+
+

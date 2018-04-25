@@ -1,0 +1,781 @@
+
+        \documentclass{article}
+        \usepackage{todonotes}
+        \usepackage{array}
+        \usepackage{longtable}
+        \usepackage{enumitem}
+        \usepackage{tikz}
+        \pagestyle{empty}
+        \thispagestyle{empty}
+        \usetikzlibrary{shadows}
+        \usetikzlibrary{decorations}
+        \usetikzlibrary{shapes}
+        \usetikzlibrary{arrows}
+        \usetikzlibrary{calc}
+        \usetikzlibrary{fit}
+        \usetikzlibrary{backgrounds}
+        \usetikzlibrary{positioning}
+        \usetikzlibrary{chains}
+        \usetikzlibrary{scopes}
+        \renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+        \usepackage[normalem]{ulem}
+        \newenvironment{events}
+        {\begin{tabular}{>{\centering}m{\tableWidth}}}
+        {\end{tabular}}
+        \newenvironment{states}
+        {\begin{minipage}{\tableWidth}\raggedright\begin{description}[align=left,leftmargin=1em,noitemsep,labelsep=\parindent]}
+        {\end{description}\end{minipage}}
+        \begin{document}
+        
+% Event macro definitions
+% ------------------------------------------------------------------------
+\newcommand{\Ezero}{\begin{events}
+register(\allowbreak{}bob)\\
+\em intRegister(\allowbreak{}bob): libB\\
+intRegister(\allowbreak{}bob): pubA\\
+intRmRegister(\allowbreak{}bob): libC\\
+register(\allowbreak{}bob): libB\\
+register(\allowbreak{}bob): libC\\
+register(\allowbreak{}bob): pubA\\
+rmRegister(\allowbreak{}bob): libC\\
+\end{events}}
+
+\newcommand{\Eone}{\begin{events}
+register(\allowbreak{}alice)\\
+\em intRegister(\allowbreak{}alice): libC\\
+intRegister(\allowbreak{}alice): pubA\\
+register(\allowbreak{}alice): pubA\\
+register(\allowbreak{}alice): libB\\
+register(\allowbreak{}alice): libC\\
+\end{events}}
+
+\newcommand{\Etwo}{\begin{events}
+borrow(\allowbreak{}bob, book1\_a)\\
+\em borrow(\allowbreak{}bob, book1\_a): libC\\
+borrow(\allowbreak{}bob, book1\_a): pubA\\
+borrow(\allowbreak{}bob, book1\_a): libB\\
+intBorrow(\allowbreak{}bob, book1\_a): pubA\\
+intBorrow(\allowbreak{}bob, book1\_a): libB\\
+viol(\allowbreak{}borrow(\allowbreak{}bob, book1\_a)): libC\\
+\end{events}}
+
+\newcommand{\Ethree}{\begin{events}
+rmRequest(\allowbreak{}bob, book1\_c)\\
+\em intBorrow(\allowbreak{}bob, book1\_c): libC\\
+intRmRequest(\allowbreak{}bob, book1\_c): libB\\
+null: pubA\\
+rmBorrow(\allowbreak{}bob, book1\_c): libC\\
+rmRequest(\allowbreak{}bob, book1\_c): libB\\
+rmRequest(\allowbreak{}bob, book1\_c): libC\\
+viol(\allowbreak{}rmRequest(\allowbreak{}bob, book1\_c)): libC\\
+\end{events}}
+
+\newcommand{\Efour}{\begin{events}
+rmRequest(\allowbreak{}bob, book2\_c)\\
+\em intBorrow(\allowbreak{}bob, book2\_c): libC\\
+intRmRequest(\allowbreak{}bob, book2\_c): libB\\
+null: pubA\\
+rmBorrow(\allowbreak{}bob, book2\_c): libC\\
+rmRequest(\allowbreak{}bob, book2\_c): libB\\
+rmRequest(\allowbreak{}bob, book2\_c): libC\\
+viol(\allowbreak{}rmRequest(\allowbreak{}bob, book2\_c)): libC\\
+\end{events}}
+
+\newcommand{\Efive}{\begin{events}
+borrow(\allowbreak{}alice, book1\_c)\\
+\em borrow(\allowbreak{}alice, book1\_c): pubA\\
+borrow(\allowbreak{}alice, book1\_c): libB\\
+borrow(\allowbreak{}alice, book1\_c): libC\\
+intBorrow(\allowbreak{}alice, book1\_c): pubA\\
+intBorrow(\allowbreak{}alice, book1\_c): libC\\
+viol(\allowbreak{}borrow(\allowbreak{}alice, book1\_c)): libB\\
+\end{events}}
+
+\newcommand{\Esix}{\begin{events}
+borrow(\allowbreak{}alice, book2\_c)\\
+\em borrow(\allowbreak{}alice, book2\_c): libB\\
+borrow(\allowbreak{}alice, book2\_c): libC\\
+borrow(\allowbreak{}alice, book2\_c): pubA\\
+intBorrow(\allowbreak{}alice, book2\_c): pubA\\
+intBorrow(\allowbreak{}alice, book2\_c): libC\\
+viol(\allowbreak{}borrow(\allowbreak{}alice, book2\_c)): libB\\
+\end{events}}
+
+\newcommand{\Eseven}{\begin{events}
+return(\allowbreak{}alice, book2\_c)\\
+\em intReturn(\allowbreak{}alice, book2\_c): libC\\
+return(\allowbreak{}alice, book2\_c): pubA\\
+return(\allowbreak{}alice, book2\_c): libB\\
+return(\allowbreak{}alice, book2\_c): libC\\
+viol(\allowbreak{}return(\allowbreak{}alice, book2\_c)): pubA\\
+viol(\allowbreak{}return(\allowbreak{}alice, book2\_c)): libB\\
+\end{events}}
+
+\newcommand{\Eeight}{\begin{events}
+extend(\allowbreak{}alice)\\
+\em extend(\allowbreak{}alice): pubA\\
+intExtend(\allowbreak{}alice): pubA\\
+null: libC\\
+null: libB\\
+\end{events}}
+
+% State macro definitions
+% ------------------------------------------------------------------------
+\newcommand{\Szero}{\begin{states}
+\item\textbf{{inCollection(\allowbreak{}book2\_c): libC}}
+\item\textbf{{inCollection(\allowbreak{}book1\_c): libC}}
+\item\textbf{{inCollection(\allowbreak{}book2\_b): libB}}
+\item\textbf{{inCollection(\allowbreak{}book1\_b): libB}}
+\item\textbf{{inCollection(\allowbreak{}book4\_a): pubA}}
+\item\textbf{{inCollection(\allowbreak{}book3\_a): pubA}}
+\item\textbf{{inCollection(\allowbreak{}book2\_a): pubA}}
+\item\textbf{{inCollection(\allowbreak{}book1\_a): pubA}}
+\item\textbf{{member(\allowbreak{}alice): libC}}
+\item\textbf{{member(\allowbreak{}bob): libB}}
+\item\textbf{{next(\allowbreak{}4, 5): libC}}
+\item\textbf{{next(\allowbreak{}4, 5): libB}}
+\item\textbf{{next(\allowbreak{}4, 5): pubA}}
+\item\textbf{{next(\allowbreak{}3, 4): libC}}
+\item\textbf{{next(\allowbreak{}3, 4): libB}}
+\item\textbf{{next(\allowbreak{}3, 4): pubA}}
+\item\textbf{{next(\allowbreak{}2, 3): libC}}
+\item\textbf{{next(\allowbreak{}2, 3): libB}}
+\item\textbf{{next(\allowbreak{}2, 3): pubA}}
+\item\textbf{{next(\allowbreak{}1, 2): libC}}
+\item\textbf{{next(\allowbreak{}1, 2): libB}}
+\item\textbf{{next(\allowbreak{}1, 2): pubA}}
+\item\textbf{{next(\allowbreak{}0, 1): libC}}
+\item\textbf{{next(\allowbreak{}0, 1): libB}}
+\item\textbf{{next(\allowbreak{}0, 1): pubA}}
+\end{states}}
+
+\newcommand{\Sone}{\begin{states}
+\item\textbf{{allowance(\allowbreak{}bob, 1): libC}}
+\item\textbf{{allowance(\allowbreak{}bob, 2): libB}}
+\item\textbf{{allowance(\allowbreak{}bob, 2): pubA}}
+\item\textbf{{available(\allowbreak{}book1\_a): pubA}}
+\item\textbf{{available(\allowbreak{}book1\_c): libC}}
+\item\textbf{{available(\allowbreak{}book2\_a): pubA}}
+\item\textbf{{available(\allowbreak{}book2\_c): libC}}
+\item\textbf{{available(\allowbreak{}book1\_b): libB}}
+\item\textbf{{available(\allowbreak{}book3\_a): pubA}}
+\item\textbf{{available(\allowbreak{}book4\_a): pubA}}
+\item\textbf{{available(\allowbreak{}book2\_b): libB}}
+\item{{inCollection(\allowbreak{}book3\_a): pubA}}
+\item{{inCollection(\allowbreak{}book4\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_c): libC}}
+\item{{inCollection(\allowbreak{}book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book1\_c): libC}}
+\item{{inCollection(\allowbreak{}book2\_b): libB}}
+\item{{inCollection(\allowbreak{}book1\_b): libB}}
+\item\textbf{{live(\allowbreak{}pubA): pubA}}
+\item\textbf{{live(\allowbreak{}libB): libB}}
+\item\textbf{{live(\allowbreak{}libC): libC}}
+\item\textbf{{live(\allowbreak{}libB\_to\_libC): libB\_to\_libC}}
+\item\textbf{{loans(\allowbreak{}bob, 0): libB}}
+\item\textbf{{loans(\allowbreak{}bob, 0): libC}}
+\item\textbf{{loans(\allowbreak{}bob, 0): pubA}}
+\item{{member(\allowbreak{}bob): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+\item{{next(\allowbreak{}4, 5): libC}}
+\item{{next(\allowbreak{}4, 5): libB}}
+\item{{next(\allowbreak{}3, 4): pubA}}
+\item{{next(\allowbreak{}2, 3): libC}}
+\item{{next(\allowbreak{}2, 3): libB}}
+\item{{next(\allowbreak{}0, 1): pubA}}
+\item{{next(\allowbreak{}2, 3): pubA}}
+\item{{next(\allowbreak{}1, 2): libC}}
+\item{{next(\allowbreak{}1, 2): libB}}
+\item{{next(\allowbreak{}1, 2): pubA}}
+\item{{next(\allowbreak{}0, 1): libC}}
+\item{{next(\allowbreak{}0, 1): libB}}
+\item{{next(\allowbreak{}4, 5): pubA}}
+\item{{next(\allowbreak{}3, 4): libC}}
+\item{{next(\allowbreak{}3, 4): libB}}
+\item\textbf{{normalUser(\allowbreak{}bob): libC}}
+\item\textbf{{normalUser(\allowbreak{}bob): pubA}}
+\item\textbf{{normalUser(\allowbreak{}bob): libB}}
+\item\textbf{{registeredUser(\allowbreak{}bob): libB}}
+\item\textbf{{registeredUser(\allowbreak{}bob): libC}}
+\item\textbf{{registeredUser(\allowbreak{}bob): pubA}}
+\end{states}}
+
+\newcommand{\Stwo}{\begin{states}
+\item{{allowance(\allowbreak{}bob, 1): libC}}
+\item\textbf{{allowance(\allowbreak{}alice, 2): pubA}}
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item\textbf{{allowance(\allowbreak{}alice, 2): libC}}
+\item{\sout{available(\allowbreak{}book1\_a): pubA}}
+\item{{available(\allowbreak{}book1\_c): libC}}
+\item{{available(\allowbreak{}book2\_a): pubA}}
+\item{{available(\allowbreak{}book2\_c): libC}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item{{inCollection(\allowbreak{}book3\_a): pubA}}
+\item{{inCollection(\allowbreak{}book4\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_c): libC}}
+\item{{inCollection(\allowbreak{}book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book1\_c): libC}}
+\item{{inCollection(\allowbreak{}book2\_b): libB}}
+\item{{inCollection(\allowbreak{}book1\_b): libB}}
+\item{{live(\allowbreak{}pubA): pubA}}
+\item{{live(\allowbreak{}libB): libB}}
+\item{{live(\allowbreak{}libC): libC}}
+\item{{live(\allowbreak{}libB\_to\_libC): libB\_to\_libC}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item\textbf{{loans(\allowbreak{}alice, 0): libC}}
+\item\textbf{{loans(\allowbreak{}alice, 0): pubA}}
+\item{{loans(\allowbreak{}bob, 0): libC}}
+\item{\sout{loans(\allowbreak{}bob, 0): pubA}}
+\item{{member(\allowbreak{}bob): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+\item{{next(\allowbreak{}4, 5): libC}}
+\item{{next(\allowbreak{}4, 5): libB}}
+\item{{next(\allowbreak{}3, 4): pubA}}
+\item{{next(\allowbreak{}2, 3): libC}}
+\item{{next(\allowbreak{}2, 3): libB}}
+\item{{next(\allowbreak{}0, 1): pubA}}
+\item{{next(\allowbreak{}2, 3): pubA}}
+\item{{next(\allowbreak{}1, 2): libC}}
+\item{{next(\allowbreak{}1, 2): libB}}
+\item{{next(\allowbreak{}1, 2): pubA}}
+\item{{next(\allowbreak{}0, 1): libC}}
+\item{{next(\allowbreak{}0, 1): libB}}
+\item{{next(\allowbreak{}4, 5): pubA}}
+\item{{next(\allowbreak{}3, 4): libC}}
+\item{{next(\allowbreak{}3, 4): libB}}
+\item\textbf{{normalUser(\allowbreak{}alice): libC}}
+\item{{normalUser(\allowbreak{}bob): libC}}
+\item\textbf{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}bob): pubA}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{registeredUser(\allowbreak{}bob): libB}}
+\item\textbf{{registeredUser(\allowbreak{}alice): libC}}
+\item{{registeredUser(\allowbreak{}bob): libC}}
+\item\textbf{{registeredUser(\allowbreak{}alice): pubA}}
+\item{{registeredUser(\allowbreak{}bob): pubA}}
+\end{states}}
+
+\newcommand{\Sthree}{\begin{states}
+\item{{allowance(\allowbreak{}bob, 1): libC}}
+\item{{allowance(\allowbreak{}alice, 2): pubA}}
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{\sout{available(\allowbreak{}book1\_c): libC}}
+\item{{available(\allowbreak{}book2\_a): pubA}}
+\item{{available(\allowbreak{}book2\_c): libC}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item\textbf{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book3\_a): pubA}}
+\item{{inCollection(\allowbreak{}book4\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_c): libC}}
+\item{{inCollection(\allowbreak{}book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book1\_c): libC}}
+\item{{inCollection(\allowbreak{}book2\_b): libB}}
+\item{{inCollection(\allowbreak{}book1\_b): libB}}
+\item{{live(\allowbreak{}pubA): pubA}}
+\item{{live(\allowbreak{}libB): libB}}
+\item{{live(\allowbreak{}libC): libC}}
+\item{{live(\allowbreak{}libB\_to\_libC): libB\_to\_libC}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item{{loans(\allowbreak{}alice, 0): libC}}
+\item{{loans(\allowbreak{}alice, 0): pubA}}
+\item{\sout{loans(\allowbreak{}bob, 0): libC}}
+\item\textbf{{loans(\allowbreak{}bob, 1): pubA}}
+\item{{member(\allowbreak{}bob): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+\item{{next(\allowbreak{}4, 5): libC}}
+\item{{next(\allowbreak{}4, 5): libB}}
+\item{{next(\allowbreak{}3, 4): pubA}}
+\item{{next(\allowbreak{}2, 3): libC}}
+\item{{next(\allowbreak{}2, 3): libB}}
+\item{{next(\allowbreak{}0, 1): pubA}}
+\item{{next(\allowbreak{}2, 3): pubA}}
+\item{{next(\allowbreak{}1, 2): libC}}
+\item{{next(\allowbreak{}1, 2): libB}}
+\item{{next(\allowbreak{}1, 2): pubA}}
+\item{{next(\allowbreak{}0, 1): libC}}
+\item{{next(\allowbreak{}0, 1): libB}}
+\item{{next(\allowbreak{}4, 5): pubA}}
+\item{{next(\allowbreak{}3, 4): libC}}
+\item{{next(\allowbreak{}3, 4): libB}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item{\sout{normalUser(\allowbreak{}bob): libC}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}bob): pubA}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item\textbf{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_a), intDue(\allowbreak{}bob, book1\_a), issueFine(\allowbreak{}bob, book1\_a)): pubA}}
+\item\textbf{{onLoan(\allowbreak{}book1\_a): pubA}}
+\item{{registeredUser(\allowbreak{}bob): libB}}
+\item{{registeredUser(\allowbreak{}alice): libC}}
+\item{{registeredUser(\allowbreak{}bob): libC}}
+\item{{registeredUser(\allowbreak{}alice): pubA}}
+\item{{registeredUser(\allowbreak{}bob): pubA}}
+\end{states}}
+
+\newcommand{\Sfour}{\begin{states}
+\item{{allowance(\allowbreak{}bob, 1): libC}}
+\item{{allowance(\allowbreak{}alice, 2): pubA}}
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{{available(\allowbreak{}book2\_a): pubA}}
+\item{{available(\allowbreak{}book2\_c): libC}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item\textbf{{borrowed(\allowbreak{}bob, book1\_c): libC}}
+\item{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book3\_a): pubA}}
+\item{{inCollection(\allowbreak{}book4\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_c): libC}}
+\item{{inCollection(\allowbreak{}book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book1\_c): libC}}
+\item{{inCollection(\allowbreak{}book2\_b): libB}}
+\item{{inCollection(\allowbreak{}book1\_b): libB}}
+\item{{live(\allowbreak{}pubA): pubA}}
+\item{{live(\allowbreak{}libB): libB}}
+\item{{live(\allowbreak{}libC): libC}}
+\item{{live(\allowbreak{}libB\_to\_libC): libB\_to\_libC}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item{{loans(\allowbreak{}alice, 0): libC}}
+\item{{loans(\allowbreak{}alice, 0): pubA}}
+\item\textbf{{loans(\allowbreak{}bob, 1): libC}}
+\item{{loans(\allowbreak{}bob, 1): pubA}}
+\item{{member(\allowbreak{}bob): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+\item{{next(\allowbreak{}4, 5): libC}}
+\item{{next(\allowbreak{}4, 5): libB}}
+\item{{next(\allowbreak{}3, 4): pubA}}
+\item{{next(\allowbreak{}2, 3): libC}}
+\item{{next(\allowbreak{}2, 3): libB}}
+\item{{next(\allowbreak{}0, 1): pubA}}
+\item{{next(\allowbreak{}2, 3): pubA}}
+\item{{next(\allowbreak{}1, 2): libC}}
+\item{{next(\allowbreak{}1, 2): libB}}
+\item{{next(\allowbreak{}1, 2): pubA}}
+\item{{next(\allowbreak{}0, 1): libC}}
+\item{{next(\allowbreak{}0, 1): libB}}
+\item{{next(\allowbreak{}4, 5): pubA}}
+\item{{next(\allowbreak{}3, 4): libC}}
+\item{{next(\allowbreak{}3, 4): libB}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}bob): pubA}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_a), intDue(\allowbreak{}bob, book1\_a), issueFine(\allowbreak{}bob, book1\_a)): pubA}}
+\item\textbf{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_c), intDue(\allowbreak{}bob, book1\_c), issueFine(\allowbreak{}bob, book1\_c)): libC}}
+\item\textbf{{onLoan(\allowbreak{}book1\_c): libC}}
+\item{{onLoan(\allowbreak{}book1\_a): pubA}}
+\item{{registeredUser(\allowbreak{}bob): libB}}
+\item{{registeredUser(\allowbreak{}alice): libC}}
+\item{{registeredUser(\allowbreak{}bob): libC}}
+\item{{registeredUser(\allowbreak{}alice): pubA}}
+\item{{registeredUser(\allowbreak{}bob): pubA}}
+\end{states}}
+
+\newcommand{\Sfive}{\begin{states}
+\item{{allowance(\allowbreak{}bob, 1): libC}}
+\item{{allowance(\allowbreak{}alice, 2): pubA}}
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{{available(\allowbreak{}book2\_a): pubA}}
+\item{{available(\allowbreak{}book2\_c): libC}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item{{borrowed(\allowbreak{}bob, book1\_c): libC}}
+\item{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book3\_a): pubA}}
+\item{{inCollection(\allowbreak{}book4\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_c): libC}}
+\item{{inCollection(\allowbreak{}book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book1\_c): libC}}
+\item{{inCollection(\allowbreak{}book2\_b): libB}}
+\item{{inCollection(\allowbreak{}book1\_b): libB}}
+\item{{live(\allowbreak{}pubA): pubA}}
+\item{{live(\allowbreak{}libB): libB}}
+\item{{live(\allowbreak{}libC): libC}}
+\item{{live(\allowbreak{}libB\_to\_libC): libB\_to\_libC}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item{{loans(\allowbreak{}alice, 0): libC}}
+\item{{loans(\allowbreak{}alice, 0): pubA}}
+\item{{loans(\allowbreak{}bob, 1): libC}}
+\item{{loans(\allowbreak{}bob, 1): pubA}}
+\item{{member(\allowbreak{}bob): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+\item{{next(\allowbreak{}4, 5): libC}}
+\item{{next(\allowbreak{}4, 5): libB}}
+\item{{next(\allowbreak{}3, 4): pubA}}
+\item{{next(\allowbreak{}2, 3): libC}}
+\item{{next(\allowbreak{}2, 3): libB}}
+\item{{next(\allowbreak{}0, 1): pubA}}
+\item{{next(\allowbreak{}2, 3): pubA}}
+\item{{next(\allowbreak{}1, 2): libC}}
+\item{{next(\allowbreak{}1, 2): libB}}
+\item{{next(\allowbreak{}1, 2): pubA}}
+\item{{next(\allowbreak{}0, 1): libC}}
+\item{{next(\allowbreak{}0, 1): libB}}
+\item{{next(\allowbreak{}4, 5): pubA}}
+\item{{next(\allowbreak{}3, 4): libC}}
+\item{{next(\allowbreak{}3, 4): libB}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}bob): pubA}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_a), intDue(\allowbreak{}bob, book1\_a), issueFine(\allowbreak{}bob, book1\_a)): pubA}}
+\item{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_c), intDue(\allowbreak{}bob, book1\_c), issueFine(\allowbreak{}bob, book1\_c)): libC}}
+\item{{onLoan(\allowbreak{}book1\_c): libC}}
+\item{{onLoan(\allowbreak{}book1\_a): pubA}}
+\item{{registeredUser(\allowbreak{}bob): libB}}
+\item{{registeredUser(\allowbreak{}alice): libC}}
+\item{{registeredUser(\allowbreak{}bob): libC}}
+\item{{registeredUser(\allowbreak{}alice): pubA}}
+\item{{registeredUser(\allowbreak{}bob): pubA}}
+\end{states}}
+
+\newcommand{\Ssix}{\begin{states}
+\item{{allowance(\allowbreak{}bob, 1): libC}}
+\item{{allowance(\allowbreak{}alice, 2): pubA}}
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{{available(\allowbreak{}book2\_a): pubA}}
+\item{\sout{available(\allowbreak{}book2\_c): libC}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item{{borrowed(\allowbreak{}bob, book1\_c): libC}}
+\item{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book3\_a): pubA}}
+\item{{inCollection(\allowbreak{}book4\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_c): libC}}
+\item{{inCollection(\allowbreak{}book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book1\_c): libC}}
+\item{{inCollection(\allowbreak{}book2\_b): libB}}
+\item{{inCollection(\allowbreak{}book1\_b): libB}}
+\item{{live(\allowbreak{}pubA): pubA}}
+\item{{live(\allowbreak{}libB): libB}}
+\item{{live(\allowbreak{}libC): libC}}
+\item{{live(\allowbreak{}libB\_to\_libC): libB\_to\_libC}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item{\sout{loans(\allowbreak{}alice, 0): libC}}
+\item{{loans(\allowbreak{}alice, 0): pubA}}
+\item{{loans(\allowbreak{}bob, 1): libC}}
+\item{{loans(\allowbreak{}bob, 1): pubA}}
+\item{{member(\allowbreak{}bob): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+\item{{next(\allowbreak{}4, 5): libC}}
+\item{{next(\allowbreak{}4, 5): libB}}
+\item{{next(\allowbreak{}3, 4): pubA}}
+\item{{next(\allowbreak{}2, 3): libC}}
+\item{{next(\allowbreak{}2, 3): libB}}
+\item{{next(\allowbreak{}0, 1): pubA}}
+\item{{next(\allowbreak{}2, 3): pubA}}
+\item{{next(\allowbreak{}1, 2): libC}}
+\item{{next(\allowbreak{}1, 2): libB}}
+\item{{next(\allowbreak{}1, 2): pubA}}
+\item{{next(\allowbreak{}0, 1): libC}}
+\item{{next(\allowbreak{}0, 1): libB}}
+\item{{next(\allowbreak{}4, 5): pubA}}
+\item{{next(\allowbreak{}3, 4): libC}}
+\item{{next(\allowbreak{}3, 4): libB}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}bob): pubA}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_a), intDue(\allowbreak{}bob, book1\_a), issueFine(\allowbreak{}bob, book1\_a)): pubA}}
+\item{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_c), intDue(\allowbreak{}bob, book1\_c), issueFine(\allowbreak{}bob, book1\_c)): libC}}
+\item{{onLoan(\allowbreak{}book1\_c): libC}}
+\item{{onLoan(\allowbreak{}book1\_a): pubA}}
+\item{{registeredUser(\allowbreak{}bob): libB}}
+\item{{registeredUser(\allowbreak{}alice): libC}}
+\item{{registeredUser(\allowbreak{}bob): libC}}
+\item{{registeredUser(\allowbreak{}alice): pubA}}
+\item{{registeredUser(\allowbreak{}bob): pubA}}
+\end{states}}
+
+\newcommand{\Sseven}{\begin{states}
+\item{{allowance(\allowbreak{}bob, 1): libC}}
+\item{{allowance(\allowbreak{}alice, 2): pubA}}
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{{available(\allowbreak{}book2\_a): pubA}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item\textbf{\sout{borrowed(\allowbreak{}alice, book2\_c): libC}}
+\item{{borrowed(\allowbreak{}bob, book1\_c): libC}}
+\item{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book3\_a): pubA}}
+\item{{inCollection(\allowbreak{}book4\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_c): libC}}
+\item{{inCollection(\allowbreak{}book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book1\_c): libC}}
+\item{{inCollection(\allowbreak{}book2\_b): libB}}
+\item{{inCollection(\allowbreak{}book1\_b): libB}}
+\item{{live(\allowbreak{}pubA): pubA}}
+\item{{live(\allowbreak{}libB): libB}}
+\item{{live(\allowbreak{}libC): libC}}
+\item{{live(\allowbreak{}libB\_to\_libC): libB\_to\_libC}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item\textbf{\sout{loans(\allowbreak{}alice, 1): libC}}
+\item{{loans(\allowbreak{}alice, 0): pubA}}
+\item{{loans(\allowbreak{}bob, 1): libC}}
+\item{{loans(\allowbreak{}bob, 1): pubA}}
+\item{{member(\allowbreak{}bob): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+\item{{next(\allowbreak{}4, 5): libC}}
+\item{{next(\allowbreak{}4, 5): libB}}
+\item{{next(\allowbreak{}3, 4): pubA}}
+\item{{next(\allowbreak{}2, 3): libC}}
+\item{{next(\allowbreak{}2, 3): libB}}
+\item{{next(\allowbreak{}0, 1): pubA}}
+\item{{next(\allowbreak{}2, 3): pubA}}
+\item{{next(\allowbreak{}1, 2): libC}}
+\item{{next(\allowbreak{}1, 2): libB}}
+\item{{next(\allowbreak{}1, 2): pubA}}
+\item{{next(\allowbreak{}0, 1): libC}}
+\item{{next(\allowbreak{}0, 1): libB}}
+\item{{next(\allowbreak{}4, 5): pubA}}
+\item{{next(\allowbreak{}3, 4): libC}}
+\item{{next(\allowbreak{}3, 4): libB}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}bob): pubA}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_a), intDue(\allowbreak{}bob, book1\_a), issueFine(\allowbreak{}bob, book1\_a)): pubA}}
+\item{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_c), intDue(\allowbreak{}bob, book1\_c), issueFine(\allowbreak{}bob, book1\_c)): libC}}
+\item\textbf{\sout{obl(\allowbreak{}intReturn(\allowbreak{}alice, book2\_c), intDue(\allowbreak{}alice, book2\_c), issueFine(\allowbreak{}alice, book2\_c)): libC}}
+\item{{onLoan(\allowbreak{}book1\_c): libC}}
+\item{{onLoan(\allowbreak{}book1\_a): pubA}}
+\item\textbf{\sout{onLoan(\allowbreak{}book2\_c): libC}}
+\item{{registeredUser(\allowbreak{}bob): libB}}
+\item{{registeredUser(\allowbreak{}alice): libC}}
+\item{{registeredUser(\allowbreak{}bob): libC}}
+\item{{registeredUser(\allowbreak{}alice): pubA}}
+\item{{registeredUser(\allowbreak{}bob): pubA}}
+\end{states}}
+
+\newcommand{\Seight}{\begin{states}
+\item{{allowance(\allowbreak{}bob, 1): libC}}
+\item{\sout{allowance(\allowbreak{}alice, 2): pubA}}
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{{available(\allowbreak{}book2\_a): pubA}}
+\item\textbf{{available(\allowbreak{}book2\_c): libC}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item{{borrowed(\allowbreak{}bob, book1\_c): libC}}
+\item{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book3\_a): pubA}}
+\item{{inCollection(\allowbreak{}book4\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_c): libC}}
+\item{{inCollection(\allowbreak{}book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book1\_c): libC}}
+\item{{inCollection(\allowbreak{}book2\_b): libB}}
+\item{{inCollection(\allowbreak{}book1\_b): libB}}
+\item{{live(\allowbreak{}pubA): pubA}}
+\item{{live(\allowbreak{}libB): libB}}
+\item{{live(\allowbreak{}libC): libC}}
+\item{{live(\allowbreak{}libB\_to\_libC): libB\_to\_libC}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item\textbf{{loans(\allowbreak{}alice, 0): libC}}
+\item{{loans(\allowbreak{}alice, 0): pubA}}
+\item{{loans(\allowbreak{}bob, 1): libC}}
+\item{{loans(\allowbreak{}bob, 1): pubA}}
+\item{{member(\allowbreak{}bob): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+\item{{next(\allowbreak{}4, 5): libC}}
+\item{{next(\allowbreak{}4, 5): libB}}
+\item{{next(\allowbreak{}3, 4): pubA}}
+\item{{next(\allowbreak{}2, 3): libC}}
+\item{{next(\allowbreak{}2, 3): libB}}
+\item{{next(\allowbreak{}0, 1): pubA}}
+\item{{next(\allowbreak{}2, 3): pubA}}
+\item{{next(\allowbreak{}1, 2): libC}}
+\item{{next(\allowbreak{}1, 2): libB}}
+\item{{next(\allowbreak{}1, 2): pubA}}
+\item{{next(\allowbreak{}0, 1): libC}}
+\item{{next(\allowbreak{}0, 1): libB}}
+\item{{next(\allowbreak{}4, 5): pubA}}
+\item{{next(\allowbreak{}3, 4): libC}}
+\item{{next(\allowbreak{}3, 4): libB}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}bob): pubA}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_a), intDue(\allowbreak{}bob, book1\_a), issueFine(\allowbreak{}bob, book1\_a)): pubA}}
+\item{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_c), intDue(\allowbreak{}bob, book1\_c), issueFine(\allowbreak{}bob, book1\_c)): libC}}
+\item{{onLoan(\allowbreak{}book1\_c): libC}}
+\item{{onLoan(\allowbreak{}book1\_a): pubA}}
+\item{{registeredUser(\allowbreak{}bob): libB}}
+\item{{registeredUser(\allowbreak{}alice): libC}}
+\item{{registeredUser(\allowbreak{}bob): libC}}
+\item{{registeredUser(\allowbreak{}alice): pubA}}
+\item{{registeredUser(\allowbreak{}bob): pubA}}
+\end{states}}
+
+\newcommand{\Snine}{\begin{states}
+\item{{allowance(\allowbreak{}bob, 1): libC}}
+\item{{allowance(\allowbreak{}bob, 2): libB}}
+\item\textbf{{allowance(\allowbreak{}alice, 3): pubA}}
+\item{{allowance(\allowbreak{}bob, 2): pubA}}
+\item{{allowance(\allowbreak{}alice, 2): libC}}
+\item{{available(\allowbreak{}book2\_a): pubA}}
+\item{{available(\allowbreak{}book2\_c): libC}}
+\item{{available(\allowbreak{}book1\_b): libB}}
+\item{{available(\allowbreak{}book3\_a): pubA}}
+\item{{available(\allowbreak{}book4\_a): pubA}}
+\item{{available(\allowbreak{}book2\_b): libB}}
+\item{{borrowed(\allowbreak{}bob, book1\_c): libC}}
+\item{{borrowed(\allowbreak{}bob, book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book3\_a): pubA}}
+\item{{inCollection(\allowbreak{}book4\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_a): pubA}}
+\item{{inCollection(\allowbreak{}book2\_c): libC}}
+\item{{inCollection(\allowbreak{}book1\_a): pubA}}
+\item{{inCollection(\allowbreak{}book1\_c): libC}}
+\item{{inCollection(\allowbreak{}book2\_b): libB}}
+\item{{inCollection(\allowbreak{}book1\_b): libB}}
+\item{{live(\allowbreak{}pubA): pubA}}
+\item{{live(\allowbreak{}libB): libB}}
+\item{{live(\allowbreak{}libC): libC}}
+\item{{live(\allowbreak{}libB\_to\_libC): libB\_to\_libC}}
+\item{{loans(\allowbreak{}bob, 0): libB}}
+\item{{loans(\allowbreak{}alice, 0): libC}}
+\item{{loans(\allowbreak{}alice, 0): pubA}}
+\item{{loans(\allowbreak{}bob, 1): libC}}
+\item{{loans(\allowbreak{}bob, 1): pubA}}
+\item{{member(\allowbreak{}bob): libB}}
+\item{{member(\allowbreak{}alice): libC}}
+\item{{next(\allowbreak{}4, 5): libC}}
+\item{{next(\allowbreak{}4, 5): libB}}
+\item{{next(\allowbreak{}3, 4): pubA}}
+\item{{next(\allowbreak{}2, 3): libC}}
+\item{{next(\allowbreak{}2, 3): libB}}
+\item{{next(\allowbreak{}0, 1): pubA}}
+\item{{next(\allowbreak{}2, 3): pubA}}
+\item{{next(\allowbreak{}1, 2): libC}}
+\item{{next(\allowbreak{}1, 2): libB}}
+\item{{next(\allowbreak{}1, 2): pubA}}
+\item{{next(\allowbreak{}0, 1): libC}}
+\item{{next(\allowbreak{}0, 1): libB}}
+\item{{next(\allowbreak{}4, 5): pubA}}
+\item{{next(\allowbreak{}3, 4): libC}}
+\item{{next(\allowbreak{}3, 4): libB}}
+\item{{normalUser(\allowbreak{}alice): libC}}
+\item{{normalUser(\allowbreak{}alice): pubA}}
+\item{{normalUser(\allowbreak{}bob): pubA}}
+\item{{normalUser(\allowbreak{}bob): libB}}
+\item{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_a), intDue(\allowbreak{}bob, book1\_a), issueFine(\allowbreak{}bob, book1\_a)): pubA}}
+\item{{obl(\allowbreak{}intReturn(\allowbreak{}bob, book1\_c), intDue(\allowbreak{}bob, book1\_c), issueFine(\allowbreak{}bob, book1\_c)): libC}}
+\item{{onLoan(\allowbreak{}book1\_c): libC}}
+\item{{onLoan(\allowbreak{}book1\_a): pubA}}
+\item{{registeredUser(\allowbreak{}bob): libB}}
+\item{{registeredUser(\allowbreak{}alice): libC}}
+\item{{registeredUser(\allowbreak{}bob): libC}}
+\item{{registeredUser(\allowbreak{}alice): pubA}}
+\item{{registeredUser(\allowbreak{}bob): pubA}}
+\end{states}}
+
+% Institutional trace
+% ------------------------------------------------------------------------
+\newlength{\tableWidth}
+\setlength{\tableWidth}{5cm}
+
+\begin{longtable}{@{}l@{}}
+\resizebox{\textwidth}{!}{
+\begin{tikzpicture}
+[
+start chain=trace going right,
+start chain=state0 going down,
+start chain=state1 going down,
+start chain=state2 going down,
+start chain=state3 going down,
+start chain=state4 going down,
+start chain=state5 going down,
+start chain=state6 going down,
+start chain=state7 going down,
+start chain=state8 going down,
+start chain=state9 going down,
+node distance=1cm and 5.2cm
+]
+{{ [continue chain=trace]
+\node[circle,draw,on chain=trace](i0) {$S_{0}$};
+\node[circle,draw,on chain=trace](i1) {$S_{1}$};
+\node[circle,draw,on chain=trace](i2) {$S_{2}$};
+\node[circle,draw,on chain=trace](i3) {$S_{3}$};
+\node[circle,draw,on chain=trace](i4) {$S_{4}$};
+\node[circle,draw,on chain=trace](i5) {$S_{5}$};
+\node[circle,draw,on chain=trace](i6) {$S_{6}$};
+\node[circle,draw,on chain=trace](i7) {$S_{7}$};
+\node[circle,draw,on chain=trace](i8) {$S_{8}$};
+\node[circle,draw,on chain=trace](i9) {$S_{9}$};
+{ [continue chain=state0 going below]
+\node [on chain=state0,below=of i0,rectangle,draw,inner frame sep=0pt] (s0) {\Szero};} % end node and chain
+\draw (i0) -- (s0);
+{ [continue chain=state1 going below]
+\node [on chain=state1,below=of i1,rectangle,draw,inner frame sep=0pt] (s1) {\Sone};} % end node and chain
+\draw (i1) -- (s1);
+{ [continue chain=state2 going below]
+\node [on chain=state2,below=of i2,rectangle,draw,inner frame sep=0pt] (s2) {\Stwo};} % end node and chain
+\draw (i2) -- (s2);
+{ [continue chain=state3 going below]
+\node [on chain=state3,below=of i3,rectangle,draw,inner frame sep=0pt] (s3) {\Sthree};} % end node and chain
+\draw (i3) -- (s3);
+{ [continue chain=state4 going below]
+\node [on chain=state4,below=of i4,rectangle,draw,inner frame sep=0pt] (s4) {\Sfour};} % end node and chain
+\draw (i4) -- (s4);
+{ [continue chain=state5 going below]
+\node [on chain=state5,below=of i5,rectangle,draw,inner frame sep=0pt] (s5) {\Sfive};} % end node and chain
+\draw (i5) -- (s5);
+{ [continue chain=state6 going below]
+\node [on chain=state6,below=of i6,rectangle,draw,inner frame sep=0pt] (s6) {\Ssix};} % end node and chain
+\draw (i6) -- (s6);
+{ [continue chain=state7 going below]
+\node [on chain=state7,below=of i7,rectangle,draw,inner frame sep=0pt] (s7) {\Sseven};} % end node and chain
+\draw (i7) -- (s7);
+{ [continue chain=state8 going below]
+\node [on chain=state8,below=of i8,rectangle,draw,inner frame sep=0pt] (s8) {\Seight};} % end node and chain
+\draw (i8) -- (s8);
+{ [continue chain=state9 going below]
+\node [on chain=state9,below=of i9,rectangle,draw,inner frame sep=0pt] (s9) {\Snine};} % end node and chain
+\draw (i9) -- (s9);
+}}
+\draw[-latex,thin](i0) -- node[above]{\Ezero}(i1);
+\draw[-latex,thin](i1) -- node[above]{\Eone}(i2);
+\draw[-latex,thin](i2) -- node[above]{\Etwo}(i3);
+\draw[-latex,thin](i3) -- node[above]{\Ethree}(i4);
+\draw[-latex,thin](i4) -- node[above]{\Efour}(i5);
+\draw[-latex,thin](i5) -- node[above]{\Efive}(i6);
+\draw[-latex,thin](i6) -- node[above]{\Esix}(i7);
+\draw[-latex,thin](i7) -- node[above]{\Eseven}(i8);
+\draw[-latex,thin](i8) -- node[above]{\Eeight}(i9);
+\end{tikzpicture}}
+\end{longtable}
+\end{document}

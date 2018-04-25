@@ -1,0 +1,5 @@
+observed(enter_house(alice))
+observed(enter_shed(alice))
+observed(enter_woods(alice))
+observed(enter_shed(alice))
+observed(enter_house(alice))

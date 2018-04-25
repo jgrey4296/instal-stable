@@ -1,0 +1,7 @@
+institution adsrhr;
+
+noninertial fluent a;
+noninertial fluent b;
+
+b when a;
+a when not b;

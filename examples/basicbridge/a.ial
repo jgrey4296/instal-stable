@@ -1,0 +1,10 @@
+institution a;
+
+exogenous event b;
+inst event c;
+
+b generates c;
+
+initially perm(b), pow(b), perm(c);
+
+

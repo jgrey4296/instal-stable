@@ -1,0 +1,4 @@
+observed(ex_register(bob))
+observed(ex_post(bob))
+observed(ex_ban(alice, bob))
+observed(ex_post(bob))

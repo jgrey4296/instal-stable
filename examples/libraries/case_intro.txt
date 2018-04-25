@@ -1,0 +1,26 @@
+
+Three institutions: 
+- public library A (pubA)  
+- library B of University B (libB)
+- library C of University C (libC) 
+
+Two agents:
+- Alice; a student of UnivB
+- Bob; a student of UnivC 
+
+Coordinated institution: 
+- anyone can use pubA. 
+- but only students of univB can access to libB, and the same applies to libC. 
+So the access/borrow events originated by Alice can trigger pubA and libB only, while access/borrow events originated by Bob will trigger pubA and libC.  
+
+
+Interacting institution:
+- students of univB cannot directly access to libC, but they can use remote request service provided by their own libraries to access other libraries. 
+If Alice wants to borrow a book belonging to libC, she can firstly send a request to her own library libB, and then libB will interact with libC to handle the rest. 
+
+
+Merged institution (Merge all THREE institutions): 
+If the two universities are merged, then the two university libraries are merged. We also merge them with the public library, then: 
+- students of either univB or univC can now access both libB and libC directly. 
+- the borrowing allowance(or fine system?) of all three libraries are now shared. 
+Assume the allowance of each library is 5 items, so before merging Bob can borrow 10 items in total (5 from pubA and 5 from libC). After merging, he can only borrow 5 at most from all three libraries. 

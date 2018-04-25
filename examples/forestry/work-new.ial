@@ -1,0 +1,35 @@
+institution work;
+
+type Agent;
+
+exogenous event enter_shed(Agent);
+exogenous event enter_woods(Agent);
+exogenous event enter_house(Agent);
+
+inst event collect_tools(Agent);
+inst event put_back_tools(Agent);
+inst event cut_down_trees(Agent);
+inst event rest(Agent);
+
+violation event enteredWithTools(Agent);
+violation event noTools(Agent);
+
+fluent has_tools(Agent);
+
+enter_shed(A) generates collect_tools(A) if not has_tools(A);
+enter_shed(A) generates put_back_tools(A) if has_tools(A);
+
+enter_woods(A) generates cut_down_trees(A) if has_tools(A);
+enter_woods(A) generates noTools(A) if not has_tools(A);
+
+enter_house(A) generates rest(A);
+enter_house(A) generates enteredWithTools(A) if has_tools(A); % new from work-old.ial
+
+collect_tools(A) initiates has_tools(A);
+put_back_tools(A) terminates has_tools(A);
+
+initially perm(enter_shed(A)), pow(enter_shed(A));
+initially perm(enter_woods(A)), pow(enter_woods(A));
+initially perm(enter_house(A)), pow(enter_house(A));
+
+initially perm(collect_tools(A)), perm(put_back_tools(A)), perm(cut_down_trees(A)), perm(rest(A));

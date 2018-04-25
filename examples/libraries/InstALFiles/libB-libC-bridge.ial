@@ -1,0 +1,28 @@
+% name of institution
+bridge libB_to_libC;
+
+source libB;
+sink libC;
+
+% cross-fluents 
+cross fluent gpow(libB, rmRegister(User), libC);
+cross fluent gpow(libB, rmBorrow(User, Book), libC);
+cross fluent ipow(libB, inDebt(User, Book), libC);
+
+%norms
+intRegister(User) xgenerates rmRegister(User); 
+intRmRequest(User, Book) xgenerates rmBorrow(User, Book); 
+issueFine(User, Book) xinitiates inDebt(User, Book); 
+
+%% initial conditions 
+initially gpow(libB, rmRegister(User), libC);
+initially gpow(libB, rmBorrow(User, Book), libC);
+initially ipow(libB, inDebt(User, Book), libC);
+
+
+
+
+
+
+
+

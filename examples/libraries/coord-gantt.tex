@@ -1,0 +1,2517 @@
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfgantt}
+\usepackage{longtable}
+\usepackage[margin=1cm]{geometry}
+\pagestyle{empty}
+\thispagestyle{empty}
+\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+\begin{document}
+
+\begin{longtable}{@{}r@{}}
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttmilestone{intRegister(alice): libC}{0}\ganttnewline
+\ganttmilestone{intRegister(alice): pubA}{0}\ganttnewline
+\ganttmilestone{register(alice): pubA}{0}\ganttnewline
+\ganttmilestone{register(alice): libB}{0}\ganttnewline
+\ganttmilestone{register(alice): libC}{0}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttmilestone{intExtend(alice): pubA}{1}\ganttnewline
+\ganttmilestone{null: libB}{1}\ganttnewline
+\ganttmilestone{null: libC}{1}\ganttnewline
+\ganttmilestone{extend(alice): pubA}{1}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttmilestone{viol(borrow(bob,book1\_a)): libC}{2}\ganttnewline
+\ganttmilestone{borrow(bob,book1\_a): libB}{2}\ganttnewline
+\ganttmilestone{intBorrow(bob,book1\_a): libB}{2}\ganttnewline
+\ganttmilestone{intBorrow(bob,book1\_a): pubA}{2}\ganttnewline
+\ganttmilestone{borrow(bob,book1\_a): pubA}{2}\ganttnewline
+\ganttmilestone{borrow(bob,book1\_a): libC}{2}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttmilestone{viol(borrow(alice,book1\_a)): libB}{3}\ganttnewline
+\ganttmilestone{borrow(alice,book1\_a): libB}{3}\ganttnewline
+\ganttmilestone{borrow(alice,book1\_a): pubA}{3}\ganttnewline
+\ganttmilestone{borrow(alice,book1\_a): libC}{3}\ganttnewline
+\ganttmilestone{intBorrow(alice,book1\_a): libC}{3}\ganttnewline
+\ganttmilestone{intBorrow(alice,book1\_a): pubA}{3}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttmilestone{intBorrow(bob,book2\_a): pubA}{4}\ganttnewline
+\ganttmilestone{borrow(bob,book2\_a): libB}{4}\ganttnewline
+\ganttmilestone{borrow(bob,book2\_a): libC}{4}\ganttnewline
+\ganttmilestone{borrow(bob,book2\_a): pubA}{4}\ganttnewline
+\ganttmilestone{intBorrow(bob,book2\_a): libB}{4}\ganttnewline
+\ganttmilestone{viol(borrow(bob,book2\_a)): libC}{4}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttmilestone{due(bob,book1\_a): libB}{5}\ganttnewline
+\ganttmilestone{due(bob,book1\_a): pubA}{5}\ganttnewline
+\ganttmilestone{due(bob,book1\_a): libC}{5}\ganttnewline
+\ganttmilestone{issueFine(bob,book1\_a): pubA}{5}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttmilestone{borrow(bob,book3\_a): libC}{6}\ganttnewline
+\ganttmilestone{borrow(bob,book3\_a): pubA}{6}\ganttnewline
+\ganttmilestone{borrow(bob,book3\_a): libB}{6}\ganttnewline
+\ganttmilestone{intBorrow(bob,book3\_a): libB}{6}\ganttnewline
+\ganttmilestone{intBorrow(bob,book3\_a): pubA}{6}\ganttnewline
+\ganttmilestone{viol(borrow(bob,book3\_a)): libC}{6}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttmilestone{intReturn(bob,book2\_a): pubA}{7}\ganttnewline
+\ganttmilestone{return(bob,book2\_a): libB}{7}\ganttnewline
+\ganttmilestone{return(bob,book2\_a): pubA}{7}\ganttnewline
+\ganttmilestone{return(bob,book2\_a): libC}{7}\ganttnewline
+\ganttmilestone{viol(return(bob,book2\_a)): libB}{7}\ganttnewline
+\ganttmilestone{viol(return(bob,book2\_a)): libC}{7}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttmilestone{borrow(alice,book1\_b): libC}{8}\ganttnewline
+\ganttmilestone{borrow(alice,book1\_b): pubA}{8}\ganttnewline
+\ganttmilestone{borrow(alice,book1\_b): libB}{8}\ganttnewline
+\ganttmilestone{intBorrow(alice,book1\_b): libC}{8}\ganttnewline
+\ganttmilestone{intBorrow(alice,book1\_b): pubA}{8}\ganttnewline
+\ganttmilestone{viol(borrow(alice,book1\_b)): libB}{8}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttmilestone{borrow(alice,book2\_a): libC}{9}\ganttnewline
+\ganttmilestone{borrow(alice,book2\_a): libB}{9}\ganttnewline
+\ganttmilestone{borrow(alice,book2\_a): pubA}{9}\ganttnewline
+\ganttmilestone{intBorrow(alice,book2\_a): libC}{9}\ganttnewline
+\ganttmilestone{intBorrow(alice,book2\_a): pubA}{9}\ganttnewline
+\ganttmilestone{viol(borrow(alice,book2\_a)): libB}{9}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttmilestone{borrow(alice,book1\_c): libC}{10}\ganttnewline
+\ganttmilestone{borrow(alice,book1\_c): libB}{10}\ganttnewline
+\ganttmilestone{borrow(alice,book1\_c): pubA}{10}\ganttnewline
+\ganttmilestone{intBorrow(alice,book1\_c): libC}{10}\ganttnewline
+\ganttmilestone{intBorrow(alice,book1\_c): pubA}{10}\ganttnewline
+\ganttmilestone{viol(borrow(alice,book1\_c)): libB}{10}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttmilestone{viol(return(alice,book1\_c)): libB}{11}\ganttnewline
+\ganttmilestone{viol(return(alice,book1\_c)): pubA}{11}\ganttnewline
+\ganttmilestone{return(alice,book1\_c): pubA}{11}\ganttnewline
+\ganttmilestone{return(alice,book1\_c): libB}{11}\ganttnewline
+\ganttmilestone{return(alice,book1\_c): libC}{11}\ganttnewline
+\ganttmilestone{intReturn(alice,book1\_c): libC}{11}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{allowance(alice,2): libC}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{allowance(alice,2): pubA}{2}{2}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{allowance(alice,3): pubA}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{allowance(bob,2): pubA}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{allowance(bob,2): libB}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{available(book1\_c): libC}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{available(book3\_a): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{available(book4\_a): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{available(book1\_b): libB}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{available(book2\_a): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{available(book1\_a): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{available(book2\_b): libB}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{available(book2\_c): libC}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{borrowed(alice,book1\_c): libC}{12}{12}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{borrowed(bob,book1\_a): pubA}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{borrowed(bob,book2\_a): pubA}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{borrowed(alice,book2\_a): pubA}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{inCollection(book1\_c): libC}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{inCollection(book2\_c): libC}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{inCollection(book3\_a): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{inCollection(book4\_a): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{inCollection(book1\_a): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{inCollection(book2\_a): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{inCollection(book1\_b): libB}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{inCollection(book2\_b): libB}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{inDebt(bob,book1\_a): pubA}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{live(libC): libC}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{live(libB): libB}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{live(pubA): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{loans(alice,0): libC}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{loans(alice,1): libC}{12}{12}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{loans(bob,2): pubA}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{loans(bob,0): pubA}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{loans(bob,1): pubA}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{loans(alice,0): pubA}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{loans(alice,1): pubA}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{loans(bob,0): libB}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{member(alice): libC}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{member(bob): libB}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(2,3): libC}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(4,5): libC}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(3,4): libC}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(0,1): libC}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(1,2): libC}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(4,5): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(0,1): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(1,2): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(3,4): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(1,2): libB}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(2,3): pubA}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(3,4): libB}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(2,3): libB}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(4,5): libB}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{next(0,1): libB}{0}{0}
+\ganttbar{}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{normalUser(alice): pubA}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{normalUser(bob): pubA}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{normalUser(alice): libC}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{normalUser(bob): libB}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{obl(intReturn(alice,book2\_a),due(alice,book2\_a),issueFine(alice,book2\_a)): pubA}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{obl(intReturn(bob,book2\_a),due(bob,book2\_a),issueFine(bob,book2\_a)): pubA}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{obl(intReturn(alice,book1\_c),due(alice,book1\_c),issueFine(alice,book1\_c)): libC}{12}{12}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{obl(intReturn(bob,book1\_a),due(bob,book1\_a),issueFine(bob,book1\_a)): pubA}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{onLoan(book1\_c): libC}{12}{12}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{onLoan(book1\_a): pubA}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{onLoan(book2\_a): pubA}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book1\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRegister(bob)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRegister(alice)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book4\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(alice,book1\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(alice,book2\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(alice,book1\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(alice,book2\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(alice,book2\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(alice,book1\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book3\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book4\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book1\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book2\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book1\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book2\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book2\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book2\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book2\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(alice,book3\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(alice,book4\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book2\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(return(bob,book1\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(return(bob,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(register(alice)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(register(bob)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(return(alice,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book2\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book3\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book2\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book4\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRegister(alice)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book1\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book1\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book3\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book4\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book2\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book2\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book1\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book1\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book1\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book2\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book2\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book1\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book2\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book3\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book2\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book1\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book1\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book4\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book1\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(extend(alice)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(extend(bob)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book3\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book4\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book1\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book1\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book1\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book2\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book3\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book2\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book1\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book1\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book4\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book1\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book1\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book1\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(alice,book1\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intReturn(alice,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intReturn(bob,book1\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intReturn(bob,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intExtend(bob)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intExtend(alice)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book2\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book3\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book2\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book4\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRegister(alice)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRegister(bob)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book4\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book1\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book2\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book3\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book2\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book2\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book1\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book1\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book4\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book1\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book2\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book3\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book2\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book2\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book1\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book1\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book4\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book1\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book2\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book3\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book2\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book2\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book1\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book1\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book4\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book1\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book2\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book3\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book2\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book2\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book1\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book1\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book1\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book2\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book2\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book1\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(bob,book1\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(register(bob)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(register(alice)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(bob,book1\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(bob,book2\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(bob,book2\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(bob,book1\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(bob,book1\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book4\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book2\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book3\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(bob,book4\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRegister(alice)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(bob,book2\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(bob,book3\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRegister(bob)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(null): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(null): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRegister(alice)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(null): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRegister(bob)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book1\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book1\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book1\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book2\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book3\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book2\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book2\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(register(alice)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book1\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book1\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(register(bob)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intBorrow(bob,book4\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRegister(bob)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(return(alice,book1\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book3\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book2\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book2\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book1\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book1\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book4\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book1\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book1\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book4\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book2\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(bob,book1\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book1\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book1\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book4\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book2\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book1\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book2\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book1\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book3\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book2\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(alice,book2\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book1\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book3\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book2\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(borrow(alice,book2\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(bob,book1\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(bob,book1\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book1\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(bob,book1\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(bob,book2\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book3\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(bob,book3\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book2\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(bob,book2\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(bob,book2\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book1\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(due(alice,book1\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRegister(bob)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(alice,book2\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(alice,book1\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(alice,book3\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(alice,book2\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(alice,book2\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book3\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book2\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book2\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(alice,book1\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(alice,book1\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmBorrow(bob,book4\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRegister(alice)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(rmRequest(alice,book4\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRequest(bob,book4\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intReturn(alice,book1\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRegister(bob)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{perm(intRmRegister(alice)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intBorrow(alice,book2\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intBorrow(alice,book2\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intBorrow(alice,book4\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intBorrow(alice,book3\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intBorrow(alice,book1\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intBorrow(alice,book1\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intBorrow(alice,book2\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intBorrow(alice,book1\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intRegister(bob)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intRegister(alice)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intRmRequest(alice,book2\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intRmRequest(alice,book2\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intRmRequest(alice,book4\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intRmRequest(alice,book3\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intRmRequest(alice,book1\_b)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intRmRequest(alice,book1\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intRmRequest(alice,book2\_a)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intRmRequest(alice,book1\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intReturn(alice,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intReturn(bob,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intReturn(bob,book1\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(bob,book1\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(bob,book1\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(bob,book2\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(bob,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(alice,book3\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(alice,book2\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(bob,book1\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(alice,book4\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(bob,book3\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(bob,book2\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(bob,book4\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(alice,book1\_c)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(alice,book1\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(alice,book2\_b)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(alice,book2\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intBorrow(alice,book1\_a)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intExtend(bob)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intRegister(bob)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intRegister(alice)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(pubA,intExtend(alice)): pubA}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intRegister(bob)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intRegister(alice)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intRmRegister(bob)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intRmRegister(alice)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intBorrow(bob,book4\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intBorrow(bob,book2\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intBorrow(bob,book2\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intBorrow(bob,book3\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intBorrow(bob,book2\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intBorrow(bob,book1\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intBorrow(bob,book1\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intBorrow(bob,book1\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intRmRequest(bob,book2\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intRmRequest(bob,book2\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intRmRequest(bob,book3\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intRmRequest(bob,book2\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intRmRequest(bob,book1\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intRmRequest(bob,book1\_c)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intRmRequest(bob,book1\_b)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libB,intRmRequest(bob,book4\_a)): libB}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intReturn(alice,book1\_c)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intRmRegister(alice)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{pow(libC,intRmRegister(bob)): libC}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{registeredUser(alice): libC}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{registeredUser(alice): pubA}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{registeredUser(bob): pubA}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\begin{ganttchart}[hgrid,vgrid,canvas/.style={draw=none},bar/.append style={fill=gray},x unit=0.5cm,y unit chart=0.5cm]{0}{13}
+
+\ganttbar{registeredUser(bob): libB}{1}{1}
+\ganttbar{}{2}{2}
+\ganttbar{}{3}{3}
+\ganttbar{}{4}{4}
+\ganttbar{}{5}{5}
+\ganttbar{}{6}{6}
+\ganttbar{}{7}{7}
+\ganttbar{}{8}{8}
+\ganttbar{}{9}{9}
+\ganttbar{}{10}{10}
+\ganttbar{}{11}{11}
+\ganttbar{}{12}{12}
+\ganttbar{}{13}{13}
+\end{ganttchart}\\[-0.7em]
+
+\end{longtable}
+\end{document}
