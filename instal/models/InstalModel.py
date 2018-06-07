@@ -50,7 +50,7 @@ holdsat(P,In,J):- initiated(P,In,I),next(I,J),
 	ifluent(P, In),instant(I),instant(J), bridge(In).
 
 % EXTERNAL FLUENTS
-#external holdsat(F,I) : fluent(F,I), inst(I).
+#external holdsat(F,I) : ifluent(F,I), inst(I).
 holdsat(F,I,J) :- holdsat(F,I), start(J).
 
 % EVENTS OCCUR
@@ -64,7 +64,7 @@ occurred(null,In,I) :- not evtype(E,In,ex), observed(E,In,I),
 
 
 % for observation sequences
-#external extObserved(E,I) : event(E), instant(I).
+#external extObserved(E,I) : event(E), evtype(E,_,ex), instant(I).
 
 recEvent(I) :- extObserved(E, I), event(E), instant(I), not final(I).
 extObserved(_unrecognisedEvent, I) :- not recEvent(I), _eventSet(I).
