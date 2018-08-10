@@ -36,7 +36,7 @@ class Oracle(ClingoWrapper):
             model_files, domain_facts, verbose)
 
     def solve(self, events: List[Symbol]) -> List[InstalStateTrace]:
-        atoms = defaultdict(list)
+        models = {}
         self.observations = events
         for x in self.observations:
             if self.verbose > 2:
@@ -48,13 +48,19 @@ class Oracle(ClingoWrapper):
         answers = 0
         with self.ctl.solve_iter() as it:
             for m in it:
+                new_model = {}
+                atoms = []
                 if self.answer_set > 0 and self.answer_set != answers + 1:
-                    atoms[answers] = []
+                    atoms = []
                 else:
-                    atoms[answers] = [self.holdsat] + self.process_answer_set(m)
+                    atoms = [self.holdsat] + self.process_answer_set(m)
+                if len(m.cost) > 0:
+                    new_model["cost"] = m.cost[0]
+                new_model["atoms"] = atoms
+                models[answers] = new_model
                 answers += 1
-        for k,v in atoms.items():
-            self.answersets.append(InstalStateTrace.state_trace_from_list(v,metadata=self.generate_json_metadata(k, answers)))
+        for k,v in models.items():
+            self.answersets.append(InstalStateTrace.state_trace_from_list(v.get("atoms"),metadata=self.generate_json_metadata(k, answers,v.get("cost",0))))
         if self.verbose > 0:
             if answers == 1:
                 print("There is 1 answer set")
@@ -93,7 +99,7 @@ class Oracle(ClingoWrapper):
         return out
 
 
-    def generate_json_metadata(self, n, of):
+    def generate_json_metadata(self, n, of,cost=0):
         metadata = {
             "pid": os.getpid(),
             "source_files": [instal_file_name(f) for f in self.input_files],
@@ -101,6 +107,7 @@ class Oracle(ClingoWrapper):
             "mode": "multi_shot",
             "answer_set_n": n+1,
             "answer_set_of": of,
-            "version" : instal.__version__
+            "version" : instal.__version__,
+            "cost" : cost
         }
         return metadata
