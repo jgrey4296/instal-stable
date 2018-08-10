@@ -23,4 +23,4 @@ from instal.instalutility import InstalFile, instal_file_name
 
 from . import instalsolve, instalquery, instaltrace, clingo, instalinspect
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
