@@ -63,7 +63,7 @@ class InstalStateTrace(object):
         # Should string out contain some annotations? Maybe prefixed with % ?
         string_out = ""
         last = self.trace[-1]
-        string_out += "% Answer Set {} of {}.\n".format(last.metadata.get("answer_set_n"),last.metadata.get("answer_set_of"))
+        string_out += "% Answer Set {} of {}. (Cost: {})\n".format(last.metadata.get("answer_set_n"),last.metadata.get("answer_set_of"),last.metadata.get("cost",0))
         timestep = 1
         for s in self.trace[1:]:
             string_out += "\n% Timestep {}.\n".format(timestep)
