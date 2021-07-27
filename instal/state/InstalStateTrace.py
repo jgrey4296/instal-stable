@@ -3,7 +3,7 @@ import os
 from typing import List, Dict
 
 import simplejson as json
-from instal.clingo import Symbol
+from clingo import Symbol
 
 from instal.state.InstalState import InstalState
 

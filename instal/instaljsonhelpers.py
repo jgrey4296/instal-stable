@@ -1,6 +1,6 @@
 import json
 
-from .clingo import Function, parse_term, Symbol
+from clingo import Function, parse_term, Symbol
 from .instalutility import fun_to_asp
 
 

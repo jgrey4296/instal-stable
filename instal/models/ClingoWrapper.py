@@ -2,7 +2,7 @@ from abc import ABCMeta
 from collections import defaultdict
 from typing import List, IO
 
-from instal.clingo import parse_term
+from clingo import parse_term
 
 from instal import InstalFile
 

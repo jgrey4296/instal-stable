@@ -1,7 +1,7 @@
 import time
 from typing import IO, List
 
-from instal.clingo import Function, Symbol
+from clingo import Function, Symbol
 
 from instal.instalexceptions import InstalRuntimeError
 from .InstalModel import InstalModel

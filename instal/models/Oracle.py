@@ -3,7 +3,7 @@ import time
 from collections import defaultdict
 from typing import List, IO
 
-from instal.clingo import Control, Function, Symbol
+from clingo import Control, Function, Symbol
 
 from instal.models.ClingoWrapper import ClingoWrapper
 from instal.state.InstalStateTrace import InstalStateTrace

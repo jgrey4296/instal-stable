@@ -1,6 +1,6 @@
 from tempfile import NamedTemporaryFile
 
-from .clingo import Symbol, Function
+from clingo import Symbol, Function
 
 
 def temporary_text_file(text="", file_extension="", delete=True) -> "File":

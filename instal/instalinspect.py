@@ -1,7 +1,7 @@
 from io import StringIO
 from typing import List, IO, Optional
 
-from .clingo import Symbol, parse_term
+from clingo import Symbol, parse_term
 
 from instal import InstalFile
 

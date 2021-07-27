@@ -21,6 +21,6 @@ Cliffe, O., 2007. Specifying and analysing institutions in multi-agent systems u
 """
 from instal.instalutility import InstalFile, instal_file_name
 
-from . import instalsolve, instalquery, instaltrace, clingo, instalinspect
+from . import instalsolve, instalquery, instaltrace, instalinspect
 
 __version__ = "1.0.1"

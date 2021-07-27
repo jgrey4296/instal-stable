@@ -2,7 +2,7 @@ import os
 from io import StringIO
 from typing import IO, List
 
-from instal.clingo import parse_term, Symbol
+from clingo import parse_term, Symbol
 
 from instal.instalexceptions import InstalCompileError
 from instal.instaljsonhelpers import dict_funs_to_list, trace_dicts_from_file

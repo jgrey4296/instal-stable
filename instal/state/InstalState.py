@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-from instal.clingo import Symbol, parse_term
+from clingo import Symbol, parse_term
 
 from instal.state.instalatomparser import atom_list_to_symbol, symbol_to_atom_list, atom_sorter
 

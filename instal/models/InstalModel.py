@@ -3,7 +3,7 @@ from abc import ABCMeta
 from collections import defaultdict
 from typing import List, IO
 
-from instal.clingo import Symbol
+from clingo import Symbol
 
 from instal.compiler.InstalCompilerNew import InstalCompilerNew
 from instal.domainparser.DomainParser import DomainParser

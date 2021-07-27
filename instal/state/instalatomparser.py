@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from instal.clingo import Symbol, parse_term
+from clingo import Symbol, parse_term
 
 InstalStateListTuple = Tuple[List[Symbol], List[Symbol], List[Symbol]]
 
