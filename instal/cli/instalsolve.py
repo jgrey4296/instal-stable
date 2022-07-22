@@ -1,9 +1,6 @@
-if __name__ == "__main__":
-    raise NotImplementedError(
-        "Try running ../instalsolve.py instead, this file is just an interface.")
+#! /usr/bin/env python
 
 from .instalargparse import getqueryargs, check_args, buildqueryargparser
-
 from .instalquery import instal_query_with_args
 
 
@@ -58,3 +55,6 @@ def instal_solve_keyword(bridge_files=None, domain_files=None, fact_files=None, 
 def instal_solve_with_args(args, unk):
     args, unk = check_args(args,unk,query=True)
     return instal_query_with_args(args, unk)
+
+if __name__ == "__main__":
+    instal_solve()

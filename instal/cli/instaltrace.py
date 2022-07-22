@@ -1,7 +1,4 @@
-if __name__ == "__main__":
-    raise NotImplementedError(
-        "Try running ../instaltrace.py instead, this file is just an interface.")
-
+#! /usr/bin/env python
 import os
 
 from instal.state.InstalStateTrace import InstalStateTrace
@@ -99,5 +96,8 @@ def instal_trace():
     return instal_trace_preprocess_with_args(args, unk)
 
 
+
 if __name__ == "__main__":
     instal_trace()
+
+
