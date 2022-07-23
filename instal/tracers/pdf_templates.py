@@ -2,7 +2,6 @@
 """
 
 """
-##-- imports
 from __future__ import annotations
 
 import abc
@@ -16,16 +15,9 @@ from typing import (TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
                     cast, final, overload, runtime_checkable)
 from uuid import UUID, uuid1
 from weakref import ref
-##-- end imports
-
 
 if TYPE_CHECKING:
     # tc only imports
     pass
 
 logging = logmod.getLogger(__name__)
-
-
-if __name__ == "__main__":
-    # TODO select options from instal.cli
-    pass

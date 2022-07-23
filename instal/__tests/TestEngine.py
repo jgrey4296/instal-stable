@@ -1,3 +1,4 @@
+##-- imports
 from abc import ABCMeta
 from unittest import TestCase
 
@@ -11,6 +12,12 @@ import simplejson as json
 import os
 from instal.domainparser import DomainParser
 import time
+##-- end imports
+
+##-- imports
+from __future__ import annotations
+##-- end imports
+
 # TODO: Deal with verbose levels properly.
 
 

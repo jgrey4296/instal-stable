@@ -1,6 +1,16 @@
-import ply.lex as lex
 
+##-- imports
+from __future__ import annotations
+
+import logging as logmod
+
+import ply.lex as lex
 from instal.instalexceptions import InstalParserLexerError
+##-- end imports
+
+##-- logging
+logging = logmod.getLogger(__name__)
+##-- end logging
 
 
 class InstalLexer(object):
@@ -13,57 +23,70 @@ class InstalLexer(object):
     def __init__(self):
         self.lexer = lex.lex(module=self)
 
-    reserved = {  # 'and'         : 'AND',
-                  'create': 'CREATE',
-                  'dissolve': 'DISSOLVE',
-                  'event': 'EVENT',
-                  'exogenous': 'EXOGENOUS',
-                  'fluent': 'FLUENT',
-                  'generates': 'GENERATES',
-                  'if': 'IF',
-                  #'in': 'IN', #Removed for 2.0.0 - capage
-                  'initially': 'INITIALLY',
-                  'initiates': 'INITIATES',
-                  'inst': 'INST',
-                  'institution': 'INSTITUTION',
-                  'noninertial': 'NONINERTIAL',
-                  'not': 'NOT',
-                  'obl': 'OBL',
-                  'obligation': 'OBLIGATION',
-                  'perm': 'PERM',
-                  'pow': 'POW',
-                  'terminates': 'TERMINATES',
-                  'type': 'TYPE',
-                  'viol': 'VIOL',
-                  'violation': 'VIOLATION',  # 'with'        : 'WITH',
-                  'when': 'WHEN',
-                  'bridge': 'BRIDGE',
-                  'source': 'SOURCE',
-                  'sink': 'SINK',
-                  'cross': 'CROSS',
-                  'gpow': 'GPOW',
-                  'ipow': 'IPOW',
-                  'tpow': 'TPOW',
-                  'xgenerates': 'XGENERATES',
-                  'xterminates': 'XTERMINATES',
-                  'xinitiates': 'XINITIATES'
+    reserved = {  # 'and'       : 'AND',
+                  'create'      : 'CREATE',
+                  'dissolve'    : 'DISSOLVE',
+                  'event'       : 'EVENT',
+                  'exogenous'   : 'EXOGENOUS',
+                  'fluent'      : 'FLUENT',
+                  'generates'   : 'GENERATES',
+                  'if'          : 'IF',
+                  #'in'         : 'IN', #Removed for 2.0.0 - capage
+                  'initially'   : 'INITIALLY',
+                  'initiates'   : 'INITIATES',
+                  'inst'        : 'INST',
+                  'institution' : 'INSTITUTION',
+                  'noninertial' : 'NONINERTIAL',
+                  'not'         : 'NOT',
+                  'obl'         : 'OBL',
+                  'obligation'  : 'OBLIGATION',
+                  'perm'        : 'PERM',
+                  'pow'         : 'POW',
+                  'terminates'  : 'TERMINATES',
+                  'type'        : 'TYPE',
+                  'viol'        : 'VIOL',
+                  'violation'   : 'VIOLATION',
+                  # 'with'        : 'WITH',
+                  'when'        : 'WHEN',
+                  'bridge'      : 'BRIDGE',
+                  'source'      : 'SOURCE',
+                  'sink'        : 'SINK',
+                  'cross'       : 'CROSS',
+                  'gpow'        : 'GPOW',
+                  'ipow'        : 'IPOW',
+                  'tpow'        : 'TPOW',
+                  'xgenerates'  : 'XGENERATES',
+                  'xterminates' : 'XTERMINATES',
+                  'xinitiates'  : 'XINITIATES'
     }
 
-    tokens = ['NAME', 'TYPE_NAME', 'NUMBER', 'LPAR', 'RPAR', 'SEMI', 'COMMA', 'EQUALS', 'NOTEQUAL', 'LESS', 'GREATER',
-              'LESSEQ', 'GREATEREQ'] + list(reserved.values())
+    tokens = ['NAME',
+              'TYPE_NAME',
+              'NUMBER',
+              'LPAR',
+              'RPAR',
+              'SEMI',
+              'COMMA',
+              'EQUALS',
+              'NOTEQUAL',
+              'LESS',
+              'GREATER',
+              'LESSEQ',
+              'GREATEREQ'] + list(reserved.values())
 
     # Tokens
-
-    t_SEMI = r';'
-    t_COMMA = r','
-    t_LPAR = r'\('
-    t_RPAR = r'\)'
-    t_EQUALS = r'=='
-    t_NOTEQUAL = r'!='
-    t_LESS = r'<'
-    t_LESSEQ = r'<='
-    t_GREATER = r'>'
+    t_SEMI      = r';'
+    t_COMMA     = r','
+    t_LPAR      = r'\('
+    t_RPAR      = r'\)'
+    t_EQUALS    = r'=='
+    t_NOTEQUAL  = r'!='
+    t_LESS      = r'<'
+    t_LESSEQ    = r'<='
+    t_GREATER   = r'>'
     t_GREATEREQ = r'>='
+
+    t_ignore    = " \t\r"
 
     def t_NAME(self, t):
         r"""[a-z_][a-zA-Z_0-9]*"""
@@ -80,8 +103,6 @@ class InstalLexer(object):
         # note: numbers are parsed but not converted into integers
         # t.value = int(t.value)
         return t
-
-    t_ignore = " \t\r"
 
     # Comments
     def t_COMMENT(self, t):

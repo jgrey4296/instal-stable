@@ -1,5 +1,17 @@
-from instal.firstprinciples.TestEngine import InstalSingleShotTestRunner, InstalMultiShotTestRunner, InstalTestCase
 
+##-- imports
+from __future__ import annotations
+
+import logging as logmod
+
+from instal.firstprinciples.TestEngine import (InstalMultiShotTestRunner,
+                                               InstalSingleShotTestRunner,
+                                               InstalTestCase)
+##-- end imports
+
+##-- logging
+logging = logmod.getLogger(__name__)
+##-- end logging
 
 class UnrecognisedEvents(InstalTestCase):
 

@@ -1,14 +1,24 @@
+
+##-- imports
+from __future__ import annotations
+
+import logging as logmod
 import os
 import time
 from collections import defaultdict
-from typing import List, IO
+from typing import IO, List
 
-from clingo import Control, Function, Symbol
-
-from instal.models.ClingoWrapper import ClingoWrapper
-from instal.state.InstalStateTrace import InstalStateTrace
 import instal
+from clingo import Control, Function, Symbol
 from instal import InstalFile, instal_file_name
+from instal.interfaces.clingo_wrapper import ClingoWrapper
+from instal.state.InstalStateTrace import InstalStateTrace
+##-- end imports
+
+##-- logging
+logging = logmod.getLogger(__name__)
+##-- end logging
+
 class Oracle(ClingoWrapper):
     """
         Oracle
@@ -16,19 +26,26 @@ class Oracle(ClingoWrapper):
         A significant chunk of this code is legacy and thus fragile.
     """
 
-    def __init__(self, initially : List[Symbol], model_files : List[InstalFile], domain_facts : defaultdict(set),
-                 verbose : int=0, length : int = 1, number : int = 1,
+    # TODO refactor with InstalOptionGroup
+    def __init__(self,
+                 initially : List[Symbol],
+                 model_files : List[InstalFile],
+                 domain_facts : defaultdict(set),
+                 verbose : int=0,
+                 length : int = 1,
+                 number : int = 1,
                  answer_set : int = 0):
-        self.answersets = []
-        self.cycle = 0
+
+        self.answersets   = []
+        self.cycle        = 0
         self.observations = None
-        self.holdsat = initially
-        self.timestamp = time.time()
-        self.answer_set = answer_set
-        self.number = number
-        self.length = length
-        self.verbose = verbose
-        self.input_files = model_files
+        self.holdsat      = initially
+        self.timestamp    = time.time()
+        self.answer_set   = answer_set
+        self.number       = number
+        self.length       = length
+        self.verbose      = verbose
+        self.input_files  = model_files
 
         self.ctl = Control(['-n', str(number), '-c',
                             'horizon={0}'.format(self.length)])

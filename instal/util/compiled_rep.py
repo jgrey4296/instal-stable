@@ -1,6 +1,6 @@
 #/usr/bin/env python3
 """
-
+containers for instal data compiled down to a solver format
 """
 ##-- imports
 from __future__ import annotations
@@ -16,16 +16,16 @@ from typing import (TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
                     cast, final, overload, runtime_checkable)
 from uuid import UUID, uuid1
 from weakref import ref
-##-- end imports
-
 
 if TYPE_CHECKING:
     # tc only imports
     pass
+##-- end imports
+
 
 logging = logmod.getLogger(__name__)
 
-
-if __name__ == "__main__":
-    # TODO select options from instal.cli
-    pass
+@dataclass
+class InstalCompiledData:
+    institutions : list[str] = field(default_factory=list)
+    bridges      : list[str] = field(default_factory=list)
