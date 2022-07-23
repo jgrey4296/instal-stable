@@ -1,0 +1,27 @@
+\documentclass{article}
+\usepackage{todonotes}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{tikz}
+\pagestyle{empty}
+\thispagestyle{empty}
+\usetikzlibrary{shadows}
+\usetikzlibrary{decorations}
+\usetikzlibrary{shapes}
+\usetikzlibrary{arrows}
+\usetikzlibrary{calc}
+\usetikzlibrary{fit}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{positioning}
+\usetikzlibrary{chains}
+\usetikzlibrary{scopes}
+\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+\usepackage[normalem]{ulem}
+\newenvironment{events}
+{\begin{tabular}{>{\centering}m{\tableWidth}}}
+{\end{tabular}}
+\newenvironment{states}
+{\begin{minipage}{\tableWidth}\raggedright\begin{description}[align=left,leftmargin=1em,noitemsep,labelsep=\parindent]}
+{\end{description}\end{minipage}}
+\begin{document}

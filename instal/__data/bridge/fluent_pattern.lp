@@ -1,0 +1,1 @@
+    fluent({f}, {dinst}).
