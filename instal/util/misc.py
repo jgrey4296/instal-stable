@@ -49,6 +49,7 @@ class InstalOptionGroup:
     def __post_init__(self):
         # set the log verbosity,
         # create output dir's as necessary
+        pass
 
 
 # ############################################################################

@@ -60,6 +60,4 @@ class InstalMultiShotModel(InstalModel):
 
         self.answersets = self.oracle.answersets
 
-        if len(self.answersets) == 1 and self.verbose > 0:
-            logging.info(self.answersets[0].to_str(show_perms=(self.verbose>1),show_pows=(self.verbose>1), show_cross=(self.verbose>1)))
         return self.answersets

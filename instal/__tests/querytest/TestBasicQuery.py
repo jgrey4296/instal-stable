@@ -1,4 +1,7 @@
+##-- imports
 from instal.firstprinciples.TestEngine import InstalMultiShotTestRunner, InstalTestCase, InstalCompareQuerySolve
+
+##-- end imports
 
 
 class BasicQuery(InstalTestCase):

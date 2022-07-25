@@ -9,10 +9,10 @@ class InstalError(Exception):
     """Base class for InstAL errors."""
     pass
 
-
-class InstalBridgeError(InstalError):
-    """Base class for InstAL bridge errors."""
+class InstalRuntimeError(InstalError):
+    """A base exception for any InstAL errors that happen at runtime and not at the compile/parser steps."""
     pass
+
 
 
 class InstalCompileError(InstalError):
@@ -24,10 +24,6 @@ class InstalTestNotImplemented(SkipTest, InstalError):
     """A skiptest for firstprinciples tests that haven't been implemented yet."""
     pass
 
-
-class InstalArgParserError(InstalError):
-    """An exception for problems with arguments given to InstAL"""
-    pass
 
 
 class InstalParserError(InstalError):
@@ -60,6 +56,11 @@ class InstalParserNotDeclaredError(InstalParserError):
     pass
 
 
+
+class InstalBridgeError(InstalError):
+    """Base class for InstAL bridge errors."""
+    pass
+
 class InstalBridgeParserError(InstalParserError, InstalBridgeError):
     """An InstalParserError for problems with the instal bridge parser."""
     pass
@@ -75,9 +76,4 @@ class InstalBridgeCompileError(InstalCompileError, InstalBridgeParserError):
     pass
 
 
-class InstalRuntimeError(InstalError):
-    """A base exception for any InstAL errors that happen at runtime and not at the compile/parser steps."""
-    pass
 
-class InstalFileNotFound(InstalRuntimeError):
-    pass

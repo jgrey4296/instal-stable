@@ -21,7 +21,7 @@ class InstalBridgeCompiler(InstalCompiler):
     """
         InstalBridgeCompiler
         Compiles InstAL Bridge IR to ASP.
-        Call compile_iab() - requires the IR and an InstalCompiler instance corresponding to source + sink.
+        Call compile_bridge() - requires the IR and an InstalCompiler instance corresponding to source + sink.
         A significant chunk of this code is legacy and thus fragile.
     """
 
@@ -33,7 +33,7 @@ class InstalBridgeCompiler(InstalCompiler):
         self.types           = {}
         self.out             = ""
 
-    def compile_iab(self, bridge_ir: dict) -> str:
+    def compile_bridge(self, bridge_ir: dict) -> str:
         """Called to compile bridge_ir to ASP."""
         self.bridge_ir = bridge_ir
 
@@ -58,12 +58,6 @@ class InstalBridgeCompiler(InstalCompiler):
     def instal_print(self, to_append: str) -> None:
         #Legacy. InstAL print used to print to file: it now just adds to an out variable which is returned.
         self.out += to_append + "\n"
-
-    def collectVars(self, t, d, compiler: InstalCompiler=None):
-        #As instalialcompiler. Needs to have a compiler argument because needs to use sink and/or source compilers.
-        if compiler == self:
-            return
-        return compiler.collectVars(t, d)
 
     def bridge_print_standard_prelude(self) -> None:
         # Bridge rules - as in instalial compiler, the prelude is now in instal.models.InstalModel
@@ -330,3 +324,9 @@ class InstalBridgeCompiler(InstalCompiler):
                     self.printCondition(cond)
                 self.instal_print(
                     "   bridge({bridge}), source({source}, {bridge}), sink({sink}, {bridge}), start(I).".format(**self.names))
+
+    def collectVars(self, t, d, compiler: InstalCompiler=None):
+        #As instalialcompiler. Needs to have a compiler argument because needs to use sink and/or source compilers.
+        if compiler == self:
+            return
+        return compiler.collectVars(t, d)

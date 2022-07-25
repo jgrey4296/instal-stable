@@ -8,10 +8,10 @@ import networkx
 ##-- end imports
 
 
-class InstalTypeChecker(TypeChecker):
+class InstitutionTypeChecker(TypeChecker):
 
     def __init__(self, ir_dict):
-        super(InstalTypeChecker, self).__init__(ir_dict)
+        super(InstitutionTypeChecker, self).__init__(ir_dict)
         self.declaration_keys = ["inevents", "exevents", "vievents", "fluents",
                                  "noninertial_fluents", "obligation_fluents", "powers", "permissions"]
 

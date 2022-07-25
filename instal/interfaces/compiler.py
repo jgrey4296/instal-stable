@@ -8,8 +8,8 @@ import logging as logmod
 import os
 from dataclasses import dataclass, field, InitVar
 from instal.util.misc import temporary_text_file
-from instal.util.compiled_rep import InstalCompiledData
-from isntal.util.intermediate_rep import InstalIR, IR_Program, BridgeIR, InstitutionIR
+from instal.interfaces.compiled_rep import InstalCompiledData
+from isntal.util.ast import InstaASTR, ProgramAST, BridgeDefAST, InstitutionDefAST
 ##-- end imports
 
 logging = logmod.getLogger(__name__)
@@ -17,11 +17,11 @@ logging = logmod.getLogger(__name__)
 
 class InstalCompiler(metaclass=abc.ABCMeta):
     """
-    Interface for compiling InstalIR down to a
+    Interface for compiling InstaASTR down to a
     specific solver format
     """
 
-    def compile(self, ir: InstalIR, pair_outputs=False) -> InstalCompiledData:
+    def compile(self, ir: InstaASTR, pair_outputs=False) -> InstalCompiledData:
         """
         This method strings together compile_ial and compile_bridge - allows subclasses to just deal with them.
         """
@@ -29,16 +29,16 @@ class InstalCompiler(metaclass=abc.ABCMeta):
             raise NotImplementedException("Need to do this")
 
         match ir:
-            case IR_Program():
+            case ProgramAST():
                 return self.compile_program(ir)
-            case BridgeIR():
+            case BridgeDefAST():
                 return self.compile_bridge
-            case InstitutionIR():
+            case InstitutionDefAST():
                 return self.compile_institution(ir)
             case _:
                 raise Exception("Unrecognised top level ir compilation target")
 
-    def compile_program(self, ir: IR_Program) -> InstalCompiledData:
+    def compile_program(self, ir: ProgramAST) -> InstalCompiledData:
         compiled_data = InstalCompiledData()
         for iir in instal_program.institutions:
             asp : str = self.compile_ial(iir)
@@ -51,7 +51,7 @@ class InstalCompiler(metaclass=abc.ABCMeta):
         return compiled_data
 
     @abc.abstractmethod
-    def compile_institution(self, inst_ir: InstitutionIR) -> str:
+    def compile_institution(self, inst_ir: InstitutionDefAST) -> str:
         """
 
         input: an ast produced by the instal parser
@@ -60,7 +60,7 @@ class InstalCompiler(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def compile_bridge(self, bridge_ir: BridgeIR, inst_ir: InstitutionIR) -> str:
+    def compile_bridge(self, bridge_ir: BridgeDefAST, inst_ir: InstitutionDefAST) -> str:
         """
         input: an ast produced by the instal bridge parser
         output: compiled ASP for that bridge

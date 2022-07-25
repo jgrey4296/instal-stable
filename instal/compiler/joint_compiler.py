@@ -7,7 +7,7 @@ import logging as logmod
 from instal.interfaces.compiler import InstalCompiler
 from instal.compiler.institution_compiler import InstalInstitutionCompiler
 from instal.compiler.bridge_compiler import InstalBridgeCompiler
-from instal.util.intermediate_rep import InstalIR, BridgeIR
+from instal.interfaces.intermediate_rep import InstalIR, BridgeIR
 
 ##-- end imports
 

@@ -48,8 +48,6 @@ class State_Protocol(metaclass=abc.ABCMeta):
     @abc.abstractmethod:
     def to_solver(self): pass
 
-
-
     @abc.abstractmethod
     def check(self, conditions): pass
 
@@ -65,7 +63,6 @@ class State(InstalState_Protocol):
 
 class Trace(metaclass=abc.ABCMeta):
 
-
     @abc.abstractmethod
     @classmethod
     def from_json(data): pass
@@ -75,19 +72,19 @@ class Trace(metaclass=abc.ABCMeta):
     def from_list(lst): pass
 
     @abc.abstractmethod
+    def __str__(self): pass
+
+    @abc.abstractmethod
+    def __contains__(self, conditions): pass
+
+    @abc.abstractmethod
     def append(self, data): pass
 
     @abc.abstractmethod
     def to_json(self): pass
 
     @abc.abstractmethod
-    def __str__(self): pass
-
-    @abc.abstractmethod
     def check(self, conditions): pass
-
-    @abc.abstractmethod
-    def __contains__(self, conditions): pass
 
     @abc.abstractmethod
     def last(self): pass

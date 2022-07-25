@@ -70,4 +70,3 @@ class ClingoRuleWriter:
     def _build_comparison(self, op, left, right):
         pass
 
-    def

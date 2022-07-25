@@ -1,21 +1,20 @@
-##-- imports
-from abc import ABCMeta
-from unittest import TestCase
-
-from instal import instalsolve, instalquery, instaltrace
-from instal.instalutility import temporary_text_file
-from instal.state.InstalStateTrace import InstalStateTrace
-import instal.instalexceptions
-from instal.instalexceptions import InstalTestNotImplemented
-import requests
-import simplejson as json
-import os
-from instal.domainparser import DomainParser
-import time
-##-- end imports
 
 ##-- imports
 from __future__ import annotations
+
+import os
+import time
+from abc import ABCMeta
+from unittest import TestCase
+
+import instal.instalexceptions
+import requests
+import simplejson as json
+from instal import instalquery, instalsolve, instaltrace
+from instal.domainparser import DomainParser
+from instal.instalexceptions import InstalTestNotImplemented
+from instal.instalutility import temporary_text_file
+from instal.state.InstalStateTrace import InstalStateTrace
 ##-- end imports
 
 # TODO: Deal with verbose levels properly.
@@ -246,7 +245,7 @@ class InstalMultiShotTestRunner(InstalTestRunner):
         return 0  # unexpected
 
 
-class InstalCompareJSONTestCase(object):
+class InstalCompareJSONTestCase:
     """
         InstalCompareJSONTestCase
         Given two .json files, assert that they are the identical.
@@ -276,7 +275,7 @@ class InstalCompareJSONTestCase(object):
         return out_1, out_2
 
 
-class InstalCompareQuerySolve(object):
+class InstalCompareQuerySolve:
     """
         InstalCompareQuerySolve
         A convenience test wrapper that checks the output from a solve call is the same as the output from a query call.

@@ -19,8 +19,5 @@ Padget, J., Elakehal, E., Li, T. and De Vos, M., 2016. InstAL: An Institutional 
 Cliffe, O., De Vos, M. and Padget, J., 2006. Specifying and analysing agent-based social institutions using answer set programming. In: Coordination, Organizations, Institutions, and Norms in Multi-Agent Systems. Vol. 3913. , pp. 99-113. (Lecture Notes in Artificial Intelligence)
 Cliffe, O., 2007. Specifying and analysing institutions in multi-agent systems using answer set programming. PhD thesis. Department of Computer Science, University of Bath. (Computer Science Technical Reports; CSBU-2007-04).
 """
-from instal.instalutility import InstalFile, instal_file_name
-
-from . import instalsolve, instalquery, instaltrace, instalinspect
 
 __version__ = "1.0.1"

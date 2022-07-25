@@ -9,18 +9,16 @@ from collections import defaultdict
 from importlib.resources import files
 from typing import IO, List
 
-from clingo import Symbol
 from instal import InstalFile
 from instal.compiler.InstalCompilerNew import InstalCompilerNew
 from instal.defaults import COMPILED_EXT
 from instal.domainparser.DomainParser import DomainParser
 from instal.factparser.FactParser import FactParser
-from instal.instalexceptions import InstalFileNotFound
 from instal.instalutility import temporary_text_file
 from instal.parser.InstalParserNew import InstalParserNew
 from instal.state.InstalStateTrace import InstalStateTrace
-from instal.util.compiled_rep import InstalCompiledData
-from instal.util.intermediate_rep import InstalIR, IR_Program
+from instal.interfaces.compiled_rep import InstalCompiledData
+from instal.interfaces.ast import InstalAST, ProgramAST
 from instal.util.misc import InstalFileGroup, InstalOptionGroup
 ##-- end imports
 
@@ -28,10 +26,6 @@ from instal.util.misc import InstalFileGroup, InstalOptionGroup
 logging = logmod.getLogger(__name__)
 ##-- end logging
 
-data_path = files("instal.__data")
-data_file = data_path.joinpath("standard_prelude.lp")
-
-INSTAL_STANDARD_PRELUDE= data_file.read_text()
 
 class InstalModel(metaclass=ABCMeta):
     """
@@ -84,10 +78,10 @@ class InstalModel(metaclass=ABCMeta):
         domain_facts = self.domain_parser.get_groundings(domain_files)
         return domain_facts
 
-    def process_facts(self, file_group:InstalFileGroup) -> list[Symbol]:
+    def process_facts(self, file_group:InstalFileGroup) -> list[Any]:
         facts = self.fact_parser.get_facts(fact_files)
         return facts
 
 
     @abc.abstractmethod
-    def solve(self, query_event:list[Symbol]): pass
+    def solve(self, query_event:list[Any]): pass

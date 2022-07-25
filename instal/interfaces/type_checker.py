@@ -2,6 +2,7 @@
 """
 
 """
+##-- imports
 from __future__ import annotations
 
 import abc
@@ -16,9 +17,13 @@ from typing import (TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
 from uuid import UUID, uuid1
 from weakref import ref
 
+from isntal.interfaces.ast import InstalAST
+
 if TYPE_CHECKING:
     # tc only imports
     pass
+##-- end imports
+
 
 logging = logmod.getLogger(__name__)
 
@@ -26,7 +31,7 @@ class TypeChecker(metaclass=abc.ABCMeta):
 
     EXPR_SYMBOLS = ['==', '!=', '<', '>', '<=', '>=']
 
-    def __init__(self, ir:InstalIR):
+    def __init__(self, ir:InstalAST):
         self.IR = ir
         self.declaration_keys = None
 

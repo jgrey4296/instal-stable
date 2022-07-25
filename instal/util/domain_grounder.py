@@ -29,7 +29,7 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 
-class DomainGrounder(object):
+class DomainGrounder:
     """
         DomainParser
         See __init__.py for more details.

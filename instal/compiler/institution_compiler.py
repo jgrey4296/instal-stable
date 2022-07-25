@@ -16,7 +16,7 @@ class InstalInstitutionCompiler(InstalCompiler):
     """
     InstalCompiler
     Compiles InstAL IR to ASP.
-    Call compile_ial() - requires the IR.
+    Call compile_institution() - requires the IR.
     A significant chunk of this code is legacy and thus fragile.
     """
     saved_enumerator = 0
@@ -32,7 +32,7 @@ class InstalInstitutionCompiler(InstalCompiler):
 
         self.out      = ""
 
-    def compile_ial(self, ial_ir: dict) -> str:
+    def compile_institution(self, ial_ir: dict) -> str:
         """Called to compile ial_ir to ASP."""
         self.ial_ir   = ial_ir
         self.names    = self.ial_ir["names"]
@@ -105,49 +105,6 @@ class InstalInstitutionCompiler(InstalCompiler):
 
     def instal_print_constraints(self):
         pass
-
-    def isVar(self, t: str) -> bool:
-        """
-            Checks whether t is a type name by seeing if it has an uppercase first character.
-        """
-        return t[0] != t[0].lower()
-
-
-    def collectVars(self, t, d, compiler: 'InstalCompiler' = None):
-        # A legacy function. Not removed because a lot of the type checking is tied to the functionality.
-        if not t:
-            return
-        if t[0] == 'and':
-            self.collectVars(t[1], d)
-            self.collectVars(t[2], d)
-        elif t[0] == 'not':
-            self.collectVars(t[1], d)
-        elif t[0] == 'obl':
-            for x in t[1]:
-                self.collectVars(x, d)
-        elif t[0] in self.EXPR_SYMBOLS:
-            pass
-        else:
-            if t[0] in ['perm', 'pow', 'viol']:
-                t = t[1]
-            op = t[0]
-            args = t[1]
-            for evd in [self.ial_ir["exevents"], self.ial_ir["inevents"], self.ial_ir["vievents"],
-                        self.ial_ir["fluents"], self.ial_ir[
-                        "noninertial_fluents"],
-                        self.ial_ir["obligation_fluents"]]:
-                if op in evd:
-                    for (t1, t2) in zip(evd[op], args):
-                        if t2 in d:
-                            if t1 != d[t2]:
-                                raise InstalCompileError(
-                                    "% ERROR: {v} has type {t1} and type {t2} in {t}".format(v=t2, t1=t1, t2=d[t2],
-                                                                                             t=t))
-                        if self.isVar(t2):
-                            d[t2] = t1
-                    return
-            raise InstalCompileError("% WARNING: {t} not found in collectVars"
-                                     .format(t=t))
 
     def instal_print_types(self) -> None:
         # Print types. Also adds a constraint that every type must be grounded.
@@ -286,19 +243,6 @@ class InstalInstitutionCompiler(InstalCompiler):
         for vif in violation_fluents:
             raise InstalCompileError("NOT IMPLEMENTED: Violation fluents.")
 
-
-    def typecheck(self, p, cont: bool=False):
-        # Legacy. Type checking is dealt with elsewhere, but this is necessary functionality.
-        if not p:
-            return 'true'
-        if not cont:
-            self.saved_enumerator = 0
-        i = self.saved_enumerator
-        r = self.types[p[0]] + '(' + p[0] + str(i) + ')'
-        for j, t in enumerate(p[1:]):
-            r = r + ',' + self.types[t] + '(' + t + str(i + j + 1) + ')'
-        self.saved_enumerator = i + len(p)
-        return r
 
     def instal_print_obligation_fluents(self, obligation_fluents: list) -> None:
         # obligation fluents
@@ -671,3 +615,58 @@ class InstalInstitutionCompiler(InstalCompiler):
         else:
             r = self.term2string(p)
         return r
+
+    def isVar(self, t: str) -> bool:
+        """
+            Checks whether t is a type name by seeing if it has an uppercase first character.
+        """
+        return t[0] != t[0].lower()
+
+    def typecheck(self, p, cont: bool=False):
+        # Legacy. Type checking is dealt with elsewhere, but this is necessary functionality.
+        if not p:
+            return 'true'
+        if not cont:
+            self.saved_enumerator = 0
+        i = self.saved_enumerator
+        r = self.types[p[0]] + '(' + p[0] + str(i) + ')'
+        for j, t in enumerate(p[1:]):
+            r = r + ',' + self.types[t] + '(' + t + str(i + j + 1) + ')'
+        self.saved_enumerator = i + len(p)
+        return r
+
+    def collectVars(self, t, d, compiler: 'InstalCompiler' = None):
+        # A legacy function. Not removed because a lot of the type checking is tied to the functionality.
+        if not t:
+            return
+        if t[0] == 'and':
+            self.collectVars(t[1], d)
+            self.collectVars(t[2], d)
+        elif t[0] == 'not':
+            self.collectVars(t[1], d)
+        elif t[0] == 'obl':
+            for x in t[1]:
+                self.collectVars(x, d)
+        elif t[0] in self.EXPR_SYMBOLS:
+            pass
+        else:
+            if t[0] in ['perm', 'pow', 'viol']:
+                t = t[1]
+            op = t[0]
+            args = t[1]
+            for evd in [self.ial_ir["exevents"], self.ial_ir["inevents"], self.ial_ir["vievents"],
+                        self.ial_ir["fluents"], self.ial_ir[
+                        "noninertial_fluents"],
+                        self.ial_ir["obligation_fluents"]]:
+                if op in evd:
+                    for (t1, t2) in zip(evd[op], args):
+                        if t2 in d:
+                            if t1 != d[t2]:
+                                raise InstalCompileError(
+                                    "% ERROR: {v} has type {t1} and type {t2} in {t}".format(v=t2, t1=t1, t2=d[t2],
+                                                                                             t=t))
+                        if self.isVar(t2):
+                            d[t2] = t1
+                    return
+            raise InstalCompileError("% WARNING: {t} not found in collectVars"
+                                     .format(t=t))
