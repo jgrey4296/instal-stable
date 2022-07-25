@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 logging = logmod.getLogger(__name__)
 
-class TypeChecker(metaclass=abc.ABCMeta):
+class InstalChecker(metaclass=abc.ABCMeta):
 
     EXPR_SYMBOLS = ['==', '!=', '<', '>', '<=', '>=']
 
@@ -36,7 +36,7 @@ class TypeChecker(metaclass=abc.ABCMeta):
         self.declaration_keys = None
 
     @abc.abstractmethod
-    def check_types(self): pass
+    def check(self): pass
 
     def check_overloaded_arguments(self, final_types):
         for k, v in final_types.items():

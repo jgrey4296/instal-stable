@@ -10,19 +10,17 @@ from clingo import Function, Symbol
 from instal import InstalFile
 from instal.instalexceptions import InstalRuntimeError
 
-from .InstalModel import InstalModel
-from .Oracle import Oracle
+from instal.interfaces.model_runner import InstalModelRunner
+from instal.solvers.clingo_solver import ClingoSolver
 ##-- end imports
 
 ##-- logging
 logging = logmod.getLogger(__name__)
 ##-- end logging
 
-class InstalMultiShotModel(InstalModel):
+class InstalMultiShotRunner(InstalModelRunner):
     """
-        InstalMultiShotModel
-        Deals with multi shot solving - instance of InstalModel.
-        Used for instalquery.
+
     """
 
     # TODO refactor using InstalFileGroup and InstalOptionGroup
@@ -39,7 +37,7 @@ class InstalMultiShotModel(InstalModel):
 
             super(InstalMultiShotModel, self).__init__(ial_files,bridge_files,lp_files,domain_files,fact_files)
             self.timestamp = 0
-            self.oracle    = Oracle(self.initial_facts,self.model_files,self.domain_facts,verbose=verbose, length=length, answer_set=answer_set, number=number)
+            self.oracle    = ClingoSolver(self.initial_facts,self.model_files,self.domain_facts,verbose=verbose, length=length, answer_set=answer_set, number=number)
             self.verbose   = verbose # clean this up
 
     def solve(self, query_events:List[Symbol]):

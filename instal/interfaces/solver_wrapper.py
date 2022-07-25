@@ -18,9 +18,6 @@ logging = logmod.getLogger(__name__)
 
 
 class _SolverWrapper_Protocol(metaclass=abc.ABCMeta):
-    """
-    An wrapper around clingo to simplify solving
-    """
 
     @abc.abstractmethod
     def solve(self, events: list): pass
@@ -34,6 +31,10 @@ class _SolverWrapper_Protocol(metaclass=abc.ABCMeta):
 
 @dataclass
 class SolverWrapper(_SolverWrapper_Protocol):
+    """
+    An wrapper around clingo to simplify solving
+    """
+
     input_files    : list[Path]          = field(default_factory=list)
     holdsat        : list[InitiallyAST]  = field(default_factory=list)
     max_result     : int                 = field(default=1)

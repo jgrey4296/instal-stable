@@ -35,6 +35,28 @@ class InstalCompiler(metaclass=abc.ABCMeta):
                 return self.compile_bridge
             case InstitutionDefAST():
                 return self.compile_institution(ir)
+            case TermAST():
+                return self.compile_term(ir)
+            case TypeAST():
+                return self.compile_type(ir)
+            case DomainSpecAST():
+                return self.compile_domain(ir)
+            case EventAST():
+                return self.compile_event(ir)
+            case FluentAST():
+                return self.compile_fluent(ir)
+            case ConditionAST():
+                return self.compile_condition(ir)
+            case RelaitionalAST():
+                return self.compile_relaition(ir)
+            case ObligationAST():
+                return self.compile_obligation(ir)
+            case InitiallyAST():
+                return self.compile_initially(ir)
+            case SinkAST():
+                return self.compile_sink(ir)
+            case SourceAST():
+                return self.compile_source(ir)
             case _:
                 raise Exception("Unrecognised top level ir compilation target")
 
@@ -66,3 +88,27 @@ class InstalCompiler(metaclass=abc.ABCMeta):
         output: compiled ASP for that bridge
         """
         pass
+
+
+    @abc.abstractmethod
+    def compile_term(self, term) -> str: pass
+    @abc.abstractmethod
+    def compile_type(self, _type) -> str: pass
+    @abc.abstractmethod
+    def compile_domain(self, domain) -> str: pass
+    @abc.abstractmethod
+    def compile_event(self, event) -> str: pass
+    @abc.abstractmethod
+    def compile_fluent(self, fluent) -> str: pass
+    @abc.abstractmethod
+    def compile_condition(self, condition) -> str: pass
+    @abc.abstractmethod
+    def compile_relation(self, relation) -> str: pass
+    @abc.abstractmethod
+    def compile_obligation(self, obligation) -> str: pass
+    @abc.abstractmethod
+    def compile_initially(self, initially) -> str: pass
+    @abc.abstractmethod
+    def compile_sink(self, sink) -> str: pass
+    @abc.abstractmethod
+    def compile_source(self, source) -> str: pass

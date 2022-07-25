@@ -2,20 +2,20 @@
 from collections import defaultdict
 
 from instal.errors import InstalParserNotDeclaredError, InstalParserArgumentError, InstalParserTypeError, InstalParserError
-from instal.interfaces.type_checker import TypeChecker
+from instal.interfaces.checker import InstalChecker
 import networkx
 
 ##-- end imports
 
 
-class InstitutionTypeChecker(TypeChecker):
+class InstitutionChecker(InstalChecker):
 
     def __init__(self, ir_dict):
-        super(InstitutionTypeChecker, self).__init__(ir_dict)
+        super(InstitutionChecker, self).__init__(ir_dict)
         self.declaration_keys = ["inevents", "exevents", "vievents", "fluents",
                                  "noninertial_fluents", "obligation_fluents", "powers", "permissions"]
 
-    def check_types(self):
+    def check(self):
         self.check_names()
 
         self.check_declarations()

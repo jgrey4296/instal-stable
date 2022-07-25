@@ -24,7 +24,7 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 @dataclass
-class ClingoOracle(SolverWrapper):
+class ClingoSolver(SolverWrapper):
     """
     An Oracle that uses Clingo as the solver
     """

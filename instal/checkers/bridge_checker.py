@@ -6,21 +6,21 @@ import logging as logmod
 
 from instal.errors import InstalBridgeTypeError
 
-from instal.interfaces.type_checker import TypeChecker
+from instal.interfaces.checker import InstalChecker
 ##-- end imports
 
 ##-- logging
 logging = logmod.getLogger(__name__)
 ##-- end logging
 
-class BridgeTypeChecker(TypeChecker):
+class BridgeChecker(InstalChecker):
 
     def __init__(self, ir_dict):
         self.source_typechecker = None
         self.sink_typechecker = None
-        super(BridgeTypeChecker, self).__init__(ir_dict)
+        super(BridgeChecker, self).__init__(ir_dict)
 
-    def check_types(self, other_institutions=None):
+    def check(self, other_institutions=None):
         self.check_names()
         # TODO: Check there's nothing there shouldn't be (regular norms, fluent
         # declarations, etc.).
@@ -176,7 +176,7 @@ class BridgeTypeChecker(TypeChecker):
                                   1], condition=xterminate[2])
 
     def check_norm_arguments(self, lhs=None, rhs=None, condition=None):
-        # Overridee=d from TypeChecker
+        # Overridee=d from InstalChecker
         if not lhs:
             lhs = []
         if not rhs:

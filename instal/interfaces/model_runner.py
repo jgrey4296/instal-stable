@@ -27,11 +27,11 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 
-class InstalModel(metaclass=ABCMeta):
+class InstalModelRunner(metaclass=ABCMeta):
     """
-        InstalModel
-        Wrapper for different implementations of InstAL solving.
-        See: InstalMultiShotModel and InstalSingleShotModel
+    InstalModelRunner
+    Provdes a top level interface to orchestrate
+    parsing -> compilation -> solving -> reporting
     """
 
     def __init__(self, file_group:InstalFileGroup, opt_group:InstalOptionGroup,
