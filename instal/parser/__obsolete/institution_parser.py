@@ -62,7 +62,7 @@ class InstitutionParser(InstalParser):
         self.xinitiates                = []
         self.xterminates               = []
 
-    def parser_institution(self, data: str):
+    def parse_institution(self, data: str):
         if data:
             return self.parser.parse(data, self.lexer.lexer, 0, 0, None)
         else:
@@ -295,9 +295,6 @@ class InstitutionParser(InstalParser):
             [p[5], p[7], p[9]]] + self.obligation_fluents
         p[0] = [p[1]]
 
-    def violp(self, x):
-        return x[0] == 'viol'
-
     # TL 20140215: cross for initiation rules  new
     def p_xinitiates(self, p):
         """
@@ -467,17 +464,6 @@ class InstitutionParser(InstalParser):
         # a slightly questionable way of eliding the reduce/reduce conflict
         # arising from the original version of this rule and the fluent rule
         self.check_variables(p[3], p[0])
-
-    def isVar(self, t):
-        return t[0] != t[0].lower()
-
-    def check_variables(self, p3, p0):
-        for v in p3:
-            if self.isVar(v):
-                continue
-            raise InstalParserError(
-                "% ERROR: variable expected. Found {x} in {y}"
-                .format(x=v, y=p0))
 
     def p_term_list1(self, p):
         """ term_list : term_list COMMA term """
@@ -689,3 +675,17 @@ class InstitutionParser(InstalParser):
         self.fluents.clear()
         self.noninertial_fluents.clear()
         self.violation_fluents.clear()
+
+    def isVar(self, t):
+        return t[0] != t[0].lower()
+
+    def check_variables(self, p3, p0):
+        for v in p3:
+            if self.isVar(v):
+                continue
+            raise InstalParserError(
+                "% ERROR: variable expected. Found {x} in {y}"
+                .format(x=v, y=p0))
+
+    def violp(self, x):
+        return x[0] == 'viol'

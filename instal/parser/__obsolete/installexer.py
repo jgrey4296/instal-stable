@@ -13,7 +13,7 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 
-class InstalLexer(object):
+class InstalLexer:
     """
         InstalLexer
         Lexer for IAL files.

@@ -29,7 +29,7 @@ from instal.instaljsonhelpers import dict_funs_to_list, trace_dicts_from_file
 logging = logmod.getLogger(__name__)
 ##-- end logging
 
-class FactParser(object):
+class FactParser:
     """
         FactParser
         See __init__.py for more details.
