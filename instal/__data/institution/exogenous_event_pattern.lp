@@ -1,13 +1,15 @@
-%% Exogenous events
+% Event: ${event} (type: exogenous)
+event(${event})                       :- ${rhs}.
+event(viol(${event}))                 :- ${rhs}.
 
-% Event: {ev} (type: ex)
-event({ev}{args}) :- {rhs}.
-evtype({ev}{args},{inst},ex) :- {rhs}.
-evinst({ev}{args},{inst}) :- {rhs}.
-ifluent(pow({ev}{args}),{inst}) :- {rhs}.
-ifluent(perm({ev}{args}),{inst}) :- {rhs}.
-fluent(pow({ev}{args}),{inst}) :- {rhs}.
-fluent(perm({ev}{args}),{inst}) :- {rhs}.
-event(viol({ev}{args})) :- {rhs}.
-evtype(viol({ev}{args}), {inst}, viol) :- {rhs}.
-evinst(viol({ev}{args}),{inst}) :- {rhs}.
+evtype(${event}, ${inst}, ex)         :- ${rhs}.
+evtype(viol(${event}), ${inst}, viol) :- ${rhs}.
+
+evinst(${event}, ${inst})             :- ${rhs}.
+evinst(viol(${event}), ${inst})       :- ${rhs}.
+
+fluent(pow(${event}), ${inst})        :- ${rhs}.
+fluent(perm(${event}), ${inst})       :- ${rhs}.
+
+ifluent(pow(${event}), ${inst})       :- ${rhs}.
+ifluent(perm(${event}), ${inst})      :- ${rhs}.

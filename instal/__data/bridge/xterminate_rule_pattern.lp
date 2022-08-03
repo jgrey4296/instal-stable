@@ -1,8 +1,8 @@
-%% Translation of {sf} of {sinst} xterminates {x} of {dinst} if {condition}
-xterminated({sinst}, {x},{dinst},I) :-
-     occurred({sf},{sinst},I),
-     holdsat(tpow({sinst}, {x}, {dinst}), {inst}, I),
-     holdsat(live({inst}),{inst},I),
-     bridge({inst}),
-     inst({dinst}),
-     inst({sinst}),
+%% Translation of ${fluent} of ${source} xterminates ${response} of ${sink} if ${condition}
+xterminated(${source}, ${response},${sink},I) :-
+     occurred(${fluent},${source},I),
+     holdsat(tpow(${source}, ${response}, ${sink}), ${bridge}, I),
+     holdsat(live(${bridge}),${bridge},I),
+     bridge(${bridge}, ${source}, ${sink}),
+     instant(I),
+     ${rhs}.

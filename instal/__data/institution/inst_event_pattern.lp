@@ -1,11 +1,12 @@
-% Institutional events
-%
-% Event: {ev} (type: in)
-event({ev}{args})                    :- {rhs}.
-evtype({ev}{args},{inst},inst)       :- {rhs}.
-evinst({ev}{args},{inst})            :- {rhs}.
-ifluent(perm({ev}{args}),{inst})     :- {rhs}.
-fluent(perm({ev}{args}),{inst})      :- {rhs}.
-event(viol({ev}{args}))              :- {rhs}.
-evtype(viol({ev}{args}),{inst},viol) :- {rhs}.
-evinst(viol({ev}{args}),{inst})      :- {rhs}.
+% Event: ${event} (type: institutional)
+event(${event})                       :- ${rhs}.
+event(viol(${event}))                 :- ${rhs}.
+
+evtype(${event}, ${inst}, inst)       :- ${rhs}.
+evtype(viol(${event}), ${inst}, viol) :- ${rhs}.
+
+evinst(${event}, ${inst})             :- ${rhs}.
+evinst(viol(${event}), ${inst})       :- ${rhs}.
+
+ifluent(perm(${event}), ${inst})      :- ${rhs}.
+fluent(perm(${event}), ${inst})       :- ${rhs}.

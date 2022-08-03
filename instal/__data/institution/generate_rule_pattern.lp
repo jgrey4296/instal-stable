@@ -1,4 +1,2 @@
-% Translation of {exev} generates {inev} if {condition} in {time}
-occurred({inev},{inst},I{time}) :-
-  occurred({exev},{inst},I),
-  not occurred(viol({exev}),{inst},I),
+% Translation of ${event} generates ${state} if [condition] (in ${delay})
+occurred(${state}, ${inst}, I${delay}) :- occurred(${event}, ${inst}, I), inst(${inst}), instant(I), not occurred(viol(${event}) ${inst}, I), ${rhs}.

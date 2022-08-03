@@ -1,4 +1,3 @@
-%% noninertial fluents%
-%
-nifluent({name}{args}, {inst}) :- {preds}.
-fluent({name}{args}, {inst}) :- {preds}.
+%% noninertial fluent: ${fluent} %
+nifluent(${fluent}, ${inst}) :- ${rhs}.
+fluent(${fluent},   ${inst}) :- ${rhs}.

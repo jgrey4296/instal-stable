@@ -1,9 +1,8 @@
-%% Translation of {sf} of {sinst} xinitiates {x} of {dinst} if {condition}
-%
-xinitiated({sinst}, {x},{dinst},I) :-
-    occurred({sf},{sinst},I),
-    holdsat(ipow({sinst}, {x}, {dinst}), {inst}, I),
-    holdsat(live({inst}),{inst},I),
-    bridge({inst}),
-    inst({dinst}),
-    inst({sinst}),
+%% Translation of ${fluent} of ${source} xinitiates ${response} of ${sink} if ${condition}
+xinitiated(${source}, ${response}, ${sink},I) :-
+    occurred(${fluent},${source},I),
+    holdsat(ipow(${source}, ${response}, ${sink}), ${bridge}, I),
+    holdsat(live(${bridge}),${bridge},I),
+    bridge(${bridge}, ${source}, ${sink}),
+    instant(I),
+    ${rhs}.

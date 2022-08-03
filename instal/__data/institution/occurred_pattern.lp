@@ -1,1 +1,0 @@
-occurred({v},{inst},I) :-
