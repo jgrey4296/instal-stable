@@ -2,11 +2,54 @@
 ##-- imports
 from __future__ import annotations
 
+from string import Template
 import logging as logmod
+from importlib.resources import files
 
-from instal.interfaces.compiler import InstalCompiler
 from instal.errors import InstalCompileError
+from instal.interfaces.compiler import InstalCompiler
+from instal.interfaces import ast as IAST
+
 ##-- end imports
+
+##-- resources
+data_path = files("instal.__data")
+inst_data = files.joinpath("institution")
+bridge_data = files.joinpath("bridge")
+
+HEADER         = Template(data_path.joinpath("header_pattern").read_text())
+INST_PRELUDE   = Template(inst_path.joinpath("institution_prelude.lp").read_text())
+BRIDGE_PRELUDE = Template(bridge_path.joinpath("bridge_prelude.lp").read_text())
+
+TYPE_PAT       = Template(inst_path.joinpath("type_def_guard.lp").read_text())
+TYPE_GROUND    = Template(inst_path.joinpath("type_ground_pattern.lp").read_text())
+
+INITIAL_FACT   = Template(inst_path.joinpath("initial_fact_pattern.lp").read_text())
+BRIDGE_INITIAL = Template(bridge_path.joinpath("initial_fact_pattern.lp").read_text())
+
+EXO_EV         = Template(inst_path.joinpath("exogenous_event_pattern.lp").read_text())
+INST_EV        = Template(inst_path.joinpath("inst_event_pattern.lp").read_text())
+VIOLATION_EV   = Template(inst_path.joinpath("violation_event_pattern.lp").read_text())
+NULL_EV        = Template(inst_path.joinpath("null_event_pattern.lp").read_text())
+
+IN_FLUENT      = Template(inst_path.joinpath("inertial_fluent_pattern.lp").read_text())
+NONIN_FLUENT   = Template(inst_path.joinpath("noninertial_fluent_pattern.lp").read_text())
+OB_FLUENT      = Template(inst_path.joinpath("obligation_fluent_pattern.lp").read_text())
+
+CROSS_FLUENT   = Template(bridge_path.joinpath("cross_fluent.lp").read_text())
+GPOW_FLUENT    = Template(bridge_path.joinpath("gpow_fluent.lp").read_text())
+
+GEN_PAT        = Template(inst_path.joinpath("generate_rule_pattern.lp").read_text())
+INIT_PAT       = Template(inst_path.joinpath("initiate_rule_pattern.lp").read_text())
+TERM_PAT       = Template(inst_path.joinpath("terminate_rule_pattern.lp").read_text())
+
+X_GEN_PAT      = Template(bridge_path.joinpath("xgenerate_rule_pattern.lp").read_text())
+X_INIT_PAT     = Template(bridge_path.joinpath("xinitiate_rule_pattern.lp").read_text())
+X_TERM_PAT     = Template(bridge_path.joinpath("xterminate_rule_pattern.lp").read_text())
+
+NIF_RULE_PAT   = Template(inst_path.joinpath("nif_rule_pattern.lp").read_text())
+
+##-- end resources
 
 ##-- logging
 logging = logmod.getLogger(__name__)
@@ -16,657 +59,357 @@ class InstalInstitutionCompiler(InstalCompiler):
     """
     InstalCompiler
     Compiles InstAL IR to ASP.
-    Call compile_institution() - requires the IR.
-    A significant chunk of this code is legacy and thus fragile.
+    Main Access points are compile_(institution/bridge/domain/queries/situation)
+
+    Asssembles a list of strings in self._compiled_text,
+    then joins it together after everything is processed.
+
+    self.insert is a utility function to provide substitutions to template patterns
     """
-    saved_enumerator = 0
-    EXPR_SYMBOLS = ['==', '!=', '<', '>', '<=', '>=']
 
     def __init__(self):
-        self.ial_ir   = {}
-        self.names    = {}
-        self.types    = {}
-        self.exevents = {}
-        self.inevents = {}
-        self.vievents = {}
+        self._compiled_text : list[str] = []
 
-        self.out      = ""
+    def clear(self):
+        self._compiled_text = []
+    def insert(pattern:str|Template, **kwargs):
+        """
+        insert a given pattern text into the compiled output,
+        formatting it with kwargs.
+        """
+        match pattern:
+            case Template():
+                self._compiled_text.append(pattern.safe_substitute(kwargs))
+            case str if not bool(kwargs):
+                self._compiled_text.append(pattern)
+            case str:
+                self._compiled_text.append(pattern.format_map(kwargs))
+            case _:
+                raise TypeError("Unrecognised compile pattern type", pattern)
 
-    def compile_institution(self, ial_ir: dict) -> str:
-        """Called to compile ial_ir to ASP."""
-        self.ial_ir   = ial_ir
-        self.names    = self.ial_ir["names"]
-        self.types    = self.ial_ir["types"]
-        self.exevents = self.ial_ir["exevents"]
-        self.inevents = self.ial_ir["inevents"]
-        self.vievents = self.ial_ir["vievents"]
+    def compile_institution(self, ial: IAST.InstitutionDefAST) -> str:
+        assert(isinstance(ial, IAST.InstitutionDefAST))
+        assert(not isinstance(ial, IAST.BridgeDefAST))
+        self.clear()
+        self.insert(INST_PRELUDE, institution=ial.head, source_file=ial.source)
+        self.insert(HEADER, header='Part 1: Initial Setup and types', sub="")
 
-        self.instal_print_all(self.ial_ir)
-        return self.out
+        self.compile_events(ial)
+        self.compile_fluents(ial)
 
+        self.insert(HEADER, header='Part 2: Generation and Consequence', sub="")
+        self.compile_generation(ial)
+        self.compile_nif_rules(ial)
 
-    def instal_print(self, to_append: str) -> None:
-        #Legacy. InstAL print used to print to file: it now just adds to an out variable which is returned.
-        self.out += to_append + "\n"
+        self.insert(HEADER, header='Part 3: Initial Situation Specification', sub="")
+        self.compile_situation(ial.initial, ial)
 
-    def instal_print_all(self, ial_ir: dict) -> None:
-        # TODO replace with part_pattern
-        self.instal_print("%\n% "
-                          "-------------------------------"
-                          "PART 1"
-                          "-------------------------------"
-                          "\n%")
-        self.instal_print_standard_prelude()
-        self.instal_print_constraints()
-        self.instal_print_exevents(ial_ir["exevents"])
-        self.instal_print_nullevent()
-        self.instal_print_inevents(ial_ir["inevents"])
-        self.instal_print_vievents(ial_ir["vievents"])
-        self.instal_print_crevents({})
-        self.instal_print_dievents({})
-        self.instal_print_dissolve({})
-        self.instal_print_inertial_fluents(ial_ir["fluents"])
-        self.instal_print_noninertial_fluents(ial_ir["noninertial_fluents"])
-        self.instal_print_violation_fluents([])
-        self.instal_print_obligation_fluents(ial_ir["obligation_fluents"])
-        self.instal_print("%\n% "
-                          "-------------------------------"
-                          "PART 2"
-                          "-------------------------------"
-                          "\n%")
-        self.instal_print_generates(ial_ir["generates"])
-        self.instal_print_initiates(ial_ir["initiates"])
-        self.instal_print_terminates(ial_ir["terminates"])
-        self.instal_print_noninertials(ial_ir["whens"])
-        self.instal_print("%\n% "
-                          "-------------------------------"
-                          "PART 3"
-                          "-------------------------------"
-                          "\n%")
-        self.instal_print_initially(ial_ir["initials"])
-        self.instal_print_types()
-        self.instal_print("%\n% End of file\n%")
+        self.compile_types(ial.types)
+        self.insert("%% End of {institution}", institution=ial.head)
 
-    def instal_print_standard_prelude(self):
-        # Legacy. This used to dump the standard prelude at the top of every file.
-        # It is now done in instal.models.InstalModel.
-        self.instal_print("%\n% Standard prelude for {institution}\n%"
-                          .format(**self.names))
-        self.instal_print("% Standard prelude now dealt with in InstalModel.")
+        return "\n".join(self._compiled_text)
 
-        # TODO replace with institution.prelude
-        # institution live fluents and the _preludeLoaded fluent
-        self.instal_print("%\n% Rules for Institution {institution}\n%\n"
-                          "  ifluent(live({institution}), {institution}).\n"
-                          "  fluent(live({institution}), {institution}).\n"
-                          "  inst({institution}).\n"
-                          "  :- not _preludeLoaded. \n"
-                          .format(**self.names))
+    def compile_bridge(self, iab: IAST.BridgeDefAST, insts:list[IAST.InstitutionDefAST]) -> str:
+        assert(isinstance(iab, IAST.BridgeDefAST))
+        assert(len(iab.sources) == 1)
+        assert(len(iab.sinks) == 1)
+        self.clear()
+        self.insert(BRIDGE_PRELUDE,
+                    bridge=iab.head,
+                    source=iab.sources[0],
+                    sink=iab.sinks[0])
 
-    def instal_print_constraints(self):
-        pass
+        self.insert(HEADER, header='Part 1: Events and Fluents', sub="")
+        self.compile_events(iab)
+        self.compile_fluents(iab)
 
-    def instal_print_types(self) -> None:
+        self.insert(HEADER, header='Part 2: Generation and Consequence', sub="")
+        self.compile_generation(iab)
+        self.compile_nif_rules(iab)
+
+        self.insert(HEADER, header='Part 3: Initial State', sub="")
+        self.compile_situation(iab.initial, iab)
+
+        self.compile_types(iab.types)
+        self.insert("%% End of {bridge}", bridge=iab.head)
+
+        return "\n".join(self._compiled_text)
+
+    def compile_domain(self, domain:list[IAST.DomainSpecAST]) -> str:
+        """
+        Compile idc domain specs of Type: instance, instance, instance...
+        """
+        assert(all(isinstance(x, IAST.DomainSpecAST) for x in domain))
+        self.clear()
+        self.insert(HEADER, header="Domain Specification", sub=domain.source)
+        for assignment in domain:
+            wrapper = assignment.head.head.lower()
+            for term in assignment.terms:
+                assert(not bool(term.params))
+                self.insert(f"{wrapper}({term}).")
+
+        return "\n".join(self._compiled_text)
+
+    def compile_queries(self, query:list[IAST.TermAST]) -> str:
+        """
+        Compile sequence of observations into extObserved facts
+        # TODO handle specifying time of observation
+        """
+        assert(all(isinstance(x, IAST.TermAST) for x in query))
+        self.clear()
+        self.insert(HEADER, header="Query Specification", sub=query.source)
+        for i, term in enumerate(query):
+            params = ", ".join(term.params)
+            self.insert(f"extObserved({params}, {i}).")
+            self.insert(f"_eventSet({i}).")
+
+        return "\n".join(self._compiled_text)
+
+    def compile_types(self, type_list:list[IAST.TypeAST]) -> None:
         # Print types. Also adds a constraint that every type must be grounded.
-        # TODO Replace with grounding header
-        self.instal_print("%\n% "
-                          "-------------------------------"
-                          "GROUNDING"
-                          "-------------------------------"
-                          "\n%")
-        # TODO replace with type header
-        for t in self.types:
-            self.instal_print("% {x}".format(x=t))
-            self.instal_print(
-                "_typeNotDeclared :- not {x}(_).".format(x=t.lower()))
-            self.instal_print("#program {x}(l).".format(x=t.lower()))
-            self.instal_print("{x}(l).\n".format(x=t.lower()))
+        self.insert(HEADER, header="Type Grounding and declaration", sub="")
+        for t in type_list:
+            self.insert(TYPE_PAT, x=t.head.head.lower())
 
-    def instal_print_exevents(self, exevents: dict) -> None:
-        # print exevents
-        self.instal_print("%\n% Exogenous events")
-        # TODO replace with exogenous_event_pattern
-        for ev, args in exevents.items():
-            self.instal_print(
-                "% Event: {ev} (type: ex)\n"
-                "  event({ev}{args}) :- {rhs}.\n"
-                "  evtype({ev}{args},{inst},ex) :- {rhs}.\n"
-                "  evinst({ev}{args},{inst}) :- {rhs}.\n"
-                "  ifluent(pow({ev}{args}),{inst}) :- {rhs}.\n"
-                "  ifluent(perm({ev}{args}),{inst}) :- {rhs}.\n"
-                "  fluent(pow({ev}{args}),{inst}) :- {rhs}.\n"
-                "  fluent(perm({ev}{args}),{inst}) :- {rhs}.\n"
-                "  event(viol({ev}{args})) :- {rhs}.\n"
-                "  evtype(viol({ev}{args}), {inst}, viol) :- {rhs}.\n"
-                "  evinst(viol({ev}{args}),{inst}) :- {rhs}."
-                .format(ev=ev,
-                        args=self.args2string(args),
-                        rhs=self.typecheck(args),
-                        inst=self.names["institution"]))
+        for t in type_list:
+            self.insert(TYPE_GROUND, x=t.head.head.lower())
 
-    def instal_print_nullevent(self) -> None:
-        # print nullevents
-        # TODO replace with null event pattern
-        self.instal_print("%\n% null event for unknown events")
-        self.instal_print("% Event: null (type: ex)\n"
-                          "  event(null).\n"
-                          "  evtype(null,{inst},ex).\n"
-                          "  evinst(null,{inst}).\n"
-                          "  ifluent(pow(null),{inst}).\n"
-                          "  ifluent(perm(null),{inst}).\n"
-                          "  fluent(pow(null),{inst}).\n"
-                          "  fluent(perm(null),{inst}).\n"
-                          "  event(viol(null)).\n"
-                          "  evtype(viol(null),{inst},viol).\n"
-                          "  evinst(viol(null),{inst})."
-                          .format(inst=self.names["institution"]))
+    def compile_events(self, inst):
+        # should be sorted already
+        for event in inst.events:
+            rhs   : str = CompileUtil.wrap_types(inst.types, event.head)
+            event : str = str(event)
+            pattern = None
+            match event.annotation:
+                case IAST.EventEnum.exogenous:
+                    pattern = EXO_EV
+                case IAST.EventEnum.institution:
+                    pattern = INST_EV
+                case IAST.EventEnum.violation:
+                    pattern = VIOLATION_EV
+                case _:
+                    raise TypeError("Unknown Event Type: %s", event)
 
-    def instal_print_inevents(self, inevents: dict) -> None:
-        # print inevents
-        # TODO replace with inst event pattern
-        self.instal_print("% Institutional events")
-        for ev, args in inevents.items():
-            self.instal_print(
-                "% Event: {ev} (type: in)\n"
-                "  event({ev}{args}) :- {rhs}.\n"
-                "  evtype({ev}{args},{inst},inst) :- {rhs}.\n"
-                "  evinst({ev}{args},{inst}) :- {rhs}.\n"
-                "  ifluent(perm({ev}{args}),{inst}) :- {rhs}.\n"
-                "  fluent(perm({ev}{args}),{inst}) :- {rhs}.\n"
-                "  event(viol({ev}{args})) :- {rhs}.\n"
-                "  evtype(viol({ev}{args}),{inst},viol) :- {rhs}.\n"
-                "  evinst(viol({ev}{args}),{inst}) :- {rhs}."
-                .format(ev=ev,
-                        args=self.args2string(args),
-                        rhs=self.typecheck(args),
-                        inst=self.names["institution"]))
+            assert(pattern is not None)
+            self.insert(pattern,
+                        event=str(event),
+                        inst=inst.head,
+                        rhs=rhs)
 
-    def instal_print_vievents(self, vievents: dict) -> None:
-        # print vievents
-        # TODO replace with violation event pattern
-        self.instal_print("%\n% Violation events\n%")
-        for ev, args in vievents.items():
-            self.instal_print(
-                "% Event: {ev} (type: in)\n"
-                "  event({ev}{args}) :- {rhs}.\n"
-                "  evtype({ev}{args},{inst},viol) :- {rhs}.\n"
-                "  evinst({ev}{args},{inst}) :- {rhs}."
-                .format(ev=ev,
-                        args=self.args2string(args),
-                        rhs=self.typecheck(args),
-                        inst=self.names["institution"]))
+        self.insert(NULL_EVENT, inst=inst.head)
 
-    def instal_print_crevents(self, crevents: dict) -> None:
-        # print crevents
-        self.instal_print("%\n% Creation events\n%")
-        for ev in crevents:
-            raise InstalCompileError("NOT IMPLEMENTED: Creation events.")
-
-    def instal_print_dievents(self, dievents: dict) -> None:
-        # print dievents
-        self.instal_print("%\n% Dissolution events\n%")
-        for ev in dievents:
-            raise InstalCompileError("NOT IMPLEMENTED: Dissolution events.")
-
-    def instal_print_inertial_fluents(self, fluents: dict) -> None:
-        # inertial fluents
-        # TODO replace with intertial fluent pattern
-        self.instal_print("%\n% inertial fluents\n%")
-        for inf, args in fluents.items():
-            self.instal_print(
-                "ifluent({name}{args},{inst}) :-\n"
-                "  {preds}.\n"
-                "fluent({name}{args},{inst}) :-\n"
-                "  {preds}.\n"
-                .format(name=inf,
-                        args=self.args2string(args),
-                        preds=self.typecheck(args),
-                        inst=self.names["institution"]))
-
-    def instal_print_noninertial_fluents(self, noninertial_fluents: dict) -> None:
-        # noninertial fluents
-        # TODO replace with noninertial fluent pattern
-        self.instal_print("%\n% noninertial fluents\n%")
-        for nif, args in noninertial_fluents.items():
-            self.instal_print(
-                "nifluent({name}{args}, {inst}) :-\n"
-                "  {preds}.\n"
-                "fluent({name}{args}, {inst}) :-\n"
-                "  {preds}.\n"
-                .format(name=nif,
-                        args=self.args2string(args),
-                        preds=self.typecheck(args), inst=self.names["institution"]))
-
-    def instal_print_violation_fluents(self, violation_fluents):
-        # violation fluents
-        self.instal_print("%\n% violation fluents (to be implemented)\n")
-        for vif in violation_fluents:
-            raise InstalCompileError("NOT IMPLEMENTED: Violation fluents.")
+    def compile_fluents(self, inst):
+        for fluent in inst.fluents:
+            rhs : str = CompileUtil.wrap_types(inst.types, fluent.head)
+            match fluent.annotation:
+                case IAST.FluentEnum.noninertial:
+                    self.insert(NONIN_FLUENT,
+                                fluent=str(fluent.head),
+                                inst=inst.head,
+                                rhs=rhs)
+                case IAST.FluentEnum.obligation:
+                    obligation, deadline, violation = fluent.head.params
+                    # TODO handle obligation and deadlines being events or fluents
+                    # TODO insert event occured / fluent holdsat into rhs
+                    self.insert(OB_FLUENT,
+                                fluent=str(fluent)
+                                obligation=obligation,
+                                deadline=deadline,
+                                violation=violation,
+                                inst=inst.head,
+                                rhs=rhs)
+                case IAST.FluentEnum.cross if fluent.head.head == gpow:
+                    assert(len(fluent.head.params) == 3)
+                    self.insert(GPOW_FLUENT,
+                                source=fluent.head.params[0],
+                                event=fluent.head.params[1],
+                                sink=fluent.head.params[2],
+                                bridge=inst.head,
+                                rhs=rhs)
+                case IAST.FluentEnum.cross:
+                    assert(len(fluent.head.params) == 3)
+                    self.insert(CROSS_FLUENT,
+                                power=fluent.head.head,
+                                source=fluent.head.params[0],
+                                fluent=fluent.head.params[1],
+                                sink=fluent.head.params[2],
+                                bridge=inst.head,
+                                rhs=rhs)
+                case _:
+                    self.insert(IN_FLUENT,
+                                fluent=str(fluent.head),
+                                inst=inst.head,
+                                rhs=rhs)
 
 
-    def instal_print_obligation_fluents(self, obligation_fluents: list) -> None:
-        # obligation fluents
-        self.instal_print("%\n% obligation fluents\n%")
-        for of in obligation_fluents:
-            e = of[0][0] + self.args2string(of[0][1])
-            d = of[1][0] + self.args2string(of[1][1], cont=True)
-            v = of[2][0] + self.args2string(of[2][1], cont=True)
-            te = self.typecheck(of[0][1])
-            td = self.typecheck(of[1][1], cont=True)
-            tv = self.typecheck(of[2][1], cont=True)
 
-            # Future versions will allow for conditions/deadlines to be states as well as events.
-            # Not implemented as present though.
-            e_event = True
-            e_fluent = False
-            d_event = True
-            d_fluent = False
+    def compile_generation(self, inst):
+        for relation in inst.relations:
+            conditions  = CompileUtil.compile_conditions(inst, relation.conditions)
+            type_guards = CompileUtil.wrap_types(inst.types,
+                                                 relation.head,
+                                                 *relation.body)
 
-            # TODO replace with obligation_fluent_pattern
-            self.instal_print(
-                "oblfluent(obl({e},{d},{v}), {inst}) :-".format(e=e, d=d, v=v, inst=self.names["institution"]))
-            if e_event:
-                # TODO replace with event pattern
-                self.instal_print("   event({e}),".format(e=e))
-            if e_fluent:
-                # TODO replace with e_fluent pattern
-                self.instal_print("   fluent({e},{inst}),".format(
-                    e=e, inst=self.names["institution"]))
-            if d_event:
-                # TODO replace with event pattern
-                self.instal_print("   event({d}),".format(d=d))
-            if d_fluent:
-                # TODO replace with e_fluent pattern
-                self.instal_print("   fluent({d},{inst}),".format(
-                    d=d, inst=self.names["institution"]))
-            # TODO replace with event pattern, inst pattern
-            self.instal_print("   event({v}), {te},{td},{tv},inst({inst})."
-                              .format(e=e, d=d, v=v, te=te, td=td, tv=tv, inst=self.names["institution"]))
+            rhs = f"{conditions}, {type_guards}"
 
-            # The 2nd obligation rule
-            # TODO replace with obligation fluent pattern
-            self.instal_print("ifluent(obl({e},{d},{v}), {inst}) :-".format(e=e, d=d, v=v, inst=self.names[
-                "institution"]))
-            if e_event:
-                self.instal_print("   event({e}),".format(e=e))
-            if e_fluent:
-                self.instal_print("   fluent({e},{inst}),".format(
-                    e=e, inst=self.names["institution"]))
-            if d_event:
-                self.instal_print("   event({d}),".format(d=d))
-            if d_fluent:
-                self.instal_print("   fluent({d},{inst}),".format(
-                    d=d, inst=self.names["institution"]))
-            self.instal_print("   event({v}), {te},{td},{tv},inst({inst})."
-                              .format(e=e, d=d, v=v, te=te, td=td, tv=tv, inst=self.names["institution"]))
-            self.instal_print(
-                "fluent(obl({e},{d},{v}), {inst}) :-".format(e=e, d=d, v=v, inst=self.names["institution"]))
-            if e_event:
-                self.instal_print("   event({e}),".format(e=e))
-            if e_fluent:
-                self.instal_print("   fluent({e},{inst}),".format(
-                    e=e, inst=self.names["institution"]))
-            if d_event:
-                self.instal_print("   event({d}),".format(d=d))
-            if d_fluent:
-                self.instal_print("   fluent({d},{inst}),".format(
-                    d=d, inst=self.names["institution"]))
-            self.instal_print("   event({v}), {te},{td},{tv},inst({inst})."
-                              .format(e=e, d=d, v=v, te=te, td=td, tv=tv, inst=self.names["institution"]))
-
-            # The 3rd obligation rule
-            self.instal_print(
-                "terminated(obl({e},{d},{v}),{inst},I) :-".format(e=e, d=d, v=v, inst=self.names["institution"]))
-            if e_event:
-                self.instal_print("   event({e}), occurred({e},{inst},I),".format(
-                    e=e, inst=self.names["institution"]))
-            if e_fluent:
-                self.instal_print(
-                    "   fluent({e},{inst}), holdsat({e},{inst},I),".format(e=e, inst=self.names["institution"]))
-            if d_event:
-                self.instal_print("   event({d}),".format(d=d))
-            if d_fluent:
-                self.instal_print("   fluent({d},{inst}),".format(
-                    d=d, inst=self.names["institution"]))
-            self.instal_print("   holdsat(obl({e},{d},{v}),{inst},I),\n"
-                              "   event({v}), {te},{td},{tv},inst({inst})."
-                              .format(e=e, d=d, v=v, te=te, td=td, tv=tv, inst=self.names["institution"]))
-
-            # The fourth obligation rule
-            self.instal_print(
-                "terminated(obl({e},{d},{v}),{inst},I) :-".format(e=e, d=d, v=v, inst=self.names["institution"]))
-            if e_event:
-                self.instal_print("   event({e}), ".format(e=e))
-            if e_fluent:
-                self.instal_print("   fluent({e},{inst}),".format(
-                    e=e, inst=self.names["institution"]))
-            if d_event:
-                self.instal_print("   event({d}), occurred({d},{inst},I),".format(
-                    d=d, inst=self.names["institution"]))
-            if d_fluent:
-                self.instal_print(
-                    "   fluent({d},{inst}),  holdsat({d},{inst},I),".format(d=d, inst=self.names["institution"]))
-            self.instal_print("   holdsat(obl({e},{d},{v}),{inst},I),\n"
-                              "   event({v}), {te},{td},{tv},inst({inst})."
-                              .format(e=e, d=d, v=v, te=te, td=td, tv=tv, inst=self.names["institution"]))
-
-            # The fifth obligation rule
-            # TODO replace with occurred pattern
-            self.instal_print(
-                "occurred({v},{inst},I) :-".format(v=v, inst=self.names["institution"]))
-            if e_event:
-                self.instal_print("   event({e}), ".format(e=e))
-            if e_fluent:
-                self.instal_print(
-                    "   fluent({e},{inst}), not holdsat({e}, {inst}, I),".format(e=e, inst=self.names["institution"]))
-            if d_event:
-                self.instal_print("   event({d}), occurred({d},{inst},I),".format(
-                    d=d, inst=self.names["institution"]))
-            if d_fluent:
-                self.instal_print(
-                    "   fluent({d},{inst}),  holdsat({d},{inst},I),".format(d=d, inst=self.names["institution"]))
-            self.instal_print("   holdsat(obl({e},{d},{v}),{inst},I),\n"
-                              "   event({v}), {te},{td},{tv},inst({inst})."
-                              .format(e=e, d=d, v=v, te=te, td=td, tv=tv, inst=self.names["institution"]))
+            match relation.annotation:
+                case IAST.RelationalEnum.generates:
+                    assert(not isinstance(inst, IAST.BridgeDefAST))
+                    delay = "+{relation.time}" if relation.time > 0 else ""
+                    self.insert(GEN_PAT,
+                                event=str(relation.head),
+                                state=relation.body,
+                                inst=inst.head,
+                                delay=delay,
+                                rhs=rhs)
+                case IAST.RelationalEnum.initiates:
+                    assert(not isinstance(inst, IAST.BridgeDefAST))
+                    self.insert(GEN_PAT,
+                                event=str(relation.head),
+                                state=relation.body,
+                                inst=inst.head,
+                                rhs=rhs)
+                case IAST.RelationalEnum.terminates:
+                    assert(not isinstance(inst, IAST.BridgeDefAST))
+                    self.insert(GEN_PAT,
+                                event=str(relation.head),
+                                state=relation.body,
+                                inst=inst.head,
+                                rhs=rhs)
+                case IAST.RelationalEnum.xgenerates:
+                    assert(isinstance(inst, IAST.BridgeDefAST))
+                    delay = "+{relation.time}" if relation.time > 0 else ""
+                    self.insert(X_GEN_PAT,
+                                event=relation.head,
+                                response=event.body[0],
+                                source=inst.source[0],
+                                sink=inst.sink[0],
+                                bridge=inst.head,
+                                delay=delay
+                                rhs=rhs)
+                case IAST.RelationalEnum.xinitiates:
+                    assert(isinstance(inst, IAST.BridgeDefAST))
+                    self.insert(X_INIT_PAT,
+                                source=inst.sources[0],
+                                sink=inst.sinks[0],
+                                bridge=inst.head,
+                                fluent=relation.head,
+                                response=relation.body[0],
+                                rhs=rhs
+                                )
+                case IAST.RelationalEnum.xterminates:
+                    assert(isinstance(inst, IAST.BridgeDefAST))
+                    self.insert(X_TERM_PAT,
+                                source=inst.source[0],
+                                sink=inst.sinks[0],
+                                bridge=inst.head,
+                                fluent=relation.head,
+                                response=relation.body[0],
+                                rhs=rhs)
+                case _:
+                    raise TypeError("Unrecognized Relation Type: %s", relation)
 
 
-    def instal_print_generates(self, generates: list) -> None:
-        # generates
-        self.instal_print("%\n% generate rules\n%")
-        for rl in generates:
-            [inorexev, inev, cond, ti] = rl
-            vars1 = {}
-            self.collectVars(inorexev, vars1)
-            self.collectVars(cond, vars1)
-            if not ti:
-                time = ""
+    def compile_nif_rules(self, inst):
+        for rule in inst.nif_rules:
+            rhs = CompileUtil.wrap_types(inst.types,
+                                         rule.head,
+                                         *rule.body)
+            self.insert(NIF_RULE_PAT,
+                        state=str(rule.head),
+                        inst=inst.head,
+                        rhs=rhs)
+
+
+
+    def compile_situation(self, facts:list[IAST.InitiallyAST], inst:None|IAST.InstitutionDefAST=None):
+        assert(all(isinstance(x, IAST.InitiallyAST) for x in facts))
+        for initial in facts:
+            for state in initial.body:
+                if inst:
+                    conditions  = CompileUtil.compile_conditions(inst, initial.conditions)
+                    type_guards = CompileUtil.wrap_types(inst.types, state.head)
+                    rhs = f"{conditions}, {type_guards}"
+                    self.insert(INITIAL_FACT,
+                                state=str(state),
+                                inst=inst.head,
+                                rhs=rhs)
+                else:
+                    assert(initial.inst is not None)
+                    assert(not bool(initial.conditions))
+                    rhs = CompileUtil.wrap_types(None, state.head)
+                    self.insert(INITIAL_FACT,
+                                state=str(state),
+                                inst=initial.inst,
+                                rhs=rhs)
+
+
+
+
+
+
+class CompileUtil:
+    @staticmethod
+    def wrap_types(types:list[IAST.TypeAST], *params:IAST.TermAST) -> str:
+        """
+        convert instal variables (User, Book etc)
+        to terms for the right hand side of rules to ensure correct typing:
+        user(User), book(Book) etc.
+        """
+        type_check : set[str] = {x.head for x in types} if bool(types) else set()
+        result                = []
+        queue                 = list(params)
+        found                 = set()
+        while bool(queue):
+            param = queue.pop()
+            if param in found:
+                continue
+            if not param.is_var:
+                queue += param.params
+                continue
+            assert(not bool(param.params))
+            assert(param.head[0].isupper())
+            assert(not bool(type_check) or param.head in type_check)
+            # TODO handle variable numbers
+            result.append(f"{param.head.lower()}({param.head})")
+            found.add(param)
+
+        if bool(result):
+            return ", ".join(result)
+        else:
+            return "true"
+
+
+    @staticmethod
+    def compile_conditions(inst, all_conditions) -> str:
+        if not bool(conds):
+            return "true"
+
+        results = []
+        for condition in all_conditions:
+            cond : list[str] = []
+            if condition.negated:
+                cond.append("not ")
+
+            if condition.operator is None and condition.rhs is None:
+                term = CompileUtil.compile_term(condition.head)
+                results.append(CompileUtil.wrap_types(inst.types, condition.head))
+                cond.append(f"holdsat({term}, {inst.head}, I)")
             else:
-                time = "+" + str(ti)
-                raise InstalCompileError(
-                    "NOT IMPLEMENTED: Being able to generate events in n timesteps")
-            for x in inev:
-                vars2 = {}
-                self.collectVars(x,vars2) # 20170316 JAP: restored
-                # TODO replace with generate rule pattern
-                self.instal_print(
-                    "%\n"
-                    "% Translation of {exev} generates {inev} if {condition} in {time}\n"
-                    "occurred({inev},{inst},I{time}) :- occurred({exev},{inst},I),"
-                    "not occurred(viol({exev}),{inst},I),\n"
-                    .format(exev=self.extendedterm2string(inorexev),
-                            inev=self.extendedterm2string(x),
-                            inst=self.names["institution"],
-                            condition=cond, time=time))
-                self.printCondition(cond)
-                for k in vars1:
-                    self.instal_print(
-                        "   {pred}({tvar}),"
-                        .format(pred=self.types[vars1[k]], tvar=k))
-                for k in vars2:
-                    if k not in vars1:
-                        self.instal_print(
-                            "   {pred}({tvar}),"
-                            .format(pred=self.types[vars2[k]], tvar=k))
-                self.instal_print("   inst({inst}), instant(I).".format(
-                    inst=self.names["institution"]))
+                assert(condition.operator is not None and condition.rhs is not None)
+                results.append(CompileUtil.wrap_types(inst.types, condition.head, condition.rhs))
+                cond.append(CompileUtil.compile_term(condition.head))
+                cond.append(condtion.operator)
+                cond.append(CompileUtil.compile_term(condition.rhs))
 
-    def instal_print_initiates(self, initiates: list) -> None:
-        # initiates
-        self.instal_print("%\n% initiate rules\n%")
-        for rl in initiates:
-            [inev, inits, cond] = rl
-            vars1 = {}
-            self.collectVars(inev, vars1)
-            self.collectVars(cond, vars1)
-            for x in inits:
-                vars2 = {}
-                self.collectVars(x,vars2) # 20170316 JAP: restored
-                # TODO replace with initiate rule pattern
-                self.instal_print(
-                    "%\n% Translation of {inev} initiates {inits} if {condition}"
-                    .format(inev=self.extendedterm2string(inev), inits=x, condition=cond))
-                self.instal_print("%\ninitiated({inf},{inst},I) :-\n"
-                                  "   occurred({ev},{inst},I),\n"
-                                  "   not occurred(viol({ev}),{inst},I),\n"
-                                  "   holdsat(live({inst}),{inst},I), inst({inst}),"
-                                  .format(inf=self.extendedterm2string(x),
-                                          ev=self.extendedterm2string(inev),
-                                          inst=self.names["institution"]))
-                self.printCondition(cond)
-                for k in vars1:
-                    self.instal_print(
-                        "   {pred}({tvar}),"
-                        .format(pred=self.types[vars1[k]], tvar=k))
-                for k in vars2:
-                    if k not in vars1:
-                        self.instal_print(
-                            "   {pred}({tvar}),"
-                            .format(pred=self.types[vars2[k]], tvar=k))
-                self.instal_print("   inst({inst}), instant(I).".format(
-                    inst=self.names["institution"]))
+            results.append("".join(cond))
 
-    def instal_print_terminates(self, terminates: list) -> None:
-        # terminates
-        self.instal_print("%\n% terminate rules\n%")
-        for rl in terminates:
-            [inev, terms, cond] = rl
-            vars1 = {}
-            self.collectVars(inev, vars1)
-            self.collectVars(cond, vars1)
-            for x in terms:
-                vars2 = {}
-                self.collectVars(x,vars2) # 20170316 JAP: restored
-                # TODO replace with terminate rule pattern
-                self.instal_print(
-                    "%\n% Translation of {inev} terminates {terms} if {condition}"
-                    .format(inev=self.extendedterm2string(inev), terms=x, condition=cond))
-                self.instal_print("%\nterminated({inf},{inst},I) :-\n"
-                                  "   occurred({ev},{inst},I),\n"
-                                  "   not occurred(viol({ev}),{inst},I),\n"
-                                  "   holdsat(live({inst}),{inst},I),inst({inst}),"
-                                  .format(inf=self.extendedterm2string(x),
-                                          ev=self.extendedterm2string(inev),
-                                          inst=self.names["institution"]))
-                self.printCondition(cond)
-                for k in vars1:
-                    self.instal_print(
-                        "   {pred}({tvar}),"
-                        .format(pred=self.types[vars1[k]], tvar=k))
-                for k in vars2:
-                    if k not in vars1:
-                        self.instal_print(
-                            "   {pred}({tvar}),"
-                            .format(pred=self.types[vars2[k]], tvar=k))
-                self.instal_print("   inst({inst}), instant(I).".format(
-                    inst=self.names["institution"]))
 
-    def instal_print_noninertials(self, whens: list) -> None:
-        # noninertials
-        self.instal_print("%\n% noninertial rules\n%")
-        for rl in whens:
-            [nif, ante] = rl
-            vars1 = {}
-            self.collectVars(nif, vars1)
-            # TODO replace with noninertial_rule_pattern
-            self.instal_print("%\n% Translation of {nif} when {ante}\n"
-                              "holdsat({nif},{inst},I) :-"
-                              .format(nif=self.extendedterm2string(nif), ante=ante, inst=self.names["institution"]))
-            self.printCondition(ante)
-            for k in vars1:
-                self.instal_print("   {pred}({tvar}),".
-                                  format(pred=self.types[vars1[k]], tvar=k))
-            self.instal_print("   inst({inst}), instant(I).".format(
-                inst=self.names["institution"]))
+        return ", ".join(results)
 
-    def instal_print_initially(self, initials: list) -> None:
-        # initially
-        self.instal_print("%\n% initially\n%")
-        if True:
-            # TODO replace with initial_rule_pattern
-            self.instal_print("% no creation event")
-            self.instal_print("holdsat(live({inst}),{inst},I) :- start(I), inst({inst})."
-                              .format(inst=self.names["institution"]))
-            self.instal_print("holdsat(perm(null),{inst},I) :- start(I), inst({inst})."
-                              .format(inst=self.names["institution"]))
-            self.instal_print("holdsat(pow(null),{inst},I) :- start(I), inst({inst})."
-                              .format(inst=self.names["institution"]))
-            for inits in initials:
-                [i, cond] = inits
-                fvars = {}
-                # TODO replace with initially_rule_pattern
-                self.instal_print("% initially: {x}"
-                                  .format(x=self.extendedterm2string(i)))
-                if not (cond == []):
-                    pass
-                    #self.instal_print(
-                    #    "% condition: {x}"
-                    #    .format(x=self.extendedterm2string(cond)))
-                self.instal_print("holdsat({inf},{inst},I) :- not holdsat(live({inst}),{inst}),"
-                                  .format(inst=self.names["institution"], inf=self.extendedterm2string(i)))
-                self.collectVars(i, fvars)
-                for k in fvars:
-                    self.instal_print(
-                        "   {pred}({tvar}),"
-                        .format(pred=self.types[fvars[k]], tvar=k))
-                if not (cond == []):
-                    self.printCondition(cond)
-                self.instal_print("   inst({inst}), start(I).".format(
-                    inst=self.names["institution"]))
-        else:
-            pass
 
-    def instal_print_dissolve(self, dievents: dict) -> None:
-        # dissolve
-        self.instal_print("%\n% dissolve events\n%")
-        for d in dievents:
-            raise InstalCompileError("NOT IMPLEMENTED: Dissolution events.")
+    @staticmethod
+    def compile_term(term) -> str:
+        params = [CompileUtil.compile_term(x) for x in term.params]
+        return f"{term.head}({', '.join(params)})"
 
-    def args2string(self, p, cont: bool=False):
-        # Legacy.
-        if not p:
-            return ''
-        if not cont:
-            self.saved_enumerator = 0
-        i = self.saved_enumerator
-        r = '(' + p[0] + str(i)
-        for j, x in enumerate(p[1:]):
-            r = r + ',' + x + str(i + j + 1)
-        r += ')'
-        self.saved_enumerator = i + len(p)
-        return r
-
-    def printCondition(self, c, institution: str=None):
-        if not institution:
-            institution = self.names["institution"]
-        if not c:
-            return
-        if c[0] == 'and':
-            self.printCondition(c[1],institution=institution)
-            self.printCondition(c[2],institution=institution)
-        elif c[0] == 'not':
-            self.instal_print("   not")
-            self.printCondition(c[1],institution=institution)
-        elif c[0] == '==':
-            self.instal_print("   {l}=={r},".format(l=c[1][0], r=c[1][1]))
-        elif c[0] == '!=':
-            self.instal_print("   {l}!={r},".format(l=c[1][0], r=c[1][1]))
-        elif c[0] == '<':
-            self.instal_print("   {l}<{r},".format(l=c[1][0], r=c[1][1]))
-        elif c[0] == '>':
-            self.instal_print("   {l}>{r},".format(l=c[1][0], r=c[1][1]))
-        elif c[0] == '<=':
-            self.instal_print("   {l}<={r},".format(l=c[1][0], r=c[1][1]))
-        elif c[0] == '>=':
-            self.instal_print("   {l}>={r},".format(l=c[1][0], r=c[1][1]))
-        else:
-            self.instal_print("   holdsat({fluent},{inst},I),"
-                              .format(fluent=self.extendedterm2string(c), inst=institution))
-
-    def term2string(self, p):
-        # Legacy.
-        args = p[1]
-        r = ''
-        if len(args) == 0:
-            r = p[0]
-        elif len(args) == 1:
-            r = p[0] + '(' + args[0] + ')'
-        elif p[0] in ['==', '!=', '<', '>', '<=', '>=']:
-            r = p[1][0] + p[0] + p[1][1]
-        elif p[0] == 'and':
-            r = self.term2string(p[1]) + ' ' + p[0] + \
-                ' ' + self.term2string(p[2])
-        else:
-            r = '(' + args[0]
-            for x in args[1:]:
-                r = r + ',' + x
-            r = p[0] + r + ')'
-        return r
-
-    def extendedterm2string(self, p):
-        # Legacy.
-        if p[0] in ['perm', 'viol', 'pow']:
-            r = p[0] + '(' + self.term2string(p[1]) + ')'
-        elif p[0] == 'obl':
-            r = p[0] + '(' + self.term2string(p[1][0]) + ',' + self.term2string(p[1][1]) + ',' + self.term2string(
-                p[1][2]) + ')'
-        elif p[0] in ["tpow", "ipow", "gpow"]:
-            r = p[0] + '(' + p[1][0] + ',' + \
-                self.extendedterm2string(p[1][1]) + ',' + p[1][2] + ')'
-        else:
-            r = self.term2string(p)
-        return r
-
-    def isVar(self, t: str) -> bool:
-        """
-            Checks whether t is a type name by seeing if it has an uppercase first character.
-        """
-        return t[0] != t[0].lower()
-
-    def typecheck(self, p, cont: bool=False):
-        # Legacy. Type checking is dealt with elsewhere, but this is necessary functionality.
-        if not p:
-            return 'true'
-        if not cont:
-            self.saved_enumerator = 0
-        i = self.saved_enumerator
-        r = self.types[p[0]] + '(' + p[0] + str(i) + ')'
-        for j, t in enumerate(p[1:]):
-            r = r + ',' + self.types[t] + '(' + t + str(i + j + 1) + ')'
-        self.saved_enumerator = i + len(p)
-        return r
-
-    def collectVars(self, t, d, compiler: 'InstalCompiler' = None):
-        # A legacy function. Not removed because a lot of the type checking is tied to the functionality.
-        if not t:
-            return
-        if t[0] == 'and':
-            self.collectVars(t[1], d)
-            self.collectVars(t[2], d)
-        elif t[0] == 'not':
-            self.collectVars(t[1], d)
-        elif t[0] == 'obl':
-            for x in t[1]:
-                self.collectVars(x, d)
-        elif t[0] in self.EXPR_SYMBOLS:
-            pass
-        else:
-            if t[0] in ['perm', 'pow', 'viol']:
-                t = t[1]
-            op = t[0]
-            args = t[1]
-            for evd in [self.ial_ir["exevents"], self.ial_ir["inevents"], self.ial_ir["vievents"],
-                        self.ial_ir["fluents"], self.ial_ir[
-                        "noninertial_fluents"],
-                        self.ial_ir["obligation_fluents"]]:
-                if op in evd:
-                    for (t1, t2) in zip(evd[op], args):
-                        if t2 in d:
-                            if t1 != d[t2]:
-                                raise InstalCompileError(
-                                    "% ERROR: {v} has type {t1} and type {t2} in {t}".format(v=t2, t1=t1, t2=d[t2],
-                                                                                             t=t))
-                        if self.isVar(t2):
-                            d[t2] = t1
-                    return
-            raise InstalCompileError("% WARNING: {t} not found in collectVars"
-                                     .format(t=t))
