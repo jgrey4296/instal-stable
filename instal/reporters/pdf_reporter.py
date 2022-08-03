@@ -7,14 +7,14 @@ from collections import defaultdict
 
 import inflect
 
-from instal.interfaces.reporter import Reporter
+from instal.interfaces.reporter import InstalReporter
 ##-- end imports
 
 ##-- logging
 logging = logmod.getLogger(__name__)
 ##-- end logging
 
-class InstalPDFReporter(Reporter):
+class InstalPDFReporter(InstalReporter):
     """
         InstalPDFTracer
         Implementation of ABC InstalTracer for pdf output.

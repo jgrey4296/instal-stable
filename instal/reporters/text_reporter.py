@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging as logmod
 import sys
 
-from instal.interfaces.reporter import Reporter
+from instal.interfaces.reporter import InstalReporter
 ##-- end imports
 
 ##-- logging
@@ -13,7 +13,7 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 
-class InstalTextReporter(Reporter):
+class InstalTextReporter(InstalReporter):
     """
         InstalTextTracer
         Implementation of ABC InstalTracer for text output.
