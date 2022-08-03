@@ -4,44 +4,40 @@ from __future__ import annotations
 
 import logging as logmod
 import time
+from dataclasses import InitVar, dataclass, field
 from typing import IO, List
 
 from clingo import Function, Symbol
-from instal import InstalFile
-from instal.instalexceptions import InstalRuntimeError
-
+from instal.compiler.joint_compiler import InstalJointCompiler
+from instal.errors import InstalRuntimeError
 from instal.interfaces.model_runner import InstalModelRunner
+from instal.parser.pyparse_institution import InstalPyParser
+from instal.reporters.text_reporter import InstalTextReporter
 from instal.solvers.clingo_solver import ClingoSolver
+
 ##-- end imports
 
 ##-- logging
 logging = logmod.getLogger(__name__)
 ##-- end logging
 
+@dataclass
 class InstalMultiShotRunner(InstalModelRunner):
     """
 
     """
 
-    # TODO refactor using InstalFileGroup and InstalOptionGroup
-    def __init__(self,
-                 ial_files:List[InstalFile],
-                 bridge_files:List[InstalFile],
-                 lp_files:List[InstalFile],
-                 domain_files:List[InstalFile],
-                 fact_files:List[InstalFile],
-                 verbose:int=0,
-                 answer_set:int=0,
-                 length:int=1,
-                 number:int=1):
+    parser   : InstalParser   = field(default_factory=InstalPyParser)
+    compiler : InstalCompiler = field(default_factory=InstalJointCompiler)
+    solver   : SolverWrapper  = field(default_factory=ClingoSolver)
+    reporter : InstalReporter = field(default_factory=InstalTextReporter)
 
-            super(InstalMultiShotModel, self).__init__(ial_files,bridge_files,lp_files,domain_files,fact_files)
-            self.timestamp = 0
-            self.oracle    = ClingoSolver(self.initial_facts,self.model_files,self.domain_facts,verbose=verbose, length=length, answer_set=answer_set, number=number)
-            self.verbose   = verbose # clean this up
+    checker    : None|InstalChecker = field(default=None, kw_only=True)
 
-    def solve(self, query_events:List[Symbol]):
-        self.timestamp = time.time()
+    timestamp : float               = field(default_factory=time.time)
+
+
+    def solve(self, query_events:List[Symbol]=None):
         observed       = []
 
         for i, e in enumerate(query_events):
@@ -49,13 +45,13 @@ class InstalMultiShotRunner(InstalModelRunner):
                          Function('_eventSet', [i])]
 
         # note: events is a list of Fun not strings
-        output = self.oracle.solve(observed)
+        output = self.solver.solve(observed)
 
-        if not bool(self.oracle.answersets):
+        if not bool(self.solver.answersets):
             raise InstalRuntimeError("Solver produced 0 answer sets. This usually means:\n"
                                      "- You have included additional .lp files with constraints in them."
                                      "- You have forgotten to ground types that exist in your institutions.")
 
-        self.answersets = self.oracle.answersets
+        self.answersets = self.solver.answersets
 
         return self.answersets

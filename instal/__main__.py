@@ -25,7 +25,9 @@ if TYPE_CHECKING:
 
 logging = logmod.getLogger(__name__)
 
+def main():
+    pass
 
 if __name__ == "__main__":
     # TODO select options from instal.cli
-    pass
+    main()

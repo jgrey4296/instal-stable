@@ -34,31 +34,15 @@ logger.addHandler(file_handler)
 logging = logger
 ##-- end Logging
 
-
 ##-- argparse
 argparser = argparse.ArgumentParser()
-argparser.add_argument("-t", "--trace-file", type=str, help="specify output file for trace visualization")
-argparser.add_argument("-v", "--verbose",    action='count', help="turns on trace output, v for holdsat, vv for more")
-argparser.add_argument("-g", "--gantt-file", type=str, help="specify output file for gantt visualization")
-argparser.add_argument("-x", "--text-file",  type=str, help="specify output file for text trace")
-argparser.add_argument("-j", "--json-file",  type=str, help="specify json output file")
+argparser.add_argument('-t', '--target',      action="append", help="Specify (multiple) files and directories to load")
+argparser.add_argument("-o", "--output",      type=str, help="output dir location, defaults to {cwd}/instal_tmp")
+argparser.add_argument("-v", "--verbose", action='count', help="turns on trace output, v for holdsat, vv for more")
+argparser.add_argument("-g", "--gantt",   action="store_true", help="specify output file for gantt visualization")
+argparser.add_argument("-x", "--text",    action="store_true", help="specify output file for text trace")
+argparser.add_argument("-j", "--json",    action="store_true", help="specify json output file")
 ##-- end argparse
-
-
-
-def instal_pdf_trace(trace: list, pdf_file: str) -> None:
-    instal_pdf_tracer = InstalPDFTracer(trace, pdf_file)
-    instal_pdf_tracer.trace_to_file()
-
-
-def instal_text(trace: list, text_file: str) -> None:
-    instal_text_tracer = InstalTextTracer(trace, text_file)
-    instal_text_tracer.trace_to_file()
-
-
-def instal_gantt(trace: list, gantt_file: str) -> None:
-    instal_gantt_tracer = InstalGanttTracer(trace, gantt_file)
-    instal_gantt_tracer.trace_to_file()
 
 
 def instal_trace():
@@ -71,14 +55,16 @@ def instal_trace():
                                      number=args.number)
 
     if option_group.gantt_out:
-        instal_gantt(option_group.trace, option_group.gantt_out)
+        instal_gantt_tracer = InstalGanttTracer(trace, gantt_file)
+        instal_gantt_tracer.trace_to_file()
 
-    
     if option_group.text_out:
-        instal_text(option_group.trace, option_group.text_out)
+        instal_text_tracer = InstalTextTracer(trace, text_file)
+        instal_text_tracer.trace_to_file()
 
     if option_group.pdf_out:
-        instal_pdf(option_group.trace, option_group.pdf_out)
+        instal_pdf_tracer = InstalPDFTracer(trace, pdf_file)
+        instal_pdf_tracer.trace_to_file()
 
 
 

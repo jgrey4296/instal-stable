@@ -60,11 +60,6 @@ def instal_remote():
                                      length=args.length,
                                      number=args.number)
 
-    return instal_remote_files(file_group, option_group)
-
-
-def instal_remote_files(filegroup:InstalFileGroup, optgroup:InstalOptionGroup):
-
     old_types    = DomainParser.DomainParser().get_groundings(filegroup.domains)
     types        = {}
 

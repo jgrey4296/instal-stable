@@ -12,10 +12,9 @@ from typing import IO, List
 
 import instal
 from clingo import Control, Function, Symbol
-from instal import InstalFile, instal_file_name
 from instal.interfaces.solver_wrapper import SolverWrapper
-from instal.state.InstalStateTrace import InstalStateTrace
-from insta.interfaces.ast import InitiallyAST, TermAST
+from instal.interfaces.state import Trace
+from instal.interfaces.ast import InitiallyAST, TermAST
 
 ##-- end imports
 
@@ -60,7 +59,7 @@ class ClingoSolver(SolverWrapper):
 
         logging.info("Clingo initialization complete")
 
-    def solve(self, events: List[Symbol]) -> List[InstalStateTrace]:
+    def solve(self, events: List[Symbol]) -> List[Trace]:
         self.observations = events
         self.cycle        = self.length
 
@@ -72,7 +71,7 @@ class ClingoSolver(SolverWrapper):
             new_model = {
                 'symbols' : model.symbols(atoms=True),
                 'cost'    : model.cost,
-                'number'  : model.number
+                'number'  : model.number,
                 'optimal' : model.optimality_proven,
                 'type'    : model.type
                 }
@@ -133,12 +132,12 @@ class ClingoSolver(SolverWrapper):
     @property
     def metadata(self):
         return {
-            "pid": os.getpid(),
-            "source_files": [str(x) for x in self.input_files],
-            "timestamp": self.timestamp,
-            "mode": "multi_shot",
-            "max_result": self.max_result,
+            "pid"            : os.getpid(),
+            "source_files"   : [str(x) for x in self.input_files],
+            "timestamp"      : self.timestamp,
+            "mode"           : "multi_shot",
+            "max_result"     : self.max_result,
             "current_result" : self.current_answer,
-            "result_size": len(self.results)
-            "version" : instal.__version__,
+            "result_size"    : len(self.results),
+            "version"        : instal.__version__,
         }

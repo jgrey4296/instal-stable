@@ -12,7 +12,7 @@ from typing import IO, List, Optional
 from clingo import Symbol, parse_term
 from instal.util.misc import InstalFileGroup, InstalOptionGroup
 
-from .models.InstalMultiShotModel import InstalMultiShotModel
+from .model_runners.InstalMultiShotModel import InstalMultiShotModel
 ##-- end imports
 
 ##-- Logging
@@ -38,12 +38,10 @@ logging = logger
 
 ##-- argparse
 argparser = argparse.ArgumentParser()
-argparser.add_argument('--dir',               type=str, help="Specify a directory to load")
-argparser.add_argument('-f', '--file',        action="append", help="Specify (multiple) specific files to load")
-argparser.add_argument("-q", "--query",       type=str, help="specify query file (.iaq) - use \"-\" to take from stdin.")
+argparser.add_argument('-t', '--target',      action="append", help="Specify (multiple) files and directories to load")
 
-argparser.add_argument("-o", "--output-file", type=str, help="output file/directory for one/several inputs: uses /tmp if omitted")
-argparser.add_argument("-j", "--json-file",   type=str, help="specify json output file or directory")
+argparser.add_argument("-o", "--output",      type=str, help="output dir location, defaults to {cwd}/instal_tmp")
+argparser.add_argument("-j", "--json",        action='store_true', help="toggle json output")
 
 argparser.add_argument("-v", "--verbose",     action='count', help="turns on trace output, v for holdsat, vv for more")
 argparser.add_argument('-a', '--answer-set',  type=int, default=0, help='choose an answer set (default all)')
@@ -51,37 +49,23 @@ argparser.add_argument('-n', '--number',      type=int, default=1, help='compute
 argparser.add_argument('-l', '--length',      type=int, default=0, help='length of trace (default 1)')
 ##-- end argparse
 
-def instal_query_files(filegroup:InstalFileGroup, optgroup:InstalOptionGroup):
-    # TODO parse query file
-    query_file   = filegroup.query
-    query_text   = query_file.read() if query_file else ""
-    query_events = [] # type: List[Symbol]
-
-    for q in StringIO(query_text):
-        query_events.append(parse_term(q))
-
-    if length == 0 and query_events:
-        length = len(query_events)
-
-    if length == 0:
-        length = 1
-
-    model      = InstalMultiShotModel(filegroup, optgroup)
-    answersets = model.solve(query_events)
-    model.check_and_output_json(json_file)
-    return answersets
-
-
 def instal_query():
-    args= argparser.parse_args()
-
-    file_group   = InstalFileGroup(args)
+    args         = argparser.parse_args()
+    file_group   = InstalFileGroup.from_targets(*args.target)
     option_group = InstalOptionGroup(verbose=args.verbose,
                                      answer_set=args.answer_set,
                                      length=args.length,
-                                     number=args.number)
+                                     number=args.number,
+                                     output=pathlib.Path(args.output),
+                                     json=args.json)
 
-    return instal_query_files(file_group, option_group)
+    assert(file_group.query is not None)
+
+    model = InstalMultiShotRunner(filegroup, optgroup)
+    model.compile_model()
+    model.solve()
+    model.report()
+
 
 
 if __name__ == "__main__":

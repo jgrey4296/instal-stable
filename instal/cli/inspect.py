@@ -51,27 +51,6 @@ argparser.add_argument('-l', '--length',      type=int, default=0, help='length 
 ##-- end argparse
 
 
-def instal_inspect_files(filegroup:InstalFileGroup, optgroup:InstalOptionGroup):
-    # TODO parse query files
-    query_file = filegroup.query
-    query_text   = query_file.read() if query_file else ""
-    query_events = [] # type: List[Symbol]
-    for q in StringIO(query_text):
-        query_events.append(parse_term(q))
-
-    if length == 0 and query_events:
-        length = len(query_events)
-
-    if length == 0:
-        length = 1
-
-    model        = InstalDummyModel(filegroup, optgroup)
-    declarations = model.get_declarations()
-    logging.info("Inspection profile:")
-    logging.info(declarations)
-    # TODO Should this dump to json as defined by thing, or?
-    return declarations
-
 def instal_inspect():
     args = argparser.parse_args()
 
@@ -81,8 +60,11 @@ def instal_inspect():
                                      length=args.length,
                                      number=args.number)
 
+    model        = InstalDummyModel(filegroup, optgroup)
+    declarations = model.get_declarations()
+    logging.info("Inspection profile:")
+    logging.info(declarations)
 
-    instal_inspect_files(filegroup, option_group)
 
 
 if __name__ == "__main__":

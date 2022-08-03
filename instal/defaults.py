@@ -10,10 +10,14 @@ import os
 
 COMPILED_EXT = ".lp"
 
-INST_EXT     = ".ial"
-BRIDGE_EXT   = ".iab"
-FACT_EXT     = ".iaf"
-DOMAIN_EXT   = ".idc"
-QUERY_EXT    = ".iaq"
+INST_EXT      = ".ial"
+BRIDGE_EXT    = ".iab"
+DOMAIN_EXT    = ".idc"
+
+QUERY_EXT     = ".iaq"
+
+# Equivalent:
+FACT_EXT      = ".iaf"
+SITUATION_EXT = ".iaf"
 
 INSTAL_API = os.environ.get("INSTAL_REMOTE_URL", "http://127.0.0.1:5000")
