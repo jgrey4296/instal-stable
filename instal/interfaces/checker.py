@@ -17,7 +17,7 @@ from typing import (TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
 from uuid import UUID, uuid1
 from weakref import ref
 
-from isntal.interfaces.ast import InstalAST
+from instal.interfaces.ast import InstalAST
 
 if TYPE_CHECKING:
     # tc only imports

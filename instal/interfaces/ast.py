@@ -42,7 +42,7 @@ class RelationalEnum(Enum):
 
 ##-- end enums
 
-##-- AST nodes
+##-- core base asts
 @dataclass
 class InstalAST:
     source : None|str = field(default=None, kw_only=True)
@@ -53,12 +53,11 @@ class TermAST(InstalAST):
     params : list[InstalAST] = field(default_factory=list)
     is_var : bool = field(default=False)
 
-@dataclass
-class TypeAST(InstalAST):
-    head : TermAST = field()
+##-- end core base asts
 
+##-- top level collection asts
 @dataclass
-class ProgramAST(InstalAST):
+class ModelAST(InstalAST):
     """
     Combines institutions and bridges together
     """
@@ -67,26 +66,69 @@ class ProgramAST(InstalAST):
 
 
 @dataclass
-class BridgeDefAST(InstalAST):
-    head      : TermAST             = field()
-    sources   : list[TermAST]       = field(default_factory=list)
-    sinks     : list[TermAST]       = field(default_factory=list)
-    relations : list[RelationalAST] = field(default_factory=list)
-    fluents   : list[FluentAST]     = field(default_factory=list)
+class DomainTotalityAST(InstalAST):
+    body : list[DomainSpecAST] = field(default_factory=list)
 
+@dataclass
+class QueryTotalityAST(InstalAST):
+    body : list[QueryAST] = field(default_factory=list)
+
+@dataclass
+class FactTotalityAST(InstalAST):
+    body : list[InitiallyAST] = field(default_factory=list)
+@dataclass
+class TypeTotalityAST(InstalAST):
+    body : list[TypeAST] = field(default_factory=list)
+##-- end top level collection asts
+
+
+##-- institutions and bridges
 @dataclass
 class InstitutionDefAST(InstalAST):
     head      : TermAST             = field()
-    fluents   : list[InstalAST]     = field(default_factory=list)
+    fluents   : list[FluentAST]     = field(default_factory=list)
     events    : list[EventAST]      = field(default_factory=list)
     types     : list[TypeAST]       = field(default_factory=list)
     relations : list[RelationalAST] = field(default_factory=list)
-
+    nif_rules : list[NifRuleAST]    = field(default_factory=list)
+    initial   : list[InitiallyAST]       = field(default_factory=list)
 
 @dataclass
+class BridgeDefAST(InstitutionDefAST):
+    sources   : list[TermAST]         = field(default_factory=list)
+    sinks     : list[TermAST]         = field(default_factory=list)
+
+##-- end institutions and bridges
+
+
+
+##-- domain, query, facts
+@dataclass
 class DomainSpecAST(InstalAST):
+    """
+    Type : instance, instance, instance;
+    """
     head  : TermAST       = field()
     terms : list[TermAST] = field(default_factory=list)
+
+@dataclass
+class QueryAST(InstalAST):
+    head : TermAST      = field()
+    inst : None|TermAST = field(default=None)
+    time : None|int     = field(default=None)
+
+@dataclass
+class InitiallyAST(InstalAST):
+    body       : list[TermAST]      = field(default_factory=list)
+    conditions : list[ConditionAST] = field(default_factory=list)
+    inst       : None|TermAST       = field(default=None)
+##-- end domain, query, facts
+
+
+##-- specialised asts
+@dataclass
+class TypeAST(InstalAST):
+    head : TermAST = field()
 
 @dataclass
 class EventAST(InstalAST):
@@ -101,8 +143,10 @@ class FluentAST(InstalAST):
 
 @dataclass
 class ConditionAST(InstalAST):
-    head : TermAST = field()
-    negated : bool = field(default=False)
+    head     : TermAST      = field()
+    negated  : bool         = field(default=False)
+    operator : None|str     = field(default=None)
+    rhs      : None|TermAST = field(default=None)
 
 @dataclass
 class RelationalAST(InstalAST):
@@ -113,14 +157,11 @@ class RelationalAST(InstalAST):
     annotation : RelationalEnum     = field()
     body       : list[TermAST]      = field(default_factory=list)
     conditions : list[ConditionAST] = field(default_factory=list)
+    delay      : int                = field(default=0)
 
 @dataclass
-class ObligationAST(InstalAST):
+class NifRuleAST(InstalAST):
     head : TermAST       = field()
-    body : list[TermAST] = field(default_factory=list)
-
-@dataclass
-class InitiallyAST(InstalAST):
     body : list[TermAST] = field(default_factory=list)
 
 @dataclass
@@ -131,4 +172,4 @@ class SinkAST(InstalAST):
 class SourceAST(InstalAST):
     head : TermAST = field()
 
-##-- end AST nodes
+##-- end specialised asts

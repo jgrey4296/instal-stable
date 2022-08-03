@@ -11,10 +11,15 @@ class InstalParser(metaclass=abc.ABCMeta):
         See __init__.py for more details.
     """
 
-    def parse(self, file_group:InstalFileGroup) -> InASTs.ProgramAST:
+    def parse(self, file_group:InstalFileGroup) -> InASTs.ModelAST:
+        """
+        Read and parse multiple instal files into the AST representation
+        *Only* handles the institutions and bridges,
+        *Not* domains, facts or queries
+        """
         try:
             text : str = ""
-            ir_program : InASTs.InstalAST = InASTs.ProgramAST()
+            ir_program : InASTs.InstalAST = InASTs.ModelAST()
             for path in file_group.institutions:
                 with open(path, 'r') as f:
                     text = f.read()
@@ -38,6 +43,8 @@ class InstalParser(metaclass=abc.ABCMeta):
     def parse_bridge(self, text:str) -> InASTs.InstalAST: pass
 
     @abc.abstractmethod
-    def parse_facts(self, text:str) -> list[InASTs.InstalAST]: pass
+    def parse_domain(self, text:str) -> list[InASTs.InstalAST]: pass
     @abc.abstractmethod
-    def parse_atoms(self, text:str) -> list[InASTs.InstalAST]: pass
+    def parse_situation(self, text:str) -> list[InASTs.InstalAST]: pass
+    @abc.abstractmethod
+    def parse_query(self, text:str) -> list[InASTs.InstalAST]: pass

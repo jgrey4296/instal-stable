@@ -8,12 +8,16 @@ import logging as logmod
 import os
 from dataclasses import dataclass, field, InitVar
 from instal.util.misc import temporary_text_file
-from instal.interfaces.compiled_rep import InstalCompiledData
-from isntal.util.ast import InstaASTR, ProgramAST, BridgeDefAST, InstitutionDefAST
+from instal.interfaces.ast import InstalAST, ModelAST, BridgeDefAST, InstitutionDefAST
 ##-- end imports
 
 logging = logmod.getLogger(__name__)
 
+
+@dataclass
+class InstalCompiledData:
+    institutions : list[str] = field(default_factory=list)
+    bridges      : list[str] = field(default_factory=list)
 
 class InstalCompiler(metaclass=abc.ABCMeta):
     """
@@ -29,7 +33,7 @@ class InstalCompiler(metaclass=abc.ABCMeta):
             raise NotImplementedException("Need to do this")
 
         match ir:
-            case ProgramAST():
+            case ModelAST():
                 return self.compile_program(ir)
             case BridgeDefAST():
                 return self.compile_bridge
@@ -60,10 +64,10 @@ class InstalCompiler(metaclass=abc.ABCMeta):
             case _:
                 raise Exception("Unrecognised top level ir compilation target")
 
-    def compile_program(self, ir: ProgramAST) -> InstalCompiledData:
+    def compile_program(self, ir: ModelAST) -> InstalCompiledData:
         compiled_data = InstalCompiledData()
         for iir in instal_program.institutions:
-            asp : str = self.compile_ial(iir)
+            asp : str = self.compile_institution(iir)
             compiled_data.institution.append(asp)
 
         for bir in instal_program.bridges:
@@ -72,43 +76,9 @@ class InstalCompiler(metaclass=abc.ABCMeta):
 
         return compiled_data
 
-    @abc.abstractmethod
-    def compile_institution(self, inst_ir: InstitutionDefAST) -> str:
-        """
-
-        input: an ast produced by the instal parser
-        output: compiled ASP for that institution
-        """
-        pass
 
     @abc.abstractmethod
-    def compile_bridge(self, bridge_ir: BridgeDefAST, inst_ir: InstitutionDefAST) -> str:
-        """
-        input: an ast produced by the instal bridge parser
-        output: compiled ASP for that bridge
-        """
-        pass
-
+    def compile_institution(self, ial: InstitutionDefAST) -> str: pass
 
     @abc.abstractmethod
-    def compile_term(self, term) -> str: pass
-    @abc.abstractmethod
-    def compile_type(self, _type) -> str: pass
-    @abc.abstractmethod
-    def compile_domain(self, domain) -> str: pass
-    @abc.abstractmethod
-    def compile_event(self, event) -> str: pass
-    @abc.abstractmethod
-    def compile_fluent(self, fluent) -> str: pass
-    @abc.abstractmethod
-    def compile_condition(self, condition) -> str: pass
-    @abc.abstractmethod
-    def compile_relation(self, relation) -> str: pass
-    @abc.abstractmethod
-    def compile_obligation(self, obligation) -> str: pass
-    @abc.abstractmethod
-    def compile_initially(self, initially) -> str: pass
-    @abc.abstractmethod
-    def compile_sink(self, sink) -> str: pass
-    @abc.abstractmethod
-    def compile_source(self, source) -> str: pass
+    def compile_bridge(self, iab: BridgeDefAST, insts:list[InstitutionDefAST]) -> str: pass

@@ -32,12 +32,12 @@ class State_Protocol(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __str__(self): pass
 
-    @abc.abstractmethod
     @staticmethod
+    @abc.abstractmethod
     def from_json(path): pass
 
-    @abc.abstractmethod
     @staticmethod
+    @abc.abstractmethod
     def from_symbol_list(lst): pass
 
     @abc.abstractmethod
@@ -46,17 +46,17 @@ class State_Protocol(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def to_list(self): pass
 
-    @abc.abstractmethod:
+    @abc.abstractmethod
     def to_ir(self): pass
 
-    @abc.abstractmethod:
+    @abc.abstractmethod
     def to_solver(self): pass
 
     @abc.abstractmethod
     def check(self, conditions): pass
 
 @dataclass
-class State(InstalState_Protocol):
+class State(State_Protocol):
     """
     Description of a single moment in a model's trace.
     """
@@ -68,7 +68,7 @@ class State(InstalState_Protocol):
     full     : list[Symbol] = field(default_factory=list)
 
 
-class Trace(metaclass=Sequence):
+class Trace(Sequence):
     """
     The collected sequence of instance states which comprise
     a full model run
@@ -93,11 +93,10 @@ class Trace(metaclass=Sequence):
     @abc.abstractmethod
     def last(self): pass
 
-    @abc.abstractmethod
     @classmethod
+    @abc.abstractmethod
     def from_json(data): pass
 
-    @abc.abstractmethod
     @classmethod
+    @abc.abstractmethod
     def from_list(lst): pass
-

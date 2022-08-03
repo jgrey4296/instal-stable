@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import abc
 import logging as logmod
+import time
 import warnings
 from collections import defaultdict
 from dataclasses import InitVar, dataclass, field
 from typing import IO, List
 
 from clingo import parse_term
-from instal import InstalFile
 
 ##-- end imports
 
@@ -32,7 +32,7 @@ class _SolverWrapper_Protocol(metaclass=abc.ABCMeta):
 @dataclass
 class SolverWrapper(_SolverWrapper_Protocol):
     """
-    An wrapper around clingo to simplify solving
+    An wrapper around a solver (ie: clingo) to interface with the rest of instal
     """
 
     input_files    : list[Path]          = field(default_factory=list)
