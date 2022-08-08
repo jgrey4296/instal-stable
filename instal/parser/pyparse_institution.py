@@ -31,12 +31,15 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 ##-- util
+pp.ParserElement.set_default_whitespace_chars(" \t")
+
 s       = pp.Suppress
 op      = pp.Optional
 orm     = pp.OneOrMore
 zrm     = pp.ZeroOrMore
 kw      = pp.Keyword
 lit     = pp.Literal
+gr      = lambda x: pp.Group(x)
 s_kw    = lambda x: pp.Keyword(x).suppress()
 s_lit   = lambda x: pp.Literal(x).suppress()
 comment = pp.Regex(r"%.+?")
@@ -77,10 +80,10 @@ def build_institution(string, loc, toks):
 
 
 def build_term(string, loc, toks) -> ASTs.TermAST:
-    is_var, head = toks['head'][0]
-    return ASTs.TermAST(head,
-                      params=toks['params'][:] if 'params' in toks else [],
-                      is_var=is_var)
+    is_var, value = toks['value']
+    return ASTs.TermAST(value,
+                        params=toks['params'][:] if 'params' in toks else [],
+                        is_var=is_var)
 
 
 def build_fluent(string, loc, toks) -> ASTs.FluentAST:
@@ -145,6 +148,8 @@ def build_relation(string, loc, toks) -> ASTs.RelationalAST:
 ##-- parser components
 name = pp.Word(pp.alphanums)
 name.set_parse_action(lambda s, l, t: (False, t[0]))
+# TODO: handle explicit type annotation
+# TODO: handle numbers
 var       = pp.Word(pp.alphas.upper(), pp.alphanums)
 var.set_parse_action(lambda s, l, t: (True, t[0]))
 
@@ -152,7 +157,7 @@ var.set_parse_action(lambda s, l, t: (True, t[0]))
 TERM      = pp.Forward()
 term_list = pp.delimited_list(TERM)
 
-TERM  <<= (var | name)("head") + op(lit("(") + term_list("params") + lit(")"))
+TERM  <<= (var | name)("value") + op(lit("(") + term_list("params") + lit(")"))
 TERM.set_parse_action(build_term)
 TERM.set_name("term")
 
@@ -202,14 +207,16 @@ DOMAIN_SPEC = TERM('head') + s_lit(":") + orm(TERM)("body") + pp.line_end
 DOMAIN_SPEC.set_parse_action(lambda s, l, t: ASTs.DomainSpecAST(t['head'], t['body'][:]))
 ##-- end idc domain
 
-##-- iaf facts
-IAF_INITIALLY   = s_kw("initially") + term("body") + op(CONDITIONS)("conditions") + s_kw('in') + term('inst') + pp.line_end
-IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body']], t['conditions'][:], inst=t['inst']))
+##-- iaf facts / situation
+cond_list = op(CONDITIONS)("conditions")
+in_inst   = s_kw('in') + TERM('inst')
+IAF_INITIALLY   = s_kw("initially") + TERM("body") + cond_list + in_inst + pp.line_end
+IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body']], t['conditions'][:] if 'conditions' in t else [], inst=t['inst']))
 ##-- end iaf facts
 
 ##-- iaq query specification
-OBSERVED = s_kw('observed') + term('fact') + op(term)('inst') + op(s_kw('at') + pp.common.integer('time')) + pp.line_end
-OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'], inst=t['inst'], time=t['time']))
+OBSERVED = s_kw('observed') + TERM('fact') + op(s_kw('in') + TERM)('inst') + op(s_kw('at') + pp.common.integer('time')) + pp.line_end
+OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'], inst=t['inst'] if 'inst' in t else None, time=t['time'] if 'time' in t else None))
 ##-- end iaq query specification
 
 ##-- top level parser entry points

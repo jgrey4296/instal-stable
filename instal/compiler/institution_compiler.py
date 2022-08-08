@@ -109,7 +109,7 @@ class InstalInstitutionCompiler(InstalCompiler):
 
         return "\n".join(self._compiled_text)
 
-    def compile_bridge(self, iab: IAST.BridgeDefAST, insts:list[IAST.InstitutionDefAST]) -> str:
+    def compile_bridge(self, iab: IAST.BridgeDefAST) -> str:
         assert(isinstance(iab, IAST.BridgeDefAST))
         assert(len(iab.sources) == 1)
         assert(len(iab.sinks) == 1)
@@ -135,7 +135,7 @@ class InstalInstitutionCompiler(InstalCompiler):
 
         return "\n".join(self._compiled_text)
 
-    def compile_domain(self, domain:list[IAST.DomainSpecAST]) -> str:
+    def compile_domain(self, domain:IAST.DomainTotalityAST) -> str:
         """
         Compile idc domain specs of Type: instance, instance, instance...
         """
@@ -143,14 +143,14 @@ class InstalInstitutionCompiler(InstalCompiler):
         self.clear()
         self.insert(HEADER, header="Domain Specification", sub=domain.source)
         for assignment in domain:
-            wrapper = assignment.head.head.lower()
+            wrapper = assignment.head.value.lower()
             for term in assignment.terms:
                 assert(not bool(term.params))
                 self.insert(f"{wrapper}({term}).")
 
         return "\n".join(self._compiled_text)
 
-    def compile_queries(self, query:list[IAST.TermAST]) -> str:
+    def compile_queries(self, query:IAST.QueryTotalityAST) -> str:
         """
         Compile sequence of observations into extObserved facts
         # TODO handle specifying time of observation
@@ -169,10 +169,10 @@ class InstalInstitutionCompiler(InstalCompiler):
         # Print types. Also adds a constraint that every type must be grounded.
         self.insert(HEADER, header="Type Grounding and declaration", sub="")
         for t in type_list:
-            self.insert(TYPE_PAT, x=t.head.head.lower())
+            self.insert(TYPE_PAT, x=t.head.value.lower())
 
         for t in type_list:
-            self.insert(TYPE_GROUND, x=t.head.head.lower())
+            self.insert(TYPE_GROUND, x=t.head.value.lower())
 
     def compile_events(self, inst):
         # should be sorted already
@@ -218,7 +218,7 @@ class InstalInstitutionCompiler(InstalCompiler):
                                 violation=violation,
                                 inst=inst.head,
                                 rhs=rhs)
-                case IAST.FluentEnum.cross if fluent.head.head == gpow:
+                case IAST.FluentEnum.cross if fluent.head.value == gpow:
                     assert(len(fluent.head.params) == 3)
                     self.insert(GPOW_FLUENT,
                                 source=fluent.head.params[0],
@@ -229,7 +229,7 @@ class InstalInstitutionCompiler(InstalCompiler):
                 case IAST.FluentEnum.cross:
                     assert(len(fluent.head.params) == 3)
                     self.insert(CROSS_FLUENT,
-                                power=fluent.head.head,
+                                power=fluent.head.value,
                                 source=fluent.head.params[0],
                                 fluent=fluent.head.params[1],
                                 sink=fluent.head.params[2],
@@ -322,9 +322,9 @@ class InstalInstitutionCompiler(InstalCompiler):
 
 
 
-    def compile_situation(self, facts:list[IAST.InitiallyAST], inst:None|IAST.InstitutionDefAST=None):
+    def compile_situation(self, facts:IAST.FactTotalityAST, inst:None|IAST.InstitutionDefAST=None):
         assert(all(isinstance(x, IAST.InitiallyAST) for x in facts))
-        for initial in facts:
+        for initial in facts.body:
             for state in initial.body:
                 if inst:
                     conditions  = CompileUtil.compile_conditions(inst, initial.conditions)
@@ -368,10 +368,10 @@ class CompileUtil:
                 queue += param.params
                 continue
             assert(not bool(param.params))
-            assert(param.head[0].isupper())
-            assert(not bool(type_check) or param.head in type_check)
+            assert(param.value[0].isupper())
+            assert(not bool(type_check) or param.value in type_check)
             # TODO handle variable numbers
-            result.append(f"{param.head.lower()}({param.head})")
+            result.append(f"{param.value.lower()}({param.value})")
             found.add(param)
 
         if bool(result):
@@ -411,5 +411,4 @@ class CompileUtil:
     @staticmethod
     def compile_term(term) -> str:
         params = [CompileUtil.compile_term(x) for x in term.params]
-        return f"{term.head}({', '.join(params)})"
-
+        return f"{term.value}({', '.join(params)})"

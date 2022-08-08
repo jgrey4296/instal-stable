@@ -8,7 +8,7 @@ import logging as logmod
 import os
 from dataclasses import dataclass, field, InitVar
 from instal.util.misc import temporary_text_file
-from instal.interfaces.ast import InstalAST, ModelAST, BridgeDefAST, InstitutionDefAST
+from instal.interfaces import ast as ASTs
 ##-- end imports
 
 logging = logmod.getLogger(__name__)
@@ -25,46 +25,7 @@ class InstalCompiler(metaclass=abc.ABCMeta):
     specific solver format
     """
 
-    def compile(self, ir: InstaASTR, pair_outputs=False) -> InstalCompiledData:
-        """
-        This method strings together compile_ial and compile_bridge - allows subclasses to just deal with them.
-        """
-        if pair_outputs:
-            raise NotImplementedException("Need to do this")
-
-        match ir:
-            case ModelAST():
-                return self.compile_program(ir)
-            case BridgeDefAST():
-                return self.compile_bridge
-            case InstitutionDefAST():
-                return self.compile_institution(ir)
-            case TermAST():
-                return self.compile_term(ir)
-            case TypeAST():
-                return self.compile_type(ir)
-            case DomainSpecAST():
-                return self.compile_domain(ir)
-            case EventAST():
-                return self.compile_event(ir)
-            case FluentAST():
-                return self.compile_fluent(ir)
-            case ConditionAST():
-                return self.compile_condition(ir)
-            case RelaitionalAST():
-                return self.compile_relaition(ir)
-            case ObligationAST():
-                return self.compile_obligation(ir)
-            case InitiallyAST():
-                return self.compile_initially(ir)
-            case SinkAST():
-                return self.compile_sink(ir)
-            case SourceAST():
-                return self.compile_source(ir)
-            case _:
-                raise Exception("Unrecognised top level ir compilation target")
-
-    def compile_program(self, ir: ModelAST) -> InstalCompiledData:
+    def compile_program(self, ir: ASTs.ModelAST) -> InstalCompiledData:
         compiled_data = InstalCompiledData()
         for iir in instal_program.institutions:
             asp : str = self.compile_institution(iir)
@@ -78,7 +39,17 @@ class InstalCompiler(metaclass=abc.ABCMeta):
 
 
     @abc.abstractmethod
-    def compile_institution(self, ial: InstitutionDefAST) -> str: pass
+    def compile_institution(self, ial: ASTs.InstitutionDefAST) -> str: pass
 
     @abc.abstractmethod
-    def compile_bridge(self, iab: BridgeDefAST, insts:list[InstitutionDefAST]) -> str: pass
+    def compile_bridge(self, iab: ASTs.BridgeDefAST) -> str: pass
+
+
+    @abc.abstractmethod
+    def compile_domain(self, domain:ASTs.DomainTotalityAST) -> str: pass
+
+    @abc.abstractmethod
+    def compile_queries(self, queries:ASTs.QueryTotalityAST) -> str: pass
+
+    @abc.abstractmethod
+    def compile_situation(self, facts:ASTs.FactTotalityAST, inst:None|ASTs.InstitutionDefAST) -> str: pass

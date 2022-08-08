@@ -49,9 +49,9 @@ class InstalAST:
 
 @dataclass
 class TermAST(InstalAST):
-    head   : str = field()
+    value  : str             = field()
     params : list[InstalAST] = field(default_factory=list)
-    is_var : bool = field(default=False)
+    is_var : bool            = field(default=False)
 
 ##-- end core base asts
 
@@ -69,18 +69,30 @@ class ModelAST(InstalAST):
 class DomainTotalityAST(InstalAST):
     body : list[DomainSpecAST] = field(default_factory=list)
 
+    def __len__(self):
+        return len(self.body)
+
 @dataclass
 class QueryTotalityAST(InstalAST):
     body : list[QueryAST] = field(default_factory=list)
 
+    def __len__(self):
+        return len(self.body)
+
 @dataclass
 class FactTotalityAST(InstalAST):
     body : list[InitiallyAST] = field(default_factory=list)
+
+    def __len__(self):
+        return len(self.body)
+
 @dataclass
 class TypeTotalityAST(InstalAST):
     body : list[TypeAST] = field(default_factory=list)
-##-- end top level collection asts
 
+    def __len__(self):
+        return len(self.body)
+##-- end top level collection asts
 
 ##-- institutions and bridges
 @dataclass
@@ -91,7 +103,7 @@ class InstitutionDefAST(InstalAST):
     types     : list[TypeAST]       = field(default_factory=list)
     relations : list[RelationalAST] = field(default_factory=list)
     nif_rules : list[NifRuleAST]    = field(default_factory=list)
-    initial   : list[InitiallyAST]       = field(default_factory=list)
+    initial   : list[InitiallyAST]  = field(default_factory=list)
 
 @dataclass
 class BridgeDefAST(InstitutionDefAST):
@@ -99,8 +111,6 @@ class BridgeDefAST(InstitutionDefAST):
     sinks     : list[TermAST]         = field(default_factory=list)
 
 ##-- end institutions and bridges
-
-
 
 ##-- domain, query, facts
 @dataclass
@@ -123,7 +133,6 @@ class InitiallyAST(InstalAST):
     conditions : list[ConditionAST] = field(default_factory=list)
     inst       : None|TermAST       = field(default=None)
 ##-- end domain, query, facts
-
 
 ##-- specialised asts
 @dataclass
