@@ -43,7 +43,7 @@ gr      = lambda x: pp.Group(x)
 s_kw    = lambda x: pp.Keyword(x).suppress()
 s_lit   = lambda x: pp.Literal(x).suppress()
 comment = pp.Regex(r"%.+?")
-semi    = lit(";").suppress()
+semi    = (lit(";") + pp.line_end).suppress()
 
 fluent_kws   = pp.MatchFirst([kw(x) for x in ["cross", "noninertial", "obligation"]])
 event_kws    = pp.MatchFirst([kw(x) for x in ["exogenous", "inst", "violation"]])
@@ -88,7 +88,7 @@ def build_term(string, loc, toks) -> ASTs.TermAST:
 
 def build_fluent(string, loc, toks) -> ASTs.FluentAST:
     head     = toks['head']
-    anno_str = toks['annotation'] if 'annotation' in toks else None
+    anno_str = toks.annotation
     match anno_str:
         case "cross":
             annotation = ASTs.FluentEnum.cross
@@ -104,7 +104,7 @@ def build_fluent(string, loc, toks) -> ASTs.FluentAST:
 
 def build_event(string, loc, toks) -> ASTs.EventAST:
     head     = toks['head']
-    anno_str = toks['annotation'] if 'annotation' in toks else None
+    anno_str = toks.annotation
     match anno_str:
         case "exogenous":
             annotation = ASTs.EventEnum.exogenous
@@ -145,7 +145,7 @@ def build_relation(string, loc, toks) -> ASTs.RelationalAST:
 
 ##-- end constructors
 
-##-- parser components
+##-- term parser
 name = pp.Word(pp.alphanums)
 name.set_parse_action(lambda s, l, t: (False, t[0]))
 # TODO: handle explicit type annotation
@@ -160,8 +160,9 @@ term_list = pp.delimited_list(TERM)
 TERM  <<= (var | name)("value") + op(lit("(") + term_list("params") + lit(")"))
 TERM.set_parse_action(build_term)
 TERM.set_name("term")
+##-- end term parser
 
-# Statements:
+##-- parser components
 TYPE_DEC    = s_kw("type") + TERM('head') + semi
 TYPE_DEC.set_parse_action(lambda s, l, t: ASTs.TypeAST(t['head']))
 
@@ -187,20 +188,24 @@ NIF_RULE  = TERM("head") + s_kw("when") + term_list("body") + semi
 NIF_RULE.set_parse_action(lambda s, l, t: ASTs.NifRuleAST(t['head'], t['body'][:]))
 
 INITIALLY   = s_kw("initially") + term_list("body") + op(CONDITIONS)("conditions") + semi
-INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST(t['body'][:], t['conditions'][:]))
+INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST(t['body'][:], t.conditions[:]))
+##-- end parser components
 
+##-- institution
 INSTITUTION = s_kw("institution") + TERM("head") + semi
-INSTITUTION.set_parse_action(lambda s, l, t: ASTs.InstitutionDefAST(t['head']))
+INSTITUTION.set_parse_action(lambda s, l, t: ASTs.InstitutionDefAST(t['head'][0]))
+##-- end institution
 
+##-- bridge specific
 BRIDGE      = s_kw("bridge") + TERM("head") + semi
-BRIDGE.set_parse_action(lambda s, l, t: ASTs.BridgeDefAST(t['head']))
+BRIDGE.set_parse_action(lambda s, l, t: ASTs.BridgeDefAST(t['head'][0]))
 
 SINK        = s_kw("sink") + TERM("head") + semi
 SINK.set_parse_action(lambda s, l, t: ASTs.SinkAST(t['head']))
 
 SOURCE      = s_kw("source") + TERM("head") + semi
 SOURCE.set_parse_action(lambda s, l, t: ASTs.SourceAST(t['head']))
-##-- end parser components
+##-- end bridge specific
 
 ##-- idc domain
 DOMAIN_SPEC = TERM('head') + s_lit(":") + orm(TERM)("body") + pp.line_end
@@ -211,12 +216,12 @@ DOMAIN_SPEC.set_parse_action(lambda s, l, t: ASTs.DomainSpecAST(t['head'], t['bo
 cond_list = op(CONDITIONS)("conditions")
 in_inst   = s_kw('in') + TERM('inst')
 IAF_INITIALLY   = s_kw("initially") + TERM("body") + cond_list + in_inst + pp.line_end
-IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body']], t['conditions'][:] if 'conditions' in t else [], inst=t['inst']))
-##-- end iaf facts
+IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body']], t.conditions[:], inst=t['inst']))
+##-- end iaf facts / situation
 
 ##-- iaq query specification
 OBSERVED = s_kw('observed') + TERM('fact') + op(s_kw('in') + TERM)('inst') + op(s_kw('at') + pp.common.integer('time')) + pp.line_end
-OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'], inst=t['inst'] if 'inst' in t else None, time=t['time'] if 'time' in t else None))
+OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'], inst=t.inst, time=t.time))
 ##-- end iaq query specification
 
 ##-- top level parser entry points
@@ -268,7 +273,7 @@ class InstalPyParser(InstalParser):
 
     def parse_bridge(self, text:str, *, source:str=None) -> ASTs.BridgeDefAST:
         """ Mainly for .iab's """
-        result = top_brige.parse_string(text, parse_all=True)[0]
+        result = top_bridge.parse_string(text, parse_all=True)[0]
         if source is not None:
             result.source = source
         return result
