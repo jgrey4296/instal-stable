@@ -28,6 +28,7 @@ class EventEnum(Enum):
     violation     = auto()
 
 class FluentEnum(Enum):
+    inertial    = auto()
     noninertial = auto()
     obligation  = auto()
     cross       = auto()
@@ -146,8 +147,8 @@ class EventAST(InstalAST):
 
 @dataclass
 class FluentAST(InstalAST):
-    head       : TermAST         = field()
-    annotation : None|FluentEnum = field(default=None)
+    head       : TermAST    = field()
+    annotation : FluentEnum = field(default=FluentEnum.inertial)
 
 
 @dataclass

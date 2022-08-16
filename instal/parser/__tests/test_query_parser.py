@@ -14,8 +14,9 @@ from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     TypeVar, cast)
 from unittest import mock
 
-from instal.parser.pyparse_institution import InstalPyParser
-from instal.interfaces.ast import QueryTotalityAST
+import instal.parser.pyparse_institution as dsl
+import instal.interfaces.ast as ASTs
+from instal.interfaces.parser import InstalParserTestCase
 ##-- end imports
 
 ##-- warnings
@@ -24,62 +25,35 @@ with warnings.catch_warnings():
     pass
 ##-- end warnings
 
-class TestInstitutionParser(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.getLogger(__name__)
-        logging.root.addHandler(cls.file_h)
-        logging.root.setLevel(logmod.NOTSET)
-
-        cls.dsl = InstalPyParser()
-
-
-    @classmethod
-    def tearDownClass(cls):
-        logmod.root.removeHandler(cls.file_h)
-
+class TestInstitutionParser(InstalParserTestCase):
     def test_simple_query(self):
-        result = self.dsl.parse_query("observed person(bob) in greeting")
-        self.assertIsInstance(result, QueryTotalityAST)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result.body[0].head.value, "person")
-        self.assertEqual(result.body[0].head.params[0].value, "bob")
+        self.assertParseResultsIsInstance(dsl.top_query,
+                                          ("observed person(bob) in greeting", ASTs.QueryTotalityAST),
+                                          ("observed afact in greeting",       ASTs.QueryTotalityAST),
 
-    def test_simple_query_at_time(self):
-        result = self.dsl.parse_query("observed person(bob) in greeting at 5")
-        self.assertIsInstance(result, QueryTotalityAST)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result.body[0].head.value, "person")
-        self.assertEqual(result.body[0].head.params[0].value, "bob")
-        self.assertEqual(result.body[0].time, 5)
+                                          )
 
+    def test_query_results(self):
+        for result, data in self.yieldParseResults(dsl.top_query,
+                                                   ("observed person(bob) in greeting", 1, ["bob"]),
+                                                   ("""observed person(bob) in greeting\nobserved person(bill, jill) in greeting""", 2, ["bob", "bill", "jill"])
+                                                   ):
+            match data:
+                case text, length, terms:
+                    self.assertEqual(len(result[0]), length)
+                    for term in result[0].body:
+                        self.assertAllIn((x.value for x in term.head.params), terms)
 
-    def test_multi_query(self):
-        result = self.dsl.parse_query("observed person(bob) in greeting\nobserved person(jill) in greeting")
-        self.assertIsInstance(result, QueryTotalityAST)
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result.body[0].head.value, "person")
-        self.assertEqual(result.body[0].head.params[0].value, "bob")
-        self.assertEqual(result.body[1].head.value, "person")
-        self.assertEqual(result.body[1].head.params[0].value, "jill")
+    def test_query_at_time(self):
+        for result, data in self.yieldParseResults(dsl.top_query,
+                                                   ("observed person(bob) in greeting at 5",   5),
+                                                   ("observed person(bob) in greeting at 2",   2),
+                                                   ("observed person(bob) in greeting at 10",  10),
+                                                   ("observed person(bob) in greeting at 1",   1),
+                                                   ("observed person(bob) in greeting at 100", 100),
+                                                   ):
+            self.assertEqual(result[0].body[0].time, data[1])
 
-
-    def test_multi_query_with_time(self):
-        result = self.dsl.parse_query("observed person(bob) in greeting at 5\nobserved person(jill) in greeting at 10")
-        self.assertIsInstance(result, QueryTotalityAST)
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result.body[0].head.value, "person")
-        self.assertEqual(result.body[0].head.params[0].value, "bob")
-        self.assertEqual(result.body[0].time, 5)
-        self.assertEqual(result.body[1].head.value, "person")
-        self.assertEqual(result.body[1].head.params[0].value, "jill")
-        self.assertEqual(result.body[1].time, 10)
 
 if __name__ == '__main__':
     unittest.main()

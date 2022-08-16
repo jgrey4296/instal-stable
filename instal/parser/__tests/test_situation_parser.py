@@ -14,8 +14,9 @@ from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     TypeVar, cast)
 from unittest import mock
 
-from instal.parser.pyparse_institution import InstalPyParser
+import instal.parser.pyparse_institution as dsl
 import instal.interfaces.ast as ASTs
+from instal.interfaces.parser import InstalParserTestCase
 ##-- end imports
 
 ##-- warnings
@@ -24,45 +25,32 @@ with warnings.catch_warnings():
     pass
 ##-- end warnings
 
-class TestSituationParser(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.getLogger(__name__)
-        logging.root.addHandler(cls.file_h)
-        logging.root.setLevel(logmod.NOTSET)
-
-        cls.dsl = InstalPyParser()
-
-
-    @classmethod
-    def tearDownClass(cls):
-        logmod.root.removeHandler(cls.file_h)
+class TestSituationParser(InstalParserTestCase):
 
     def test_simple_situation(self):
-        result = self.dsl.parse_situation("initially basicfact in greeting")
-        self.assertIsInstance(result, ASTs.FactTotalityAST)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(len(result.body[0].body), 1)
-        self.assertFalse(result.body[0].conditions)
-        self.assertEqual(result.body[0].inst.value, "greeting")
+        self.assertParseResultsIsInstance(dsl.top_fact,
+                                          ("initially basicfact in greeting", ASTs.FactTotalityAST),
+                                          ("initially basic(blah) in greeting", ASTs.FactTotalityAST),
+                                          )
 
-    def test_simple_situation_with_param(self):
-        result = self.dsl.parse_situation("initially basic(blah) in greeting")
-        self.assertIsInstance(result, ASTs.FactTotalityAST)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(len(result.body[0].body), 1)
-        self.assertEqual(result.body[0].inst.value, "greeting")
-        self.assertTrue(result.body[0].body[0].value, "basic")
-        self.assertTrue(result.body[0].body[0].params[0].value, "blah")
-
-    def test_multi_initially(self):
-        result = self.dsl.parse_situation("initially basic(blah) in greeting\ninitially other in greeting")
+    def test_situation_contents(self):
+        for result, data in self.yieldParseResults(dsl.top_fact,
+                                                   ("initially basicfact in greeting", "greeting", 1),
+                                                   ("initially basic(blah) in greeting\ninitially other in greeting", "greeting", 2),
+                                                   ("""initially basic(blah) in greeting
+                                                   initially other in greeting
+                                                   initially another in greeting""", "greeting", 3),
+                                                   ("initially basic(blah) in other",  "other",    1, "basic", "blah"),
+                                                   ):
+            match data:
+                case text, inst, length:
+                    self.assertEqual(len(result[0]), length)
+                    self.assertEqual(result[0].body[0].inst.value, inst)
+                case text, inst, length, fact, param:
+                    self.assertEqual(len(result[0]), length)
+                    self.assertEqual(result[0].body[0].inst.value, inst)
+                    self.assertEqual(result[0].body[0].body[0].value, fact)
+                    self.assertEqual(result[0].body[0].body[0].params[0].value, param, "testmsg")
 
 
 if __name__ == '__main__':

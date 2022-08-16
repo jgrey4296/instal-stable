@@ -6,17 +6,23 @@
 from __future__ import annotations
 
 import logging as logmod
+import pathlib
 import unittest
 import warnings
-import pathlib
+from importlib.resources import files
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
 from unittest import mock
 
-from instal.parser.pyparse_institution import InstalPyParser
 import instal.interfaces.ast as ASTs
+import instal.parser.pyparse_institution as dsl
+from instal.interfaces.parser import InstalParserTestCase
 ##-- end imports
+
+##-- data
+data_path = files("instal.parser.__tests.__data")
+##-- end data
 
 ##-- warnings
 with warnings.catch_warnings():
@@ -24,141 +30,97 @@ with warnings.catch_warnings():
     pass
 ##-- end warnings
 
-class TestInstitutionParser(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.getLogger(__name__)
-        logging.root.addHandler(cls.file_h)
-        logging.root.setLevel(logmod.NOTSET)
-
-        cls.dsl = InstalPyParser()
-
-
-    @classmethod
-    def tearDownClass(cls):
-        logmod.root.removeHandler(cls.file_h)
-
-
+class TestInstitutionParser(InstalParserTestCase):
     def test_simple_institution(self):
-        result = self.dsl.parse_institution("institution simple;\ntype Test;")
-        self.assertIsInstance(result, ASTs.InstitutionDefAST)
-        self.assertEqual(result.head.value, "simple")
+        self.assertParseResultsIsInstance(dsl.top_institution,
+                                          ("institution simple;\ntype Test;", ASTs.InstitutionDefAST),
+                                          )
 
-    def test_bridge_name(self):
-        result = self.dsl.parse_bridge("bridge test;\ntype Test;\nsink blah;")
-        self.assertIsInstance(result, ASTs.InstitutionDefAST)
-        self.assertEqual(result.head.value, "test")
+    def test_simple_bridge(self):
+        self.assertParseResultsIsInstance(dsl.top_bridge,
+                                          ("bridge test;\ntype Test;\nsink blah;", ASTs.BridgeDefAST),
+                                          )
 
     def test_sources(self):
-        result = self.dsl.parse_bridge("bridge test;\ntype Test;\nsource bloo;\nsource other;")
-        self.assertIsInstance(result, ASTs.InstitutionDefAST)
-        self.assertTrue(all(isinstance(x, ASTs.TermAST) for x in result.sources))
-        self.assertEqual(result.head.value, "test")
-        self.assertEqual(result.sources[0].value, "bloo")
-        self.assertEqual(result.sources[1].value, "other")
+        for result, data in self.yieldParseResults(dsl.top_bridge,
+                                                   ("bridge test;\ntype Test;\nsource bloo;\nsource other;", ["bloo", "other"]),
+                                                   ):
+            sources = (x.value for x in result[0].sources)
+            self.assertAllIn(sources, data[1])
 
     def test_sinks(self):
-        result = self.dsl.parse_bridge("bridge test;\ntype Test;\nsink blah;\nsink bloo;")
-        self.assertIsInstance(result, ASTs.InstitutionDefAST)
-        self.assertTrue(all(isinstance(x, ASTs.TermAST) for x in result.sinks))
-        self.assertEqual(result.head.value, "test")
-        self.assertEqual(result.sinks[0].value, "blah")
-        self.assertEqual(result.sinks[1].value, "bloo")
+        for result, data in self.yieldParseResults(dsl.top_bridge,
+                                                   ("bridge test;\ntype Test;\nsource bloo;\nsource other;", ["bloo", "other"]),
+                                                   ):
+            sinks = (x.value for x in result[0].sinks)
+            self.assertAllIn(sinks, data[1])
 
     def test_types(self):
-        result = self.dsl.parse_institution("institution test;\ntype Test;\ntype Other;")
-        self.assertIsInstance(result, ASTs.InstitutionDefAST)
-        self.assertTrue(all(isinstance(x, ASTs.TypeAST) for x in result.types))
-        self.assertEqual(result.head.value, "test")
-        self.assertEqual(result.types[0].head.value, "Test")
-        self.assertEqual(result.types[1].head.value, "Other")
+        for result, data in self.yieldParseResults(dsl.top_institution,
+                                                   ("institution test;\ntype Test;\ntype Other;", ["Test", "Other"])
+                                                   ):
+            types = (x.head.value for x in result[0].types)
+            self.assertAllIn(types, data[1])
 
     def test_events(self):
-        result = self.dsl.parse_institution("institution test;\nexogenous event blah;\nexogenous event other;")
-        self.assertIsInstance(result, ASTs.InstitutionDefAST)
-        self.assertTrue(all(isinstance(x, ASTs.EventAST) for x in result.events))
-        self.assertEqual(result.head.value, "test")
-        self.assertEqual(result.events[0].head.value, "blah")
-        self.assertEqual(result.events[1].head.value, "other")
+        for result, data in self.yieldParseResults(dsl.top_institution,
+                                                   ("institution test;\nexogenous event blah;\nexogenous event other;", ["blah", "other"], {ASTs.EventEnum.exogenous}),
+                                                   ("institution test;\ninst event blah;\ninst event other;\ninst event another;", ["blah", "other", "another"], {ASTs.EventEnum.institutional}),
+                                                   ("institution test;\nviolation event blah;\nviolation event other;\nviolation event another;", ["blah", "other", "another"], {ASTs.EventEnum.violation}),
+                                                   ):
+            events = result[0].events
+            self.assertAllIn((x.head.value for x in events), data[1])
+            self.assertAllIn((x.annotation for x in events), data[2])
 
-    def test_event_types(self):
-        result = self.dsl.parse_institution("institution test;\nexogenous event blah;\ninst event other;\nviolation event another;")
-        self.assertIsInstance(result, ASTs.InstitutionDefAST)
-        self.assertEqual(result.head.value, "test")
-        self.assertEqual(result.events[0].head.value, "blah")
-        self.assertEqual(result.events[1].head.value, "other")
-        self.assertEqual(result.events[2].head.value, "another")
-
-        self.assertEqual(result.events[0].annotation, ASTs.EventEnum.exogenous)
-        self.assertEqual(result.events[1].annotation, ASTs.EventEnum.institutional)
-        self.assertEqual(result.events[2].annotation, ASTs.EventEnum.violation)
 
     def test_fluents(self):
-        result = self.dsl.parse_institution("institution test;\nfluent testFluent;\nfluent otherFluent;")
-        self.assertIsInstance(result, ASTs.InstitutionDefAST)
-        self.assertTrue(all(isinstance(x, ASTs.FluentAST) for x in result.fluents))
-        self.assertEqual(result.head.value, "test")
-        self.assertEqual(result.fluents[0].head.value, "testFluent")
-        self.assertEqual(result.fluents[1].head.value, "otherFluent")
-
-    def test_fluent_types(self):
-        result = self.dsl.parse_institution("institution test;\nfluent testFluent;\nnoninertial fluent otherFluent;\nobligation fluent obFluent(obligation, deadline, violation);\ncross fluent blah;")
-        self.assertIsInstance(result, ASTs.InstitutionDefAST)
-        self.assertTrue(all(isinstance(x, ASTs.FluentAST) for x in result.fluents))
-        self.assertEqual(result.head.value, "test")
-        self.assertEqual(result.fluents[0].head.value, "testFluent")
-        self.assertEqual(result.fluents[1].head.value, "otherFluent")
-        self.assertEqual(result.fluents[2].head.value, "obFluent")
-        self.assertEqual(result.fluents[3].head.value, "blah")
-
-        self.assertEqual(result.fluents[0].annotation, None)
-        self.assertEqual(result.fluents[1].annotation, ASTs.FluentEnum.noninertial)
-        self.assertEqual(result.fluents[2].annotation, ASTs.FluentEnum.obligation)
-        self.assertEqual(result.fluents[3].annotation, ASTs.FluentEnum.cross)
+        for result, data in self.yieldParseResults(dsl.top_institution,
+                                                   ("institution test;\nfluent testFluent;\nfluent otherFluent;", ["testFluent", "otherFluent"], {ASTs.FluentEnum.inertial}),
+                                                   ("institution test;\nnoninertial fluent testFluent;\nnoninertial fluent otherFluent;", ["testFluent", "otherFluent"], {ASTs.FluentEnum.noninertial}),
+                                                   ("institution test;\nobligation fluent obFluent(obligation, deadline, violation);", ["obFluent"], {ASTs.FluentEnum.obligation}),
+                                                   ("institution test;\ncross fluent blah;", ["blah"], {ASTs.FluentEnum.cross}),
+                                                   ):
+            fluents = result[0].fluents
+            self.assertAllIn((x.head.value for x in fluents), data[1])
+            self.assertAllIn((x.annotation for x in fluents), data[2])
 
     def test_generation(self):
-        result = self.dsl.parse_institution("institution test;\nsomething initiates else;")
-        self.assertIsInstance(result, ASTs.InstitutionDefAST)
-        self.assertTrue(all(isinstance(x, ASTs.RelationalAST) for x in result.relations))
-        self.assertEqual(result.head.value, "test")
-        self.assertEqual(result.relations[0].head.value, "something")
-        self.assertEqual(result.relations[0].body[0].value, "else")
-        self.assertEqual(result.relations[0].annotation, ASTs.RelationalEnum.initiates)
-
-    def test_consequence(self):
-        result = self.dsl.parse_institution("institution test;\nsomething generates else;")
-        self.assertIsInstance(result, ASTs.InstitutionDefAST)
-        self.assertTrue(all(isinstance(x, ASTs.RelationalAST) for x in result.relations))
-        self.assertEqual(result.head.value, "test")
-        self.assertEqual(result.relations[0].head.value, "something")
-        self.assertEqual(result.relations[0].body[0].value, "else")
-        self.assertEqual(result.relations[0].annotation, ASTs.RelationalEnum.generates)
+        for result, data in self.yieldParseResults(dsl.top_institution,
+                                                   ("institution test;\nsomething initiates else;", ["something"], ["else"], {ASTs.RelationalEnum.initiates}),
+                                                   ("institution test;\nsomething generates else;", ["something"], ["else"], {ASTs.RelationalEnum.generates}),
+                                                   ):
+            relations = result[0].relations
+            self.assertAllIn((x.head.value for x in relations), data[1])
+            self.assertAllIn((y.value for x in relations for y in x.body), data[2])
+            self.assertAllIn((x.annotation for x in relations), data[3])
 
     def test_nifs(self):
-        result = self.dsl.parse_institution("institution test;\nsomething when else;")
-        self.assertIsInstance(result, ASTs.InstitutionDefAST)
-        self.assertTrue(all(isinstance(x, ASTs.NifRuleAST) for x in result.nif_rules))
-        self.assertEqual(result.head.value, "test")
-        self.assertEqual(result.nif_rules[0].head.value, "something")
-        self.assertEqual(result.nif_rules[0].body[0].value, "else")
+        for result, data in self.yieldParseResults(dsl.top_institution,
+                                                   ("institution test;\nsomething when else;", ["something"], ["else"]),
+                                                   ("institution test;\nsomething when else;", ["something"], ["else"]),
+                                                   ):
+            nifs = result[0].nif_rules
+            self.assertAllIn((x.head.value for x in nifs), data[1])
+            self.assertAllIn((y.value for x in nifs for y in x.body), data[2])
+
 
     def test_initially(self):
-        result = self.dsl.parse_institution("institution test;\ninitially something;")
-        self.assertIsInstance(result, ASTs.InstitutionDefAST)
-        self.assertTrue(all(isinstance(x, ASTs.InitiallyAST) for x in result.initial))
-        self.assertEqual(result.head.value, "test")
-        self.assertEqual(result.initial[0].body[0].value, "something")
+        for result, data in self.yieldParseResults(dsl.top_institution,
+                                                   ("institution test;\ninitially something;", ["something"]),
+                                                   ):
+            initial = result[0].initial
+            self.assertAllIn((y.value for x in initial for y in x.body), data[1])
 
 
+    @unittest.skip("TODO")
     def test_condition_parsing(self):
         pass
 
+    def test_simple_full(self):
+        self.assertFilesParse(dsl.top_institution,
+                              "test_inst.ial",
+                              "test_inst2.ial",
+                              loc=data_path)
 
 
 if __name__ == '__main__':

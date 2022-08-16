@@ -14,6 +14,7 @@ from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     TypeVar, cast)
 from unittest import mock
 
+from instal.interfaces.parser import InstalParserTestCase
 from instal.parser.pyparse_institution import TERM
 import instal.interfaces.ast as ASTs
 ##-- end imports
@@ -24,75 +25,47 @@ with warnings.catch_warnings():
     pass
 ##-- end warnings
 
-class TestTermParser(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.getLogger(__name__)
-        logging.root.addHandler(cls.file_h)
-        logging.root.setLevel(logmod.NOTSET)
-
-        cls.dsl = TERM
-
-
-    @classmethod
-    def tearDownClass(cls):
-        logmod.root.removeHandler(cls.file_h)
+class TestTermParser(InstalParserTestCase):
 
     def test_simple_term(self):
-        result = self.dsl.parse_string("basic")[0]
-        self.assertIsInstance(result, ASTs.TermAST)
-        self.assertEqual(result.value, "basic")
-        self.assertFalse(result.params)
-        self.assertFalse(result.is_var)
+        self.assertParseResults(TERM,
+                                ("basic",                            ASTs.TermAST("basic")),
+                                ("other",                            ASTs.TermAST("other")),
+                                # Params
+                                ("basic(aParam)",                    ASTs.TermAST("basic", [ASTs.TermAST("aParam")])),
+                                ("basic(aParam, another)",           ASTs.TermAST("basic", [ASTs.TermAST("aParam"), ASTs.TermAST("another")])),
+                                ("manyParams(a,b,c,d,e,f,g,h,i,j)",  ASTs.TermAST("manyParams", [ASTs.TermAST(x) for x in "abcdefghij"])),
+                                # Variables
+                                ("Var",                              ASTs.TermAST("Var", is_var=True)),
+                                ("test(ParamA, paramB)",             ASTs.TermAST("test", [ ASTs.TermAST("ParamA", is_var=True), ASTs.TermAST("paramB")])),
+                                # Nesting:
+                                ("basic(other, another(nested, even(further)))",
+                                 ASTs.TermAST("basic", params=[ASTs.TermAST("other"),
+                                                               ASTs.TermAST("another",
+                                                                            params=[ASTs.TermAST("nested"),
+                                                                                    ASTs.TermAST("even",
+                                                                                                 params=[ASTs.TermAST("further")])])]))
+
+                                )
 
 
-    def test_term_with_param(self):
-        result = self.dsl.parse_string("basic(aParam)")[0]
-        self.assertIsInstance(result, ASTs.TermAST)
-        self.assertEqual(result.value, "basic")
-        self.assertTrue(result.params)
-        self.assertEqual(result.params[0].value, "aParam")
-        self.assertFalse(result.is_var)
+    def test_fail_term(self):
+        self.assertParserFails(TERM,
+                               ("basicFail@",         9),
+                               ("basic@Fail",         5),
+                               ("basic(",             5),
+                               ("underscore_test",    10),
+                               # Fails at the ( after backtracking, not at the _:
+                               ("paramFail(a_b, cd)", 9)
+                               )
 
-    def test_term_with_multi_param(self):
-        result = self.dsl.parse_string("basic(aParam, another)")[0]
-        self.assertIsInstance(result, ASTs.TermAST)
-        self.assertEqual(result.value, "basic")
-        self.assertTrue(result.params)
-        self.assertFalse(result.is_var)
-        self.assertEqual(len(result.params), 2)
-        self.assertEqual(result.params[0].value, "aParam")
-        self.assertEqual(result.params[1].value, "another")
-
-    def test_var_term(self):
-        result = self.dsl.parse_string("Basic")[0]
-        self.assertIsInstance(result, ASTs.TermAST)
-        self.assertEqual(result.value, "Basic")
-        self.assertFalse(result.params)
-        self.assertTrue(result.is_var)
-
-    def test_var_term_as_param(self):
-        result = self.dsl.parse_string("basic(Param)")[0]
-        self.assertIsInstance(result, ASTs.TermAST)
-        self.assertEqual(result.value, "basic")
-        self.assertTrue(result.params)
-        self.assertTrue(result.params[0].is_var)
-
-    def test_nested_term(self):
-        result = self.dsl.parse_string("basic(other, another(nested, even(further)))")[0]
-        self.assertIsInstance(result, ASTs.TermAST)
-        self.assertEqual(result.value, "basic")
-        self.assertEqual(len(result.params), 2)
-        self.assertEqual(len(result.params[1].params), 2)
-        self.assertEqual(result.params[1].params[1].value, "even")
-        self.assertEqual(result.params[1].params[1].params[0].value, "further")
-
+    def test_simple_yield(self):
+        for result, vals in self.yieldParseResults(TERM,
+                                                   ("basic", "basic"),
+                                                   ("other", "other")
+                                                   ):
+            self.assertIsInstance(result[0], ASTs.TermAST)
+            self.assertEqual(result[0].value, vals[1])
 
 if __name__ == '__main__':
     unittest.main()

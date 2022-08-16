@@ -42,7 +42,8 @@ lit     = pp.Literal
 gr      = lambda x: pp.Group(x)
 s_kw    = lambda x: pp.Keyword(x).suppress()
 s_lit   = lambda x: pp.Literal(x).suppress()
-comment = pp.Regex(r"%.+?")
+ln      = orm(pp.White("\n\r").set_whitespace_chars("\t ")).suppress()
+comment = pp.Regex(r"%.+?\n")
 semi    = (lit(";") + pp.line_end).suppress()
 
 fluent_kws   = pp.MatchFirst([kw(x) for x in ["cross", "noninertial", "obligation"]])
@@ -98,7 +99,7 @@ def build_fluent(string, loc, toks) -> ASTs.FluentAST:
             annotation = ASTs.FluentEnum.obligation
             assert(len(head.params) == 3), "Obligation Fluents need a requirement, deadline, and violation"
         case _:
-            annotation = None
+            annotation = ASTs.FluentEnum.inertial
 
     return ASTs.FluentAST(head, annotation)
 
@@ -231,7 +232,10 @@ top_institution = (INSTITUTION('head')
                          | FLUENT
                          | RELATION
                          | NIF_RULE
-                         | INITIALLY)('body'))
+                         | INITIALLY
+                         | ln)('body'))
+
+
 top_institution.ignore(comment)
 top_institution.set_parse_action(build_institution)
 
