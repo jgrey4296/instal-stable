@@ -120,7 +120,7 @@ class DomainSpecAST(InstalAST):
     Type : instance, instance, instance;
     """
     head  : TermAST       = field()
-    terms : list[TermAST] = field(default_factory=list)
+    body  : list[TermAST] = field(default_factory=list)
 
 @dataclass
 class QueryAST(InstalAST):

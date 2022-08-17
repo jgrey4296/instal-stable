@@ -1,14 +1,17 @@
 ##-- imports
 from __future__ import annotations
 
-from pathlib import Path
 import abc
-import pathlib
 import logging as logmod
 import os
-from dataclasses import dataclass, field, InitVar
-from instal.util.misc import temporary_text_file
+from string import Template
+import pathlib
+from dataclasses import InitVar, dataclass, field
+from pathlib import Path
+
 from instal.interfaces import ast as ASTs
+from instal.util.misc import temporary_text_file
+
 ##-- end imports
 
 logging = logmod.getLogger(__name__)
@@ -24,32 +27,26 @@ class InstalCompiler(metaclass=abc.ABCMeta):
     Interface for compiling InstaASTR down to a
     specific solver format
     """
+    def __init__(self):
+        self._compiled_text : list[str] = []
 
-    def compile_program(self, ir: ASTs.ModelAST) -> InstalCompiledData:
-        compiled_data = InstalCompiledData()
-        for iir in instal_program.institutions:
-            asp : str = self.compile_institution(iir)
-            compiled_data.institution.append(asp)
-
-        for bir in instal_program.bridges:
-            asp : str = self.compile_bridge(bir, instal_program.institutions)
-            compiled_data.bridges.append(asp)
-
-        return compiled_data
+    def clear(self):
+        self._compiled_text = []
 
 
+    def insert(self, pattern:str|Template, **kwargs):
+        """
+        insert a given pattern text into the compiled output,
+        formatting it with kwargs.
+        """
+        match pattern:
+            case Template():
+                self._compiled_text.append(pattern.safe_substitute(kwargs))
+            case str() if not bool(kwargs):
+                self._compiled_text.append(pattern)
+            case str():
+                self._compiled_text.append(pattern.format_map(kwargs))
+            case _:
+                raise TypeError("Unrecognised compile pattern type", pattern)
     @abc.abstractmethod
-    def compile_institution(self, ial: ASTs.InstitutionDefAST) -> str: pass
-
-    @abc.abstractmethod
-    def compile_bridge(self, iab: ASTs.BridgeDefAST) -> str: pass
-
-
-    @abc.abstractmethod
-    def compile_domain(self, domain:ASTs.DomainTotalityAST) -> str: pass
-
-    @abc.abstractmethod
-    def compile_queries(self, queries:ASTs.QueryTotalityAST) -> str: pass
-
-    @abc.abstractmethod
-    def compile_situation(self, facts:ASTs.FactTotalityAST, inst:None|ASTs.InstitutionDefAST) -> str: pass
+    def compile(self, data:ASTs.InstalAST) -> str: pass
