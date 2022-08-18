@@ -9,6 +9,7 @@ from instal.errors import InstalCompileError
 from instal.interfaces.compiler import InstalCompiler
 from instal.interfaces import ast as IAST
 from instal.compiler.util import CompileUtil
+from instal.compiler.situation_compiler import InstalSituationCompiler
 
 ##-- end imports
 
@@ -56,21 +57,15 @@ logging = logmod.getLogger(__name__)
 
 class InstalInstitutionCompiler(InstalCompiler):
     """
-    InstalCompiler
-    Compiles InstAL IR to ASP.
-    Main Access points are compile_(institution/bridge/domain/queries/situation)
-
-    Asssembles a list of strings in self._compiled_text,
-    then joins it together after everything is processed.
-
-    self.insert is a utility function to provide substitutions to template patterns
     """
 
     def compile(self, ial: IAST.InstitutionDefAST) -> str:
         assert(isinstance(ial, IAST.InstitutionDefAST))
         assert(not isinstance(ial, IAST.BridgeDefAST))
         self.clear()
-        self.insert(INST_PRELUDE, institution=ial.head, source_file=ial.source)
+        self.insert(INST_PRELUDE,
+                    institution=CompileUtil.compile_term(ial.head),
+                    source_file=ial.source)
         self.insert(HEADER, header='Part 1: Initial Setup and types', sub="")
 
         self.compile_events(ial)
@@ -81,10 +76,12 @@ class InstalInstitutionCompiler(InstalCompiler):
         self.compile_nif_rules(ial)
 
         self.insert(HEADER, header='Part 3: Initial Situation Specification', sub="")
-        compile_situation(ial.initial, ial)
+        situation          = InstalSituationCompiler()
+        compiled_situation = situation.compile(IAST.FactTotalityAST(ial.initial), ial, header=False)
+        self.insert(compiled_situation)
 
         self.compile_types(ial.types)
-        self.insert("%% End of {institution}", institution=ial.head)
+        self.insert("%% End of {institution}", institution=CompileUtil.compile_term(ial.head))
 
         return "\n".join(self._compiled_text)
 
@@ -101,12 +98,11 @@ class InstalInstitutionCompiler(InstalCompiler):
         # should be sorted already
         for event in inst.events:
             rhs   : str = CompileUtil.wrap_types(inst.types, event.head)
-            event : str = str(event)
             pattern = None
             match event.annotation:
                 case IAST.EventEnum.exogenous:
                     pattern = EXO_EV
-                case IAST.EventEnum.institution:
+                case IAST.EventEnum.institutional:
                     pattern = INST_EV
                 case IAST.EventEnum.violation:
                     pattern = VIOLATION_EV
@@ -115,11 +111,11 @@ class InstalInstitutionCompiler(InstalCompiler):
 
             assert(pattern is not None)
             self.insert(pattern,
-                        event=str(event),
-                        inst=inst.head,
+                        event=CompileUtil.compile_term(event.head),
+                        inst=CompileUtil.compile_term(inst.head),
                         rhs=rhs)
 
-        self.insert(NULL_EVENT, inst=inst.head)
+        self.insert(NULL_EV, inst=CompileUtil.compile_term(inst.head))
 
     def compile_fluents(self, inst):
         for fluent in inst.fluents:
@@ -127,7 +123,7 @@ class InstalInstitutionCompiler(InstalCompiler):
             match fluent.annotation:
                 case IAST.FluentEnum.noninertial:
                     self.insert(NONIN_FLUENT,
-                                fluent=str(fluent.head),
+                                fluent=CompileUtil.compile_term(fluent.head),
                                 inst=inst.head,
                                 rhs=rhs)
                 case IAST.FluentEnum.obligation:
@@ -135,7 +131,7 @@ class InstalInstitutionCompiler(InstalCompiler):
                     # TODO handle obligation and deadlines being events or fluents
                     # TODO insert event occured / fluent holdsat into rhs
                     self.insert(OB_FLUENT,
-                                fluent=str(fluent),
+                                fluent=CompileUtil.compile_term(fluent),
                                 obligation=obligation,
                                 deadline=deadline,
                                 violation=violation,
@@ -160,7 +156,7 @@ class InstalInstitutionCompiler(InstalCompiler):
                                 rhs=rhs)
                 case _:
                     self.insert(IN_FLUENT,
-                                fluent=str(fluent.head),
+                                fluent=CompileUtil.compile_term(fluent.head),
                                 inst=inst.head,
                                 rhs=rhs)
 
@@ -180,7 +176,7 @@ class InstalInstitutionCompiler(InstalCompiler):
                     assert(not isinstance(inst, IAST.BridgeDefAST))
                     delay = "+{relation.time}" if relation.time > 0 else ""
                     self.insert(GEN_PAT,
-                                event=str(relation.head),
+                                event=CompileUtil.compile_term(relation.head),
                                 state=relation.body,
                                 inst=inst.head,
                                 delay=delay,
@@ -188,14 +184,14 @@ class InstalInstitutionCompiler(InstalCompiler):
                 case IAST.RelationalEnum.initiates:
                     assert(not isinstance(inst, IAST.BridgeDefAST))
                     self.insert(GEN_PAT,
-                                event=str(relation.head),
+                                event=CompileUtil.compile_term(relation.head),
                                 state=relation.body,
                                 inst=inst.head,
                                 rhs=rhs)
                 case IAST.RelationalEnum.terminates:
                     assert(not isinstance(inst, IAST.BridgeDefAST))
                     self.insert(GEN_PAT,
-                                event=str(relation.head),
+                                event=CompileUtil.compile_term(relation.head),
                                 state=relation.body,
                                 inst=inst.head,
                                 rhs=rhs)
@@ -239,7 +235,7 @@ class InstalInstitutionCompiler(InstalCompiler):
                                          rule.head,
                                          *rule.body)
             self.insert(NIF_RULE_PAT,
-                        state=str(rule.head),
+                        state=CompileUtil.compile_term(rule.head),
                         inst=inst.head,
                         rhs=rhs)
 

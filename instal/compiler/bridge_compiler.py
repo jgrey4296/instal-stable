@@ -11,6 +11,7 @@ from instal.interfaces.compiler import InstalCompiler
 from instal.interfaces import ast as IAST
 from instal.compiler.util import CompileUtil
 from instal.compiler.institution_compiler import InstalInstitutionCompiler
+from instal.compiler.situation_compiler import InstalSituationCompiler
 
 ##-- end imports
 
@@ -58,14 +59,6 @@ logging = logmod.getLogger(__name__)
 
 class InstalBridgeCompiler(InstalInstitutionCompiler):
     """
-    InstalCompiler
-    Compiles InstAL IR to ASP.
-    Main Access points are compile_(institution/bridge/domain/queries/situation)
-
-    Asssembles a list of strings in self._compiled_text,
-    then joins it together after everything is processed.
-
-    self.insert is a utility function to provide substitutions to template patterns
     """
 
     def compile(self, iab: IAST.BridgeDefAST) -> str:
@@ -74,9 +67,9 @@ class InstalBridgeCompiler(InstalInstitutionCompiler):
         assert(len(iab.sinks) == 1)
         self.clear()
         self.insert(BRIDGE_PRELUDE,
-                    bridge=iab.head,
-                    source=iab.sources[0],
-                    sink=iab.sinks[0])
+                    bridge=CompileUtil.compile_term(iab.head),
+                    source=CompileUtil.compile_term(iab.sources[0]),
+                    sink=CompileUtil.compile_term(iab.sinks[0]))
 
         self.insert(HEADER, header='Part 1: Events and Fluents', sub="")
         self.compile_events(iab)
@@ -86,11 +79,13 @@ class InstalBridgeCompiler(InstalInstitutionCompiler):
         self.compile_generation(iab)
         self.compile_nif_rules(iab)
 
-        self.insert(HEADER, header='Part 3: Initial State', sub="")
-        self.compile_situation(iab.initial, iab)
+        self.insert(HEADER, header='Part 3: Initial Situation Specification', sub="")
+        situation          = InstalSituationCompiler()
+        compiled_situation = situation.compile(IAST.FactTotalityAST(ial.initial), ial, header=False)
+        self.insert(compiled_situation)
 
         self.compile_types(iab.types)
-        self.insert("%% End of {bridge}", bridge=iab.head)
+        self.insert("%% End of {bridge}", bridge=CompileUtil.compile_term(iab.head))
 
         return "\n".join(self._compiled_text)
 

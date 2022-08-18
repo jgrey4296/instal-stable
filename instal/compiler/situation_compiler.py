@@ -44,11 +44,13 @@ INITIAL_FACT   = Template((inst_data   / "initial_fact_pattern.lp").read_text())
 ##-- end resources
 
 class InstalSituationCompiler(InstalCompiler):
-    def compile(self, facts:IAST.FactTotalityAST, inst:None|IAST.InstitutionDefAST=None):
+    def compile(self, facts:IAST.FactTotalityAST, inst:None|IAST.InstitutionDefAST=None, header=False):
         assert(all(isinstance(x, IAST.InitiallyAST) for x in facts.body))
 
-        self.insert(HEADER, header="Initial Situation Specification",
-                    sub=facts.source if facts.source is not None else "")
+        if header:
+            self.insert(HEADER, header="Initial Situation Specification",
+                        sub=facts.source if facts.source is not None else "")
+
         for initial in facts.body:
             for state in initial.body:
                 if inst:
@@ -56,7 +58,7 @@ class InstalSituationCompiler(InstalCompiler):
                     type_guards = CompileUtil.wrap_types(inst.types, state)
                     rhs = f"{conditions}, {type_guards}"
                     self.insert(INITIAL_FACT,
-                                state=str(state),
+                                state=CompileUtil.compile_term(state),
                                 inst=inst.head,
                                 rhs=rhs)
                 else:

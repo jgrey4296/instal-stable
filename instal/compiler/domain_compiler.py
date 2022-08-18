@@ -39,42 +39,12 @@ inst_data   = data_path / "institution"
 bridge_data = data_path / "bridge"
 
 HEADER         = Template((data_path   / "header_pattern").read_text())
-INST_PRELUDE   = Template((inst_data   / "institution_prelude.lp").read_text())
-BRIDGE_PRELUDE = Template((bridge_data / "bridge_prelude.lp").read_text())
-
-TYPE_PAT       = Template((inst_data   / "type_def_guard.lp").read_text())
-TYPE_GROUND    = Template((inst_data   / "type_ground_pattern.lp").read_text())
-
-INITIAL_FACT   = Template((inst_data   / "initial_fact_pattern.lp").read_text())
-
-EXO_EV         = Template((inst_data   / "exogenous_event_pattern.lp").read_text())
-INST_EV        = Template((inst_data   / "inst_event_pattern.lp").read_text())
-VIOLATION_EV   = Template((inst_data   / "violation_event_pattern.lp").read_text())
-NULL_EV        = Template((inst_data   / "null_event_pattern.lp").read_text())
-
-IN_FLUENT      = Template((inst_data   / "inertial_fluent_pattern.lp").read_text())
-NONIN_FLUENT   = Template((inst_data   / "noninertial_fluent_pattern.lp").read_text())
-OB_FLUENT      = Template((inst_data   / "obligation_fluent_pattern.lp").read_text())
-
-CROSS_FLUENT   = Template((bridge_data / "cross_fluent.lp").read_text())
-GPOW_FLUENT    = Template((bridge_data / "gpow_cross_fluent.lp").read_text())
-
-GEN_PAT        = Template((inst_data   / "generate_rule_pattern.lp").read_text())
-INIT_PAT       = Template((inst_data   / "initiate_rule_pattern.lp").read_text())
-TERM_PAT       = Template((inst_data   / "terminate_rule_pattern.lp").read_text())
-
-X_GEN_PAT      = Template((bridge_data / "xgenerate_rule_pattern.lp").read_text())
-X_INIT_PAT     = Template((bridge_data / "xinitiate_rule_pattern.lp").read_text())
-X_TERM_PAT     = Template((bridge_data / "xterminate_rule_pattern.lp").read_text())
-
-NIF_RULE_PAT   = Template((inst_data   / "nif_rule_pattern.lp").read_text())
-
 ##-- end resources
 
 class InstalDomainCompiler(InstalCompiler):
     def compile(self, domain:IAST.DomainTotalityAST) -> str:
         """
-        Compile idc domain specs of Type: instance, instance, instance...
+
         """
         assert(all(isinstance(x, IAST.DomainSpecAST) for x in domain.body))
         self.clear()

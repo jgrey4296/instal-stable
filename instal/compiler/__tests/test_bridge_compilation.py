@@ -13,7 +13,7 @@ from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
 from instal.parser.pyparse_institution import InstalPyParser
-from instal.compiler.institution_compiler import InstalInstitutionCompiler, CompileUtil
+from insta.compiler.bridge_compiler import InstalBridgeCompiler
 from instal.interfaces import ast as ASTs
 from unittest import mock
 ##-- end imports
@@ -37,40 +37,85 @@ class TestBridgeCompiler(unittest.TestCase):
         logging.root.addHandler(cls.file_h)
         logging.root.setLevel(logmod.NOTSET)
 
-        cls.dsl = InstalPyParser()
-        cls.compiler = InstalInstitutionCompiler()
-
-
     @classmethod
     def tearDownClass(cls):
         logmod.root.removeHandler(cls.file_h)
 
-    def test_basic_term(self):
-        term   = ASTs.TermAST("test")
-        result = CompileUtil.compile_term(term)
-        self.assertEqual(result, "test")
+    def test_simple_bridge(self):
+        compiler = InstalBridgeCompiler()
+        inst     = ASTs.InstalBridgeDefAST(ASTs.TermAST("simple"))
 
-    def test_term_with_params(self):
-        term = ASTs.TermAST("test", params=[ASTs.TermAST("first"),
-                                            ASTs.TermAST("second")])
-        result = CompileUtil.compile_term(term)
-        self.assertEqual(result, "test(first, second)")
-
-
-
-
-
-    def test_situation_compilation(self):
-        """ initially/iaf -> .lp """
-        pass
-
-    def test_query_compilation(self):
-        """ query/iaq -> lp """
-        pass
-
-    def test_domain_compilation(self):
-        """ domainspec/idc -> lp """
-        pass
+        result = compiler.compile(inst)
+        self.assertIsInstance(result, str)
+        expected = [
+            "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
+            "%% Compiled Institution",
+            "%% simple",
+            "%% From    : None",
+            "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
+            "",
+            "% Rules for Institution simple %",
+            "inst(simple).",
+            "ifluent(live(simple), simple).",
+            "fluent(live(simple), simple).",
+            "",
+            ":- not _preludeLoaded.",
+            "",
+            " %%",
+            " %-------------------------------",
+            " % Part 1: Initial Setup and types",
+            " % ",
+            " %-------------------------------",
+            " %",
+            "",
+            "%% null event for unknown events",
+            "% Event: null (type: ex)",
+            "event(null).",
+            "event(viol(null)).",
+            "",
+            "evtype(null, simple, ex).",
+            "evtype(viol(null), simple, viol).",
+            "",
+            "evinst(null, simple).",
+            "evinst(viol(null), simple).",
+            "",
+            "ifluent(pow(null), simple).",
+            "ifluent(perm(null), simple).",
+            "fluent(pow(null), simple).",
+            "fluent(perm(null), simple).",
+            "",
+            "% no creation event",
+            "holdsat(live(simple), simple, I) :- start(I), inst(simple).",
+            "holdsat(perm(null), simple, I)    :- start(I), inst(simple).",
+            "holdsat(pow(null), simple, I)     :- start(I), inst(simple).",
+            "",
+            " %%",
+            " %-------------------------------",
+            " % Part 2: Generation and Consequence",
+            " % ",
+            " %-------------------------------",
+            " %",
+            "",
+            " %%",
+            " %-------------------------------",
+            " % Part 3: Initial Situation Specification",
+            " % ",
+            " %-------------------------------",
+            " %",
+            "",
+            "",
+            " %%",
+            " %-------------------------------",
+            " % Type Grounding and declaration",
+            " % ",
+            " %-------------------------------",
+            " %",
+            "",
+            "%% End of simple",
+            ]
+        self.assertEqual(len(result.split("\n")), len(expected))
+        for x,y in zip(result.split("\n"), expected):
+            self.assertEqual(x,y)
 
 
 
