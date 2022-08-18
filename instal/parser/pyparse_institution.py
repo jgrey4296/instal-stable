@@ -46,10 +46,12 @@ ln      = orm(pp.White("\n\r").set_whitespace_chars("\t ")).suppress()
 comment = pp.Regex(r"%.+?\n")
 semi    = (lit(";") + pp.line_end).suppress()
 
-fluent_kws   = pp.MatchFirst([kw(x) for x in ["cross", "noninertial", "obligation"]])
-event_kws    = pp.MatchFirst([kw(x) for x in ["exogenous", "inst", "violation"]])
-relation_kws = pp.MatchFirst([kw(x) for x in ["generates", "initiates", "terminates",
-                                              "xgenerates", "xinitiates", "xterminates"]])
+fluent_kws   = pp.MatchFirst(kw(x) for x in ["cross", "noninertial", "obligation"])
+event_kws    = pp.MatchFirst(kw(x) for x in ["exogenous", "inst", "violation"])
+relation_kws = pp.MatchFirst(kw(x) for x in ["generates", "initiates", "terminates",
+                                              "xgenerates", "xinitiates", "xterminates"])
+op_lits      = pp.MatchFirst(lit(x) for x in ["<=", ">=", "<>", "!=", "<", ">", "=", ])
+
 ##-- end util
 
 ##-- constructors
@@ -113,8 +115,6 @@ def build_event(string, loc, toks) -> ASTs.EventAST:
             annotation = ASTs.EventEnum.institutional
         case "violation":
             annotation = ASTs.EventEnum.violation
-        case _:
-            annotation = None
 
     return ASTs.EventAST(head, annotation)
 
@@ -170,15 +170,17 @@ TYPE_DEC.set_parse_action(lambda s, l, t: ASTs.TypeAST(t['head']))
 FLUENT      = op(fluent_kws)("annotation") + s_kw("fluent")+ TERM("head") + semi
 FLUENT.set_parse_action(build_fluent)
 
-EVENT       = op(event_kws)('annotation')  + s_kw("event")  + TERM("head") + semi
+EVENT       = event_kws('annotation')  + s_kw("event")  + TERM("head") + semi
 EVENT.set_parse_action(build_event)
 
-# TODO handle comparisons
 CONDITION   = op(kw("not"))("not") + TERM("head")
 CONDITION.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['head'], True if 'not' in t else False))
 
-CONDITIONS  = s_kw("if") + pp.delimited_list(CONDITION)
+COMPARISON  = TERM("lhs") + op_lits("op") + TERM("rhs")
+COMPARISON.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['lhs'], False, operator=t['op'], rhs=t['rhs']))
+
 # TODO handle 'in {time}'
+CONDITIONS  = s_kw("if") + pp.delimited_list(COMPARISON | CONDITION)
 
 RELATION    = (TERM("head")
                + relation_kws("annotation")
