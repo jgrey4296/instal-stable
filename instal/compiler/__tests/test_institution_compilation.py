@@ -24,6 +24,33 @@ with warnings.catch_warnings():
     pass
 ##-- end warnings
 
+def null_event_text(inst_name:str):
+    text = [
+            "%% null event for unknown events",
+            "% Event: null (type: ex)",
+            "event(null).",
+            "event(viol(null)).",
+            "",
+            "evtype(null, {0}, ex).",
+            "evtype(viol(null), {0}, viol).",
+            "",
+            "evinst(null, {0}).",
+            "evinst(viol(null), {0}).",
+            "",
+            "ifluent(pow(null), {0}).",
+            "ifluent(perm(null), {0}).",
+            "fluent(pow(null), {0}).",
+            "fluent(perm(null), {0}).",
+            "",
+            "% no creation event",
+            "holdsat(live({0}), {0}, I) :- start(I), inst({0}).",
+            "holdsat(perm(null), {0}, I)    :- start(I), inst({0}).",
+            "holdsat(pow(null), {0}, I)     :- start(I), inst({0}).",
+            ""
+        ]
+
+    return [x.format(inst_name) for x in text]
+
 class TestInstitutionCompiler(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -149,28 +176,7 @@ class TestInstitutionCompiler(unittest.TestCase):
             "ifluent(pow(greet), simple)       :- true.",
             "ifluent(perm(greet), simple)      :- true.",
             "",
-            "%% null event for unknown events",
-            "% Event: null (type: ex)",
-            "event(null).",
-            "event(viol(null)).",
-            "",
-            "evtype(null, simple, ex).",
-            "evtype(viol(null), simple, viol).",
-            "",
-            "evinst(null, simple).",
-            "evinst(viol(null), simple).",
-            "",
-            "ifluent(pow(null), simple).",
-            "ifluent(perm(null), simple).",
-            "fluent(pow(null), simple).",
-            "fluent(perm(null), simple).",
-            "",
-            "% no creation event",
-            "holdsat(live(simple), simple, I) :- start(I), inst(simple).",
-            "holdsat(perm(null), simple, I)    :- start(I), inst(simple).",
-            "holdsat(pow(null), simple, I)     :- start(I), inst(simple).",
-            ""
-            ]
+            ] + null_event_text("simple")
         self.assertEqual(len(result), len(expected))
         for x,y in zip(result, expected):
             self.assertEqual(x,y)
@@ -219,28 +225,7 @@ class TestInstitutionCompiler(unittest.TestCase):
             "ifluent(pow(accuse), simple)       :- true.",
             "ifluent(perm(accuse), simple)      :- true.",
             "",
-            "%% null event for unknown events",
-            "% Event: null (type: ex)",
-            "event(null).",
-            "event(viol(null)).",
-            "",
-            "evtype(null, simple, ex).",
-            "evtype(viol(null), simple, viol).",
-            "",
-            "evinst(null, simple).",
-            "evinst(viol(null), simple).",
-            "",
-            "ifluent(pow(null), simple).",
-            "ifluent(perm(null), simple).",
-            "fluent(pow(null), simple).",
-            "fluent(perm(null), simple).",
-            "",
-            "% no creation event",
-            "holdsat(live(simple), simple, I) :- start(I), inst(simple).",
-            "holdsat(perm(null), simple, I)    :- start(I), inst(simple).",
-            "holdsat(pow(null), simple, I)     :- start(I), inst(simple).",
-            ""
-            ]
+            ] + null_event_text("simple")
         self.assertEqual(len(result), len(expected))
         for x,y in zip(result, expected):
             self.assertEqual(x,y)
@@ -271,28 +256,7 @@ class TestInstitutionCompiler(unittest.TestCase):
             "ifluent(perm(greet), simple)      :- true.",
             "fluent(perm(greet), simple)       :- true.",
             "",
-            "%% null event for unknown events",
-            "% Event: null (type: ex)",
-            "event(null).",
-            "event(viol(null)).",
-            "",
-            "evtype(null, simple, ex).",
-            "evtype(viol(null), simple, viol).",
-            "",
-            "evinst(null, simple).",
-            "evinst(viol(null), simple).",
-            "",
-            "ifluent(pow(null), simple).",
-            "ifluent(perm(null), simple).",
-            "fluent(pow(null), simple).",
-            "fluent(perm(null), simple).",
-            "",
-            "% no creation event",
-            "holdsat(live(simple), simple, I) :- start(I), inst(simple).",
-            "holdsat(perm(null), simple, I)    :- start(I), inst(simple).",
-            "holdsat(pow(null), simple, I)     :- start(I), inst(simple).",
-            ""
-            ]
+            ] + null_event_text("simple")
         self.assertEqual(len(result), len(expected))
         for x,y in zip(result, expected):
             self.assertEqual(x,y)
@@ -315,28 +279,7 @@ class TestInstitutionCompiler(unittest.TestCase):
             "evtype(greet, simple, viol) :- true.",
             "evinst(greet, simple)       :- true.",
             "",
-            "%% null event for unknown events",
-            "% Event: null (type: ex)",
-            "event(null).",
-            "event(viol(null)).",
-            "",
-            "evtype(null, simple, ex).",
-            "evtype(viol(null), simple, viol).",
-            "",
-            "evinst(null, simple).",
-            "evinst(viol(null), simple).",
-            "",
-            "ifluent(pow(null), simple).",
-            "ifluent(perm(null), simple).",
-            "fluent(pow(null), simple).",
-            "fluent(perm(null), simple).",
-            "",
-            "% no creation event",
-            "holdsat(live(simple), simple, I) :- start(I), inst(simple).",
-            "holdsat(perm(null), simple, I)    :- start(I), inst(simple).",
-            "holdsat(pow(null), simple, I)     :- start(I), inst(simple).",
-            ""
-            ]
+            ] + null_event_text("simple")
         self.assertEqual(len(result), len(expected))
         for x,y in zip(result, expected):
             self.assertEqual(x,y)
@@ -358,32 +301,11 @@ class TestInstitutionCompiler(unittest.TestCase):
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
             "% Event: greet(Person_1, Person_2) (type: violation)",
-            "event(greet(Person_1, Person_2))                 :- person(Person_1), person(Person_2).",
-            "evtype(greet(Person_1, Person_2), simple, viol) :- person(Person_1), person(Person_2).",
-            "evinst(greet(Person_1, Person_2), simple)       :- person(Person_1), person(Person_2).",
+            "event(greet(Person_1, Person_2))                 :- person(Person_1), person(Person_2), true.",
+            "evtype(greet(Person_1, Person_2), simple, viol) :- person(Person_1), person(Person_2), true.",
+            "evinst(greet(Person_1, Person_2), simple)       :- person(Person_1), person(Person_2), true.",
             "",
-            "%% null event for unknown events",
-            "% Event: null (type: ex)",
-            "event(null).",
-            "event(viol(null)).",
-            "",
-            "evtype(null, simple, ex).",
-            "evtype(viol(null), simple, viol).",
-            "",
-            "evinst(null, simple).",
-            "evinst(viol(null), simple).",
-            "",
-            "ifluent(pow(null), simple).",
-            "ifluent(perm(null), simple).",
-            "fluent(pow(null), simple).",
-            "fluent(perm(null), simple).",
-            "",
-            "% no creation event",
-            "holdsat(live(simple), simple, I) :- start(I), inst(simple).",
-            "holdsat(perm(null), simple, I)    :- start(I), inst(simple).",
-            "holdsat(pow(null), simple, I)     :- start(I), inst(simple).",
-            ""
-            ]
+            ] + null_event_text("simple")
         self.assertEqual(len(result), len(expected))
         for x,y in zip(result, expected):
             self.assertEqual(x,y)
@@ -391,38 +313,250 @@ class TestInstitutionCompiler(unittest.TestCase):
 
 
     def test_fluent_compilation(self):
-        pass
+        compiler = InstalInstitutionCompiler()
+        inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
+        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("alive"),
+                                           ASTs.FluentEnum.inertial))
+
+        compiler.compile_fluents(inst)
+        result = ("\n".join(compiler._compiled_text[:])).split("\n")
+        expected = [
+            "%% inertial fluent: alive %",
+            "ifluent(alive, simple) :- true.",
+            "fluent(alive,  simple) :- true.",
+            ""
+        ]
+        self.assertEqual(len(result), len(expected))
+        for x,y in zip(result, expected):
+            self.assertEqual(x,y)
+
 
     def test_fluent_with_types_compilation(self):
-        pass
+        compiler = InstalInstitutionCompiler()
+        inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
+        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("alive",
+                                                        [ASTs.TermAST("Person",
+                                                                      is_var=True)]),
+                                           ASTs.FluentEnum.inertial))
+
+        compiler.compile_fluents(inst)
+        result = ("\n".join(compiler._compiled_text[:])).split("\n")
+        expected = [
+            "%% inertial fluent: alive(Person) %",
+            "ifluent(alive(Person), simple) :- person(Person), true.",
+            "fluent(alive(Person),  simple) :- person(Person), true.",
+            ""
+        ]
+        self.assertEqual(len(result), len(expected))
+        for x,y in zip(result, expected):
+            self.assertEqual(x,y)
+
+
 
     def test_fluent_obligation(self):
-        pass
+        compiler = InstalInstitutionCompiler()
+        inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
+        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("avenge",
+                                                        [ASTs.TermAST("oblTest"),
+                                                         ASTs.TermAST("deadTest"),
+                                                         ASTs.TermAST("violTest")
+                                                         ]),
+                                           ASTs.FluentEnum.obligation))
+
+        compiler.compile_fluents(inst)
+        result = ("\n".join(compiler._compiled_text[:])).split("\n")
+        expected = [
+            "%% obligation fluent: avenge(oblTest, deadTest, violTest) %",
+            "oblfluent(obl(oblTest, deadTest, violTest), simple)     :- inst(simple), event(violTest), true.",
+            "ifluent(obl(oblTest, deadTest, violTest), simple)       :- inst(simple), event(violTest), true.",
+            "fluent(obl(oblTest, deadTest, violTest), simple)        :- inst(simple), event(violTest), true.",
+            "terminated(obl(oblTest, deadTest, violTest), simple, I) :- inst(simple), holdsat(obl(oblTest, deadTest, violTest), simple, I), event(violTest), true.",
+            "terminated(obl(oblTest, deadTest, violTest), simple, I) :- inst(simple), holdsat(obl(oblTest, deadTest, violTest), simple, I), event(violTest), true.",
+            "occurred(violTest, simple, I)                                    :- inst(simple), holdsat(obl(oblTest, deadTest, violTest), simple, I), event(violTest), true.",
+            "",
+        ]
+        self.assertEqual(len(result), len(expected))
+        for x,y in zip(result, expected):
+            self.assertEqual(x,y)
+
+
 
     def test_fluent_non_inertial(self):
-        pass
+        compiler = InstalInstitutionCompiler()
+        inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
+        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("alive"),
+                                           ASTs.FluentEnum.noninertial))
+
+        compiler.compile_fluents(inst)
+        result = ("\n".join(compiler._compiled_text[:])).split("\n")
+        expected = [
+            "%% noninertial fluent: alive %",
+            "nifluent(alive, simple) :- true.",
+            "fluent(alive,   simple) :- true.",
+            ""
+        ]
+        self.assertEqual(len(result), len(expected))
+        for x,y in zip(result, expected):
+            self.assertEqual(x,y)
+
 
     def test_generation_compilation(self):
-        pass
+        compiler = InstalInstitutionCompiler()
+        inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
+        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.relations.append(ASTs.RelationalAST(ASTs.TermAST("alive"),
+                                                 ASTs.RelationalEnum.generates,
+                                                 [ASTs.TermAST("breathing")]
+                                                 ))
+
+        compiler.compile_generation(inst)
+        result = ("\n".join(compiler._compiled_text[:])).split("\n")
+        expected = [
+            "% Translation of alive generates breathing if [condition] (in )",
+            "occurred(breathing, simple, I) :- occurred(alive, simple, I), inst(simple), instant(I), not occurred(viol(alive) simple, I), true.",
+            "",
+        ]
+
+        self.assertEqual(len(result), len(expected))
+        for x,y in zip(result, expected):
+            self.assertEqual(x,y)
 
     def test_generation_with_types(self):
-        pass
+        compiler = InstalInstitutionCompiler()
+        inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
+        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.relations.append(ASTs.RelationalAST(ASTs.TermAST("alive", [ASTs.TermAST("Person", is_var=True)]),
+                                                 ASTs.RelationalEnum.generates,
+                                                 [ASTs.TermAST("breathing", [ASTs.TermAST("Person", is_var=True)])]
+                                                 ))
 
-    def test_generation_with_conditions(self):
-        pass
+        compiler.compile_generation(inst)
+        result = ("\n".join(compiler._compiled_text[:])).split("\n")
+        expected = [
+            "% Translation of alive(Person) generates breathing(Person) if [condition] (in )",
+            "occurred(breathing(Person), simple, I) :- occurred(alive(Person), simple, I), inst(simple), instant(I), not occurred(viol(alive(Person)) simple, I), person(Person), true.",
+            "",
+        ]
+
+        self.assertEqual(len(result), len(expected))
+        for x,y in zip(result, expected):
+            self.assertEqual(x,y)
+
+
+    def test_generation_with_condition(self):
+        compiler = InstalInstitutionCompiler()
+        inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
+        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.relations.append(ASTs.RelationalAST(ASTs.TermAST("alive", [ASTs.TermAST("Person", is_var=True)]),
+                                                 ASTs.RelationalEnum.generates,
+                                                 [ASTs.TermAST("breathing", [ASTs.TermAST("Person_2", is_var=True)])],
+                                                 conditions=[
+                                                     ASTs.ConditionAST(ASTs.TermAST("Person", is_var=True),
+                                                                       operator="=",
+                                                                       rhs=ASTs.TermAST("Person_2", is_var=True))
+                                                     ]
+                                                 ))
+
+        compiler.compile_generation(inst)
+        result = ("\n".join(compiler._compiled_text[:])).split("\n")
+        expected = [
+            "% Translation of alive(Person) generates breathing(Person_2) if [condition] (in )",
+            "occurred(breathing(Person_2), simple, I) :- occurred(alive(Person), simple, I), inst(simple), instant(I), not occurred(viol(alive(Person)) simple, I), Person=Person_2, person(Person), person(Person_2), true.",
+            "",
+        ]
+
+        self.assertEqual(len(result), len(expected))
+        for x,y in zip(result, expected):
+            self.assertEqual(x,y)
 
     def test_generation_initiates(self):
-        pass
+        compiler = InstalInstitutionCompiler()
+        inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
+        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.relations.append(ASTs.RelationalAST(ASTs.TermAST("alive"),
+                                                 ASTs.RelationalEnum.initiates,
+                                                 [ASTs.TermAST("breathing")]
+                                                 ))
+
+        compiler.compile_generation(inst)
+        result = ("\n".join(compiler._compiled_text[:])).split("\n")
+        expected = [
+            "%% Translation of alive initiates breathing if [condition]",
+            "initiated(breathing, simple, I) :- occurred(alive, simple, I), holdsat(live(simple), simple, I), inst(simple), instant(I), not occurred(viol(alive), simple, I), true.",
+            "",
+        ]
+
+        self.assertEqual(len(result), len(expected))
+        for x,y in zip(result, expected):
+            self.assertEqual(x,y)
+
 
     def test_generation_terminates(self):
-        pass
+        compiler = InstalInstitutionCompiler()
+        inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
+        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.relations.append(ASTs.RelationalAST(ASTs.TermAST("alive"),
+                                                 ASTs.RelationalEnum.terminates,
+                                                 [ASTs.TermAST("breathing")]
+                                                 ))
+
+        compiler.compile_generation(inst)
+        result = ("\n".join(compiler._compiled_text[:])).split("\n")
+        expected = [
+            "%% Translation of alive terminates breathing if [condition]",
+            "terminated(breathing, simple, I) :- occurred(alive, simple, I), holdsat(live(simple), simple, I), inst(simple), instant(I), not occurred(viol(alive), simple, I), true.",
+            ""
+        ]
+
+        self.assertEqual(len(result), len(expected))
+        for x,y in zip(result, expected):
+            self.assertEqual(x,y)
+
 
 
     def test_nif_compilation(self):
-        pass
+        compiler = InstalInstitutionCompiler()
+        inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
+        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.nif_rules.append(ASTs.NifRuleAST(ASTs.TermAST("alive"),
+                                              [ASTs.TermAST("breathing")]
+                                              ))
+
+        compiler.compile_nif_rules(inst)
+        result = ("\n".join(compiler._compiled_text[:])).split("\n")
+        expected = [
+            "%% Translation of alive when breathing, true",
+            "holdsat(alive, simple, I) :- inst(simple), instant(I), breathing, true.",
+            ""
+        ]
+
+        self.assertEqual(len(result), len(expected))
+        for x,y in zip(result, expected):
+            self.assertEqual(x,y)
 
     def test_nif_with_types(self):
-        pass
+        compiler = InstalInstitutionCompiler()
+        inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
+        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.nif_rules.append(ASTs.NifRuleAST(ASTs.TermAST("alive", [ASTs.TermAST("Person", is_var=True)]),
+                                              [ASTs.TermAST("breathing", [ASTs.TermAST("Person", is_var=True)])]
+                                              ))
+
+        compiler.compile_nif_rules(inst)
+        result = ("\n".join(compiler._compiled_text[:])).split("\n")
+        expected = [
+            "%% Translation of alive(Person) when breathing(Person), person(Person), true",
+            "holdsat(alive(Person), simple, I) :- inst(simple), instant(I), breathing(Person), person(Person), true.",
+            ""
+        ]
+
+        self.assertEqual(len(result), len(expected))
+        for x,y in zip(result, expected):
+            self.assertEqual(x,y)
 
 if __name__ == '__main__':
     unittest.main()

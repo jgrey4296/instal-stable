@@ -56,7 +56,7 @@ class InstalSituationCompiler(InstalCompiler):
                 if inst:
                     conditions  = CompileUtil.compile_conditions(inst, initial.conditions)
                     type_guards = CompileUtil.wrap_types(inst.types, state)
-                    rhs = f"{conditions}, {type_guards}"
+                    rhs = ", ".join(sorted(conditions | type_guards))
                     self.insert(INITIAL_FACT,
                                 state=CompileUtil.compile_term(state),
                                 inst=inst.head,
@@ -66,7 +66,7 @@ class InstalSituationCompiler(InstalCompiler):
                     assert(not bool(initial.conditions))
                     inst_term  = CompileUtil.compile_term(initial.inst)
                     state_term = CompileUtil.compile_term(state)
-                    rhs        = CompileUtil.wrap_types(None, state)
+                    rhs        = ", ".join(sorted(CompileUtil.wrap_types(None, state)))
                     self.insert(INITIAL_FACT,
                                 state=state_term,
                                 inst=inst_term,

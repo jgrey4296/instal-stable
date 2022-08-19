@@ -60,7 +60,7 @@ class TestCompilerUtils(unittest.TestCase):
 
     def test_type_wrapping_no_types(self):
         result = CompileUtil.wrap_types([], ASTs.TermAST("blah"))
-        self.assertEqual(result, "true")
+        self.assertEqual(result, {"true"})
 
     def test_type_wrapping(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -74,7 +74,7 @@ class TestCompilerUtils(unittest.TestCase):
         result = CompileUtil.wrap_types(inst.types,
                                         term)
 
-        self.assertEqual(result, "book(Book), person(Person)")
+        self.assertEqual(result, {"book(Book)","person(Person)", "true"})
 
 
     def test_nested_type_wrapping(self):
@@ -91,7 +91,7 @@ class TestCompilerUtils(unittest.TestCase):
         result = CompileUtil.wrap_types(inst.types,
                                         term)
 
-        self.assertEqual(result, "book(Book), person(Person)")
+        self.assertEqual(result, {"book(Book)", "person(Person)", "true"})
 
     def test_multiple_same_type_wrapping(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -107,7 +107,7 @@ class TestCompilerUtils(unittest.TestCase):
         result = CompileUtil.wrap_types(inst.types,
                                         term)
 
-        self.assertEqual(result, "book(Book_1), book(Book_2)")
+        self.assertEqual(result, {"book(Book_1)", "book(Book_2)", "true"})
 
     def test_multiple_same_type_wrapping_unique(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -120,10 +120,9 @@ class TestCompilerUtils(unittest.TestCase):
                              ASTs.TermAST("romance",
                                           [ASTs.TermAST("Book1", is_var=True)])])
 
-        result = CompileUtil.wrap_types(inst.types,
-                                        term)
+        result = CompileUtil.wrap_types(inst.types, term)
 
-        self.assertEqual(result, "book(Book_1)")
+        self.assertEqual(result, {"book(Book_1)", "true"})
 
     def test_multiple_same_type_wrapping_underscore(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -139,7 +138,7 @@ class TestCompilerUtils(unittest.TestCase):
         result = CompileUtil.wrap_types(inst.types,
                                         term)
 
-        self.assertEqual(result, "book(Book_1), book(Book_2)")
+        self.assertEqual(result, {"book(Book_1)", "book(Book_2)", "true"})
 
 
     def test_empty_condition_compilation(self):
@@ -148,7 +147,7 @@ class TestCompilerUtils(unittest.TestCase):
         inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
 
         result    = CompileUtil.compile_conditions(inst, [])
-        self.assertEqual(result, "true")
+        self.assertEqual(result, {"true"})
 
     def test_condition_compilation(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -159,7 +158,7 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result, "holdsat(the_world, simple, I)")
+        self.assertEqual(result, {"holdsat(the_world, simple, I)", "true"})
 
     def test_comparison_compilation(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -172,7 +171,7 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result, "the_world<the_universe")
+        self.assertEqual(result, {"the_world<the_universe", "true"})
 
     def test_comparison_compilation_with_types(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -187,8 +186,10 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result,
-                         "person(Person), person(Person_2), the_world(Person)<the_universe(Person_2)")
+        self.assertEqual(result, {"person(Person)",
+                                  "person(Person_2)",
+                                  "the_world(Person)<the_universe(Person_2)",
+                                  "true"})
 
     def test_multiple_condition_compilation(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -201,7 +202,9 @@ class TestCompilerUtils(unittest.TestCase):
         result    = CompileUtil.compile_conditions(inst, [condition, condition2])
 
         self.assertEqual(result,
-                         "holdsat(the_stars, simple, I), holdsat(the_world, simple, I)")
+                         {"holdsat(the_stars, simple, I)",
+                          "holdsat(the_world, simple, I)",
+                          "true"})
 
     def test_negated_condition_compilation(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -213,7 +216,7 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result, "not holdsat(the_world, simple, I)")
+        self.assertEqual(result, {"not holdsat(the_world, simple, I)", "true"})
 
     def test_condition_with_types(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -228,7 +231,10 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result, "holdsat(the_world(Person, Person_2), simple, I), person(Person), person(Person_2)")
+        self.assertEqual(result, {"holdsat(the_world(Person, Person_2), simple, I)",
+                                  "person(Person)",
+                                  "person(Person_2)",
+                                  "true"})
 
 
 

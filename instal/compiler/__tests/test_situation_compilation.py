@@ -51,13 +51,6 @@ class TestSituationCompiler(unittest.TestCase):
         result = compiler.compile(data)
         self.assertIsInstance(result, str)
         expected = [
-            " %%",
-            " %-------------------------------",
-            " % Initial Situation Specification",
-            " % ",
-            " %-------------------------------",
-            " %",
-            "",
             "% initially: test (if [conditions])",
             "holdsat(test, testInst, I) :-",
             "  inst(testInst),",
@@ -80,13 +73,6 @@ class TestSituationCompiler(unittest.TestCase):
         result = compiler.compile(data)
         self.assertIsInstance(result, str)
         expected = [
-            " %%",
-            " %-------------------------------",
-            " % Initial Situation Specification",
-            " % ",
-            " %-------------------------------",
-            " %",
-            "",
             "% initially: first (if [conditions])",
             "holdsat(first, testInst, I) :-",
             "  inst(testInst),",
@@ -120,13 +106,6 @@ class TestSituationCompiler(unittest.TestCase):
         result = compiler.compile(data)
         self.assertIsInstance(result, str)
         expected = [
-            " %%",
-            " %-------------------------------",
-            " % Initial Situation Specification",
-            " % ",
-            " %-------------------------------",
-            " %",
-            "",
             "% initially: blah (if [conditions])",
             "holdsat(blah, firstInst, I) :-",
             "  inst(firstInst),",
@@ -147,5 +126,8 @@ class TestSituationCompiler(unittest.TestCase):
             self.assertEqual(x,y)
 
 
+    @unittest.skip("todo")
+    def test_fact_situation_with_conditions(self):
+        pass
 if __name__ == '__main__':
     unittest.main()

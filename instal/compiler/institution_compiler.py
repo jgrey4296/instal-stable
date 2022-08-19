@@ -97,7 +97,7 @@ class InstalInstitutionCompiler(InstalCompiler):
     def compile_events(self, inst):
         # should be sorted already
         for event in inst.events:
-            rhs   : str = CompileUtil.wrap_types(inst.types, event.head)
+            rhs   : str = ", ".join(sorted(CompileUtil.wrap_types(inst.types, event.head)))
             pattern = None
             match event.annotation:
                 case IAST.EventEnum.exogenous:
@@ -118,112 +118,118 @@ class InstalInstitutionCompiler(InstalCompiler):
         self.insert(NULL_EV, inst=CompileUtil.compile_term(inst.head))
 
     def compile_fluents(self, inst):
+        inst_head : str = CompileUtil.compile_term(inst.head)
         for fluent in inst.fluents:
-            rhs : str = CompileUtil.wrap_types(inst.types, fluent.head)
+            rhs : str = ", ".join(sorted(CompileUtil.wrap_types(inst.types, fluent.head)))
             match fluent.annotation:
+                case IAST.FluentEnum.inertial:
+                    self.insert(IN_FLUENT,
+                                fluent=CompileUtil.compile_term(fluent.head),
+                                inst=inst_head,
+                                rhs=rhs)
                 case IAST.FluentEnum.noninertial:
                     self.insert(NONIN_FLUENT,
                                 fluent=CompileUtil.compile_term(fluent.head),
-                                inst=inst.head,
+                                inst=inst_head,
                                 rhs=rhs)
                 case IAST.FluentEnum.obligation:
                     obligation, deadline, violation = fluent.head.params
                     # TODO handle obligation and deadlines being events or fluents
                     # TODO insert event occured / fluent holdsat into rhs
                     self.insert(OB_FLUENT,
-                                fluent=CompileUtil.compile_term(fluent),
-                                obligation=obligation,
-                                deadline=deadline,
-                                violation=violation,
-                                inst=inst.head,
+                                fluent=CompileUtil.compile_term(fluent.head),
+                                obligation=CompileUtil.compile_term(obligation),
+                                deadline=CompileUtil.compile_term(deadline),
+                                violation=CompileUtil.compile_term(violation),
+                                inst=inst_head,
                                 rhs=rhs)
                 case IAST.FluentEnum.cross if fluent.head.value == gpow:
                     assert(len(fluent.head.params) == 3)
                     self.insert(GPOW_FLUENT,
-                                source=fluent.head.params[0],
-                                event=fluent.head.params[1],
-                                sink=fluent.head.params[2],
-                                bridge=inst.head,
+                                source=CompileUtil.compile_term(fluent.head.params[0]),
+                                event=CompileUtil.compile_term(fluent.head.params[1]),
+                                sink=CompileUtil.compile_term(fluent.head.params[2]),
+                                bridge=inst_head,
                                 rhs=rhs)
                 case IAST.FluentEnum.cross:
                     assert(len(fluent.head.params) == 3)
                     self.insert(CROSS_FLUENT,
-                                power=fluent.head.value,
-                                source=fluent.head.params[0],
-                                fluent=fluent.head.params[1],
-                                sink=fluent.head.params[2],
-                                bridge=inst.head,
+                                power=CompileUtil.compile_term(fluent.head.value),
+                                source=CompileUtil.compile_term(fluent.head.params[0]),
+                                fluent=CompileUtil.compile_term(fluent.head.params[1]),
+                                sink=CompileUtil.compile_term(fluent.head.params[2]),
+                                bridge=inst_head,
                                 rhs=rhs)
                 case _:
-                    self.insert(IN_FLUENT,
-                                fluent=CompileUtil.compile_term(fluent.head),
-                                inst=inst.head,
-                                rhs=rhs)
+                    raise TypeError("Unrecognized fluent type: ", fluent.annotation)
 
 
 
     def compile_generation(self, inst):
+        inst_head = CompileUtil.compile_term(inst.head)
         for relation in inst.relations:
             conditions  = CompileUtil.compile_conditions(inst, relation.conditions)
             type_guards = CompileUtil.wrap_types(inst.types,
                                                  relation.head,
                                                  *relation.body)
 
-            rhs = f"{conditions}, {type_guards}"
-
+            rhs = ", ".join(sorted(conditions | type_guards))
             match relation.annotation:
                 case IAST.RelationalEnum.generates:
                     assert(not isinstance(inst, IAST.BridgeDefAST))
-                    delay = "+{relation.time}" if relation.time > 0 else ""
-                    self.insert(GEN_PAT,
-                                event=CompileUtil.compile_term(relation.head),
-                                state=relation.body,
-                                inst=inst.head,
-                                delay=delay,
-                                rhs=rhs)
+                    delay = "+{relation.delay}" if relation.delay> 0 else ""
+                    for state in relation.body:
+                        self.insert(GEN_PAT,
+                                    event=CompileUtil.compile_term(relation.head),
+                                    state=CompileUtil.compile_term(state),
+                                    inst=inst_head,
+                                    delay=delay,
+                                    rhs=rhs)
                 case IAST.RelationalEnum.initiates:
                     assert(not isinstance(inst, IAST.BridgeDefAST))
-                    self.insert(GEN_PAT,
-                                event=CompileUtil.compile_term(relation.head),
-                                state=relation.body,
-                                inst=inst.head,
-                                rhs=rhs)
+                    for state in relation.body:
+                        self.insert(INIT_PAT,
+                                    event=CompileUtil.compile_term(relation.head),
+                                    state=CompileUtil.compile_term(state),
+                                    inst=inst_head,
+                                    rhs=rhs)
                 case IAST.RelationalEnum.terminates:
                     assert(not isinstance(inst, IAST.BridgeDefAST))
-                    self.insert(GEN_PAT,
-                                event=CompileUtil.compile_term(relation.head),
-                                state=relation.body,
-                                inst=inst.head,
-                                rhs=rhs)
+                    for state in relation.body:
+                        self.insert(TERM_PAT,
+                                    event=CompileUtil.compile_term(relation.head),
+                                    state=CompileUtil.compile_term(state),
+                                    inst=inst_head,
+                                    rhs=rhs)
                 case IAST.RelationalEnum.xgenerates:
                     assert(isinstance(inst, IAST.BridgeDefAST))
-                    delay = "+{relation.time}" if relation.time > 0 else ""
+                    delay = "+{relation.delay}" if relation.delay > 0 else ""
                     self.insert(X_GEN_PAT,
                                 event=relation.head,
-                                response=event.body[0],
-                                source=inst.source[0],
-                                sink=inst.sink[0],
-                                bridge=inst.head,
+                                response=CompileUtil.compile_term(event.body[0]),
+                                source=CompileUtil.compile_term(inst.source[0]),
+                                sink=CompileUtil.compile_term(inst.sink[0]),
+                                bridge=inst_head,
                                 delay=delay,
                                 rhs=rhs)
                 case IAST.RelationalEnum.xinitiates:
                     assert(isinstance(inst, IAST.BridgeDefAST))
                     self.insert(X_INIT_PAT,
-                                source=inst.sources[0],
-                                sink=inst.sinks[0],
-                                bridge=inst.head,
-                                fluent=relation.head,
-                                response=relation.body[0],
+                                source=CompileUtil.compile_term(inst.sources[0]),
+                                sink=CompileUtil.compile_term(inst.sinks[0]),
+                                bridge=inst_head,
+                                fluent=CompileUtil.compile_term(relation.head),
+                                response=CompileUtil.compile_term(relation.body[0]),
                                 rhs=rhs
                                 )
                 case IAST.RelationalEnum.xterminates:
                     assert(isinstance(inst, IAST.BridgeDefAST))
                     self.insert(X_TERM_PAT,
-                                source=inst.source[0],
-                                sink=inst.sinks[0],
-                                bridge=inst.head,
-                                fluent=relation.head,
-                                response=relation.body[0],
+                                source=CompileUtil.compile_term(inst.source[0]),
+                                sink=CompileUtil.compile_term(inst.sinks[0]),
+                                bridge=inst_head,
+                                fluent=CompileUtil.compile_term(relation.head),
+                                response=CompileUtil.compile_term(relation.body[0]),
                                 rhs=rhs)
                 case _:
                     raise TypeError("Unrecognized Relation Type: %s", relation)
@@ -231,12 +237,16 @@ class InstalInstitutionCompiler(InstalCompiler):
 
     def compile_nif_rules(self, inst):
         for rule in inst.nif_rules:
-            rhs = CompileUtil.wrap_types(inst.types,
-                                         rule.head,
-                                         *rule.body)
+            conditions = {CompileUtil.compile_term(x) for x in rule.body}
+            types      = CompileUtil.wrap_types(inst.types,
+                                                rule.head,
+                                                *rule.body)
+
+            rhs = ", ".join(sorted(conditions | types))
+
             self.insert(NIF_RULE_PAT,
                         state=CompileUtil.compile_term(rule.head),
-                        inst=inst.head,
+                        inst=CompileUtil.compile_term(inst.head),
                         rhs=rhs)
 
 
