@@ -33,7 +33,7 @@ class InstalFileGroup:
         """
         Take directories and files, and create the file group
         """
-        queue = [Path(x) for x in targets]
+        queue = [Path(x).expanduser().resolve() for x in targets]
         found = set()
         file_group = InstalFileGroup()
         while bool(queue):
@@ -74,6 +74,20 @@ class InstalFileGroup:
                 + len(self.compiled)
                 + (1 if self.query is not None else 0))
 
+    def get_sources(self):
+        sources = (self.institutions
+                   + self.bridges
+                   + self.domains
+                   + self.situation)
+        if self.query is not None:
+            sources.append(self.query)
+
+        return sources
+
+
+    def get_compiled(self):
+        return self.compiled
+
 @dataclass
 class InstalOptionGroup:
     verbose    : int       = field(default=0)
@@ -90,9 +104,12 @@ class InstalOptionGroup:
     def __post_init__(self):
         # set the log verbosity,
         # create output dir's as necessary
-        instal_root = logmod.getLogger("instal")
-        instal_root.setLevel(max(logmod.DEBUG, logmod.ERROR - (10 * self.verbose)))
-        print("Logging Level Set to: %s", logmod.getLevelName(instal_root.level))
+        instal_root  = logmod.getLogger("instal")
+        max_level    = logmod.ERROR
+        active_level = logmod.DEBUG + (10 * self.verbose)
+
+        instal_root.setLevel(max(logmod.DEBUG, min(active_level, max_level)))
+        logging.warning("Logging Level Set to: %s", logmod.getLevelName(instal_root.level))
 
         if self.output is None:
             logging.warning("No Output directory specified")
@@ -104,6 +121,17 @@ class InstalOptionGroup:
 
             assert(self.json or self.gantt or self.text), "No Output option selected"
 
+
+
+@dataclass
+class InstalModelResult:
+
+    atoms   : list[Any]
+    shown   : list[Any]
+    cost    : float
+    number  : int
+    optimal : bool
+    type    : Any
 
 # ############################################################################
 def temporary_text_file(text="", file_extension="", delete=True) -> "File":
