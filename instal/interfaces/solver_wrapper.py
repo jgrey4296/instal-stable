@@ -11,6 +11,7 @@ from dataclasses import InitVar, dataclass, field
 from typing import IO, List
 
 from clingo import parse_term
+from instal.util.misc import InstalModelResult
 
 ##-- end imports
 
@@ -35,17 +36,17 @@ class SolverWrapper(_SolverWrapper_Protocol):
     An wrapper around a solver (ie: clingo) to interface with the rest of instal
     """
 
-    input_files    : list[Path]          = field(default_factory=list)
-    holdsat        : list[InitiallyAST]  = field(default_factory=list)
-    max_result     : int                 = field(default=1)
-    length         : int                 = field(default=1)
-    verbose        : int                 = field(default=0)
+    input_files    : list[Path]              = field(default_factory=list)
+    holdsat        : list[InitiallyAST]      = field(default_factory=list)
+    max_result     : int                     = field(default=1)
+    length         : int                     = field(default=1)
+    verbose        : int                     = field(default=0)
 
-    timestamp      : float               = field(init=False, default_factory=time.time)
-    results        : list[Any]           = field(init=False, default_factory=list)
-    current_answer : int                 = field(init=False, default=0)
-    cycle          : int                 = field(init=False, default=0)
-    observations   : list[TermAST]       = field(default_factory=list)
+    timestamp      : float                   = field(init=False, default_factory=time.time)
+    results        : list[InstalModelResult] = field(init=False, default_factory=list)
+    current_answer : int                     = field(init=False, default=0)
+    cycle          : int                     = field(init=False, default=0)
+    observations   : list[TermAST]           = field(default_factory=list)
 
 
     def __post_init__(self): pass
