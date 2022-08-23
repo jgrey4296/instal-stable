@@ -45,20 +45,20 @@ class TestDomainParser(InstalParserTestCase):
                     for spec in result[0].body:
                         self.assertIsInstance(spec, ASTs.DomainSpecAST)
                         self.assertEqual(spec.head.value, data['type_name'])
-                        self.assertAllIn((x.value for x in spec.terms), data['values'])
+                        self.assertAllIn((x.value for x in spec.body), data['values'])
                 case text, length, type_names, values if isinstance(type_names, list):
                     self.assertEqual(len(result[0]), length)
                     for spec in result[0].body:
                         self.assertIsInstance(spec, ASTs.DomainSpecAST)
                         self.assertIn(spec.head.value, type_names)
-                        self.assertAllIn((x.value for x in spec.terms), values)
+                        self.assertAllIn((x.value for x in spec.body), values)
 
                 case text, length, type_name, values:
                     self.assertEqual(len(result[0]), length)
                     for spec in result[0].body:
                         self.assertIsInstance(spec, ASTs.DomainSpecAST)
                         self.assertEqual(spec.head.value, type_name)
-                        self.assertTrue(all(x.value in values for x in spec.terms))
+                        self.assertTrue(all(x.value in values for x in spec.body))
 
 
 

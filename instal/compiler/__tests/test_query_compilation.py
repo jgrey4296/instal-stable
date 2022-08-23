@@ -119,7 +119,7 @@ class TestQueryCompiler(unittest.TestCase):
     def test_explicit_source_query(self):
         """ query/iaq -> lp """
         compiler = InstalQueryCompiler()
-        data = ASTs.QueryTotalityAST(source="custom")
+        data = ASTs.QueryTotalityAST(parse_source="custom")
         data.body.append(ASTs.QueryAST(ASTs.TermAST("test")))
 
         result = compiler.compile(data)

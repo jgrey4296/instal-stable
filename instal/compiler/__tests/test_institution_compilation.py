@@ -31,11 +31,11 @@ def null_event_text(inst_name:str):
             "event(null).",
             "event(viol(null)).",
             "",
-            "evtype(null, {0}, ex).",
-            "evtype(viol(null), {0}, viol).",
+            "eventType(null, {0}, ex).",
+            "eventType(viol(null), {0}, viol).",
             "",
-            "evinst(null, {0}).",
-            "evinst(viol(null), {0}).",
+            "eventInst(null, {0}).",
+            "eventInst(viol(null), {0}).",
             "",
             "ifluent(pow(null), {0}).",
             "ifluent(perm(null), {0}).",
@@ -101,11 +101,11 @@ class TestInstitutionCompiler(unittest.TestCase):
             "event(null).",
             "event(viol(null)).",
             "",
-            "evtype(null, simple, ex).",
-            "evtype(viol(null), simple, viol).",
+            "eventType(null, simple, ex).",
+            "eventType(viol(null), simple, viol).",
             "",
-            "evinst(null, simple).",
-            "evinst(viol(null), simple).",
+            "eventInst(null, simple).",
+            "eventInst(viol(null), simple).",
             "",
             "ifluent(pow(null), simple).",
             "ifluent(perm(null), simple).",
@@ -164,11 +164,11 @@ class TestInstitutionCompiler(unittest.TestCase):
             "event(greet)                       :- true.",
             "event(viol(greet))                 :- true.",
             "",
-            "evtype(greet, simple, ex)         :- true.",
-            "evtype(viol(greet), simple, viol) :- true.",
+            "eventType(greet, simple, ex)         :- true.",
+            "eventType(viol(greet), simple, viol) :- true.",
             "",
-            "evinst(greet, simple)             :- true.",
-            "evinst(viol(greet), simple)       :- true.",
+            "eventInst(greet, simple)             :- true.",
+            "eventInst(viol(greet), simple)       :- true.",
             "",
             "fluent(pow(greet), simple)        :- true.",
             "fluent(perm(greet), simple)       :- true.",
@@ -197,11 +197,11 @@ class TestInstitutionCompiler(unittest.TestCase):
             "event(greet)                       :- true.",
             "event(viol(greet))                 :- true.",
             "",
-            "evtype(greet, simple, ex)         :- true.",
-            "evtype(viol(greet), simple, viol) :- true.",
+            "eventType(greet, simple, ex)         :- true.",
+            "eventType(viol(greet), simple, viol) :- true.",
             "",
-            "evinst(greet, simple)             :- true.",
-            "evinst(viol(greet), simple)       :- true.",
+            "eventInst(greet, simple)             :- true.",
+            "eventInst(viol(greet), simple)       :- true.",
             "",
             "fluent(pow(greet), simple)        :- true.",
             "fluent(perm(greet), simple)       :- true.",
@@ -213,11 +213,11 @@ class TestInstitutionCompiler(unittest.TestCase):
             "event(accuse)                       :- true.",
             "event(viol(accuse))                 :- true.",
             "",
-            "evtype(accuse, simple, ex)         :- true.",
-            "evtype(viol(accuse), simple, viol) :- true.",
+            "eventType(accuse, simple, ex)         :- true.",
+            "eventType(viol(accuse), simple, viol) :- true.",
             "",
-            "evinst(accuse, simple)             :- true.",
-            "evinst(viol(accuse), simple)       :- true.",
+            "eventInst(accuse, simple)             :- true.",
+            "eventInst(viol(accuse), simple)       :- true.",
             "",
             "fluent(pow(accuse), simple)        :- true.",
             "fluent(perm(accuse), simple)       :- true.",
@@ -244,17 +244,17 @@ class TestInstitutionCompiler(unittest.TestCase):
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
             "% Event: greet (type: institutional)",
-            "event(greet)                       :- true.",
-            "event(viol(greet))                 :- true.",
+            "event(greet)                          :- true.",
+            "event(viol(greet))                    :- true.",
             "",
-            "evtype(greet, simple, inst)       :- true.",
-            "evtype(viol(greet), simple, viol) :- true.",
+            "eventType(greet, simple, inst)       :- true.",
+            "eventType(viol(greet), simple, viol) :- true.",
             "",
-            "evinst(greet, simple)             :- true.",
-            "evinst(viol(greet), simple)       :- true.",
+            "eventInst(greet, simple)             :- true.",
+            "eventInst(viol(greet), simple)       :- true.",
             "",
-            "ifluent(perm(greet), simple)      :- true.",
-            "fluent(perm(greet), simple)       :- true.",
+            "ifluent(perm(greet), simple)         :- true.",
+            "fluent(perm(greet), simple)          :- true.",
             "",
             ] + null_event_text("simple")
         self.assertEqual(len(result), len(expected))
@@ -275,9 +275,9 @@ class TestInstitutionCompiler(unittest.TestCase):
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
             "% Event: greet (type: violation)",
-            "event(greet)                 :- true.",
-            "evtype(greet, simple, viol) :- true.",
-            "evinst(greet, simple)       :- true.",
+            "event(greet)                    :- true.",
+            "eventType(greet, simple, viol) :- true.",
+            "eventInst(greet, simple)       :- true.",
             "",
             ] + null_event_text("simple")
         self.assertEqual(len(result), len(expected))
@@ -300,10 +300,10 @@ class TestInstitutionCompiler(unittest.TestCase):
         compiler.compile_events(inst)
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
-            "% Event: greet(Person_1, Person_2) (type: violation)",
-            "event(greet(Person_1, Person_2))                 :- person(Person_1), person(Person_2), true.",
-            "evtype(greet(Person_1, Person_2), simple, viol) :- person(Person_1), person(Person_2), true.",
-            "evinst(greet(Person_1, Person_2), simple)       :- person(Person_1), person(Person_2), true.",
+            "% Event: greet(Person1, Person2) (type: violation)",
+            "event(greet(Person1, Person2))                    :- person(Person1), person(Person2), true.",
+            "eventType(greet(Person1, Person2), simple, viol) :- person(Person1), person(Person2), true.",
+            "eventInst(greet(Person1, Person2), simple)       :- person(Person1), person(Person2), true.",
             "",
             ] + null_event_text("simple")
         self.assertEqual(len(result), len(expected))
@@ -464,8 +464,8 @@ class TestInstitutionCompiler(unittest.TestCase):
         compiler.compile_generation(inst)
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
-            "% Translation of alive(Person) generates breathing(Person_2) if [condition] (in )",
-            "occurred(breathing(Person_2), simple, I) :- occurred(alive(Person), simple, I), inst(simple), instant(I), not occurred(viol(alive(Person)) simple, I), Person=Person_2, person(Person), person(Person_2), true.",
+            "% Translation of alive(Person) generates breathing(Person2) if [condition] (in )",
+            "occurred(breathing(Person2), simple, I) :- occurred(alive(Person), simple, I), inst(simple), instant(I), not occurred(viol(alive(Person)) simple, I), Person=Person2, person(Person), person(Person2), true.",
             "",
         ]
 
@@ -557,6 +557,84 @@ class TestInstitutionCompiler(unittest.TestCase):
         self.assertEqual(len(result), len(expected))
         for x,y in zip(result, expected):
             self.assertEqual(x,y)
+
+
+    def test_full_institution(self):
+        compiler = InstalInstitutionCompiler()
+        inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
+
+        ##-- types
+        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        ##-- end types
+
+        ##-- events
+        inst.events.append(ASTs.EventAST(ASTs.TermAST("greet",
+                                                      [ASTs.TermAST("Person_1",
+                                                                    is_var=True),
+                                                       ASTs.TermAST("Person_2",
+                                                                    is_var=True)]),
+                                         ASTs.EventEnum.violation))
+
+        inst.events.append(ASTs.EventAST(ASTs.TermAST("arrive"),
+                                         ASTs.EventEnum.institutional))
+
+        inst.events.append(ASTs.EventAST(ASTs.TermAST("insult"),
+                                         ASTs.EventEnum.violation))
+        ##-- end events
+
+        ##-- fluents
+        inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("alive",
+                                                        [ASTs.TermAST("Person",
+                                                                      is_var=True)]),
+                                           ASTs.FluentEnum.inertial))
+
+        inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("avenge",
+                                                        [ASTs.TermAST("oblTest"),
+                                                         ASTs.TermAST("deadTest"),
+                                                         ASTs.TermAST("violTest")
+                                                         ]),
+                                           ASTs.FluentEnum.obligation))
+
+        inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("alive"),
+                                           ASTs.FluentEnum.noninertial))
+        ##-- end fluents
+
+        ##-- relations
+        inst.relations.append(ASTs.RelationalAST(ASTs.TermAST("alive", [ASTs.TermAST("Person", is_var=True)]),
+                                                 ASTs.RelationalEnum.generates,
+                                                 [ASTs.TermAST("breathing", [ASTs.TermAST("Person", is_var=True)])]
+                                                 ))
+
+        inst.relations.append(ASTs.RelationalAST(ASTs.TermAST("alive", [ASTs.TermAST("Person", is_var=True)]),
+                                                 ASTs.RelationalEnum.generates,
+                                                 [ASTs.TermAST("breathing", [ASTs.TermAST("Person_2", is_var=True)])],
+                                                 conditions=[
+                                                     ASTs.ConditionAST(ASTs.TermAST("Person", is_var=True),
+                                                                       operator="=",
+                                                                       rhs=ASTs.TermAST("Person_2", is_var=True))
+                                                     ]
+                                                 ))
+
+        inst.relations.append(ASTs.RelationalAST(ASTs.TermAST("alive"),
+                                                 ASTs.RelationalEnum.initiates,
+                                                 [ASTs.TermAST("breathing")]
+                                                 ))
+
+        inst.relations.append(ASTs.RelationalAST(ASTs.TermAST("alive"),
+                                                 ASTs.RelationalEnum.terminates,
+                                                 [ASTs.TermAST("breathing")]
+                                                 ))
+        ##-- end relations
+
+        ##-- nifs
+        inst.nif_rules.append(ASTs.NifRuleAST(ASTs.TermAST("alive", [ASTs.TermAST("Person", is_var=True)]),
+                                              [ASTs.TermAST("breathing", [ASTs.TermAST("Person", is_var=True)])]
+                                              ))
+        ##-- end nifs
+
+        result = compiler.compile(inst)
+        self.assertIsInstance(result, str)
 
 if __name__ == '__main__':
     unittest.main()

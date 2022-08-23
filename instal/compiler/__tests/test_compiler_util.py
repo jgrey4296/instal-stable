@@ -56,6 +56,11 @@ class TestCompilerUtils(unittest.TestCase):
         result = CompileUtil.compile_term(term)
         self.assertEqual(result, "test(first, second)")
 
+    def test_term_with_params_and_underscore(self):
+        term = ASTs.TermAST("test_term", params=[ASTs.TermAST("first_a"),
+                                                 ASTs.TermAST("second_b")])
+        result = CompileUtil.compile_term(term)
+        self.assertEqual(result, "testterm(firsta, secondb)")
 
 
     def test_type_wrapping_no_types(self):
@@ -107,7 +112,7 @@ class TestCompilerUtils(unittest.TestCase):
         result = CompileUtil.wrap_types(inst.types,
                                         term)
 
-        self.assertEqual(result, {"book(Book_1)", "book(Book_2)", "true"})
+        self.assertEqual(result, {"book(Book1)", "book(Book2)", "true"})
 
     def test_multiple_same_type_wrapping_unique(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -122,7 +127,7 @@ class TestCompilerUtils(unittest.TestCase):
 
         result = CompileUtil.wrap_types(inst.types, term)
 
-        self.assertEqual(result, {"book(Book_1)", "true"})
+        self.assertEqual(result, {"book(Book1)", "true"})
 
     def test_multiple_same_type_wrapping_underscore(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -138,7 +143,7 @@ class TestCompilerUtils(unittest.TestCase):
         result = CompileUtil.wrap_types(inst.types,
                                         term)
 
-        self.assertEqual(result, {"book(Book_1)", "book(Book_2)", "true"})
+        self.assertEqual(result, {"book(Book1)", "book(Book2)", "true"})
 
 
     def test_empty_condition_compilation(self):
@@ -158,7 +163,7 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result, {"holdsat(the_world, simple, I)", "true"})
+        self.assertEqual(result, {"holdsat(theworld, simple, I)", "true"})
 
     def test_comparison_compilation(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -171,7 +176,7 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result, {"the_world<the_universe", "true"})
+        self.assertEqual(result, {"theworld<theuniverse", "true"})
 
     def test_comparison_compilation_with_types(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -187,8 +192,8 @@ class TestCompilerUtils(unittest.TestCase):
         result    = CompileUtil.compile_conditions(inst, [condition])
 
         self.assertEqual(result, {"person(Person)",
-                                  "person(Person_2)",
-                                  "the_world(Person)<the_universe(Person_2)",
+                                  "person(Person2)",
+                                  "theworld(Person)<theuniverse(Person2)",
                                   "true"})
 
     def test_multiple_condition_compilation(self):
@@ -202,8 +207,8 @@ class TestCompilerUtils(unittest.TestCase):
         result    = CompileUtil.compile_conditions(inst, [condition, condition2])
 
         self.assertEqual(result,
-                         {"holdsat(the_stars, simple, I)",
-                          "holdsat(the_world, simple, I)",
+                         {"holdsat(thestars, simple, I)",
+                          "holdsat(theworld, simple, I)",
                           "true"})
 
     def test_negated_condition_compilation(self):
@@ -216,7 +221,7 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result, {"not holdsat(the_world, simple, I)", "true"})
+        self.assertEqual(result, {"not holdsat(theworld, simple, I)", "true"})
 
     def test_condition_with_types(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -231,9 +236,9 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result, {"holdsat(the_world(Person, Person_2), simple, I)",
+        self.assertEqual(result, {"holdsat(theworld(Person, Person2), simple, I)",
                                   "person(Person)",
-                                  "person(Person_2)",
+                                  "person(Person2)",
                                   "true"})
 
 
