@@ -43,6 +43,7 @@ gr      = lambda x: pp.Group(x)
 s_kw    = lambda x: pp.Keyword(x).suppress()
 s_lit   = lambda x: pp.Literal(x).suppress()
 ln      = orm(pp.White("\n\r").set_whitespace_chars("\t ")).suppress()
+ln.set_name("ln")
 comment = pp.Regex(r"%.+?\n")
 semi    = (lit(";") + pp.line_end).suppress()
 
@@ -147,56 +148,68 @@ def build_relation(string, loc, toks) -> ASTs.RelationalAST:
 ##-- end constructors
 
 ##-- term parser
-name = pp.Word(pp.alphanums)
+name = pp.Word(pp.alphanums + "_")
 name.set_parse_action(lambda s, l, t: (False, t[0]))
+name.set_name("name")
 # TODO: handle explicit type annotation
 # TODO: handle numbers
 var       = pp.Word(pp.alphas.upper(), pp.alphanums)
 var.set_parse_action(lambda s, l, t: (True, t[0]))
+var.set_name("var")
 
 # The core Term parser:
 TERM      = pp.Forward()
-term_list = pp.delimited_list(TERM)
+term_list = pp.delimited_list(op(ln) + TERM)
 
 TERM  <<= (var | name)("value") + op(lit("(") + term_list("params") + lit(")"))
 TERM.set_parse_action(build_term)
 TERM.set_name("term")
+
+in_inst       = s_kw('in') + TERM('inst')
 ##-- end term parser
 
 ##-- parser components
 TYPE_DEC    = s_kw("type") + TERM('head') + semi
 TYPE_DEC.set_parse_action(lambda s, l, t: ASTs.TypeAST(t['head']))
+TYPE_DEC.set_name("type_dec")
 
-FLUENT      = op(fluent_kws)("annotation") + s_kw("fluent")+ TERM("head") + semi
+FLUENT      = op(fluent_kws)("annotation") + s_kw("fluent") + TERM("head") + semi
 FLUENT.set_parse_action(build_fluent)
+FLUENT.set_name("fluent")
 
 EVENT       = event_kws('annotation')  + s_kw("event")  + TERM("head") + semi
 EVENT.set_parse_action(build_event)
+EVENT.set_name("event")
 
 CONDITION   = op(kw("not"))("not") + TERM("head")
 CONDITION.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['head'], True if 'not' in t else False))
+CONDITION.set_name("condition")
 
 COMPARISON  = TERM("lhs") + op_lits("op") + TERM("rhs")
 COMPARISON.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['lhs'], False, operator=t['op'], rhs=t['rhs']))
 
 # TODO handle 'in {time}'
-CONDITIONS  = s_kw("if") + pp.delimited_list(COMPARISON | CONDITION)
+CONDITIONS  = pp.delimited_list(op(ln) + (COMPARISON | CONDITION))
 
 RELATION    = (TERM("head")
                + relation_kws("annotation")
-               + term_list("body") + op(CONDITIONS)("conditions") + semi)
+               + term_list("body") + op(op(ln) + s_kw("if") + CONDITIONS)("conditions") + semi)
 RELATION.set_parse_action(build_relation)
+RELATION.set_name("relation")
 
-NIF_RULE  = TERM("head") + s_kw("when") + term_list("body") + semi
+NIF_RULE  = TERM("head") + s_kw("when") + CONDITIONS("body") + semi
 NIF_RULE.set_parse_action(lambda s, l, t: ASTs.NifRuleAST(t['head'], t['body'][:]))
+NIF_RULE.set_name("nif_rule")
 
-INITIALLY   = s_kw("initially") + term_list("body") + op(CONDITIONS)("conditions") + semi
+INITIALLY   = s_kw("initially") + term_list("body") + op(s_kw("if") + CONDITIONS)("conditions") + semi
 INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST(t['body'][:], t.conditions[:]))
+INITIALLY.set_name("initially")
 ##-- end parser components
 
 ##-- institution
 INSTITUTION = s_kw("institution") + TERM("head") + semi
 INSTITUTION.set_parse_action(lambda s, l, t: ASTs.InstitutionDefAST(t['head'][0]))
+INSTITUTION.set_name("institution")
 ##-- end institution
 
 ##-- bridge specific
@@ -216,26 +229,26 @@ DOMAIN_SPEC.set_parse_action(lambda s, l, t: ASTs.DomainSpecAST(t['head'], t['bo
 ##-- end idc domain
 
 ##-- iaf facts / situation
-cond_list = op(CONDITIONS)("conditions")
-in_inst   = s_kw('in') + TERM('inst')
-IAF_INITIALLY   = s_kw("initially") + TERM("body") + cond_list + in_inst + pp.line_end
+cond_list     = op(s_kw("if") + CONDITIONS)("conditions")
+IAF_INITIALLY = s_kw("initially") + TERM("body") + in_inst + cond_list + pp.line_end
 IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body']], t.conditions[:], inst=t['inst']))
 ##-- end iaf facts / situation
 
 ##-- iaq query specification
-OBSERVED = s_kw('observed') + TERM('fact') + op(s_kw('in') + TERM)('inst') + op(s_kw('at') + pp.common.integer('time')) + pp.line_end
-OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'], inst=t.inst, time=t.time))
+OBSERVED = s_kw('observed') + TERM('fact') + in_inst + op(s_kw('at') + pp.common.integer('time')) + pp.line_end
+# OBSERVED.set_parse_action(lambda s, l, t: breakpoint())
+OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'], inst=t.inst, time=t.time if t.time != '' else None))
 ##-- end iaq query specification
 
 ##-- top level parser entry points
 top_institution = (INSTITUTION('head')
-                   + orm(TYPE_DEC
+                   + orm(ln
+                         | TYPE_DEC
                          | EVENT
                          | FLUENT
                          | RELATION
                          | NIF_RULE
-                         | INITIALLY
-                         | ln)('body'))
+                         | INITIALLY) ('body'))
 
 
 top_institution.ignore(comment)
@@ -268,7 +281,6 @@ top_domain.set_parse_action(lambda s, l, t: ASTs.DomainTotalityAST(t[:]))
 
 ##-- interface implementation
 class InstalPyParser(InstalParser):
-
 
     def parse_institution(self, text:str, *, source:str=None) -> ASTs.InstitutionDefAST:
         """ Mainly for .ial's """
