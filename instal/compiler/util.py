@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 logging = logmod.getLogger(__name__)
 ##-- end logging
 
-type_matcher = re.compile(r"([A-Z][^0-9_]+)(?:_?([0-9]+))?")
+type_matcher = re.compile(r"([A-Z][^0-9_]*)(?:_?([0-9]+))?")
 
 class CompileUtil:
     @staticmethod
@@ -60,14 +60,15 @@ class CompileUtil:
                 continue
 
             matcher    = type_matcher.match(param.value)
+            assert(matcher is not None), param.value
             type_name  = matcher[1].lower()
-            var_num    = ("_" + matcher[2]) if matcher[2] else ""
+            var_num    = matcher[2] if matcher[2] else ""
             var_name   = matcher[1] + var_num
             if var_name in found:
                 continue
 
             assert(not bool(param.params))
-            assert(not bool(type_check) or type_name in type_check), param
+            # assert(not bool(type_check) or type_name in type_check), param
 
             result.add(f"{type_name}({var_name})")
             found.add(var_name)
@@ -100,10 +101,11 @@ class CompileUtil:
 
     @staticmethod
     def compile_term(term) -> str:
+        # term_name = term.value.replace("_", "")
+        term_name = term.value
         match term.params:
             case []:
                 params = ""
             case [*values]:
                 params = "({})".format(", ".join([CompileUtil.compile_term(x) for x in term.params]))
-        return f"{term.value}{params}"
-
+        return f"{term_name}{params}"

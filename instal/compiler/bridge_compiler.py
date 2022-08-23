@@ -69,7 +69,8 @@ class InstalBridgeCompiler(InstalInstitutionCompiler):
         self.insert(BRIDGE_PRELUDE,
                     bridge=CompileUtil.compile_term(iab.head),
                     source=CompileUtil.compile_term(iab.sources[0]),
-                    sink=CompileUtil.compile_term(iab.sinks[0]))
+                    sink=CompileUtil.compile_term(iab.sinks[0]),
+                    source_file=iab.parse_source)
 
         self.insert(HEADER, header='Part 1: Events and Fluents', sub="")
         self.compile_events(iab)
@@ -81,7 +82,7 @@ class InstalBridgeCompiler(InstalInstitutionCompiler):
 
         self.insert(HEADER, header='Part 3: Initial Situation Specification', sub="")
         situation          = InstalSituationCompiler()
-        compiled_situation = situation.compile(IAST.FactTotalityAST(ial.initial), ial, header=False)
+        compiled_situation = situation.compile(IAST.FactTotalityAST(iab.initial), iab, header=False)
         self.insert(compiled_situation)
 
         self.compile_types(iab.types)

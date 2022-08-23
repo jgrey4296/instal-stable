@@ -54,7 +54,7 @@ class RelationalEnum(Enum):
 ##-- core base asts
 @dataclass(frozen=True)
 class InstalAST:
-    source : None|str = field(default=None, kw_only=True)
+    parse_source : None|str = field(default=None, kw_only=True)
 
 @dataclass(frozen=True)
 class TermAST(InstalAST):
@@ -180,7 +180,7 @@ class RelationalAST(InstalAST):
 @dataclass(frozen=True)
 class NifRuleAST(InstalAST):
     head : TermAST       = field()
-    body : list[TermAST] = field(default_factory=list)
+    body : list[ConditionAST] = field(default_factory=list)
 
 @dataclass(frozen=True)
 class SinkAST(InstalAST):

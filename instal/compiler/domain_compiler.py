@@ -49,7 +49,7 @@ class InstalDomainCompiler(InstalCompiler):
         assert(all(isinstance(x, IAST.DomainSpecAST) for x in domain.body))
         self.clear()
         self.insert(HEADER, header="Domain Specification",
-                    sub=domain.source if domain.source is not None else "")
+                    sub=domain.parse_source if domain.parse_source is not None else "")
         for assignment in domain.body:
             wrapper = assignment.head.value.lower()
             for term in assignment.body:

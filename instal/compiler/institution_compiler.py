@@ -65,7 +65,7 @@ class InstalInstitutionCompiler(InstalCompiler):
         self.clear()
         self.insert(INST_PRELUDE,
                     institution=CompileUtil.compile_term(ial.head),
-                    source_file=ial.source)
+                    source_file=ial.parse_source)
         self.insert(HEADER, header='Part 1: Initial Setup and types', sub="")
 
         self.compile_events(ial)
@@ -143,7 +143,7 @@ class InstalInstitutionCompiler(InstalCompiler):
                                 violation=CompileUtil.compile_term(violation),
                                 inst=inst_head,
                                 rhs=rhs)
-                case IAST.FluentEnum.cross if fluent.head.value == gpow:
+                case IAST.FluentEnum.cross if fluent.head.value == "gpow":
                     assert(len(fluent.head.params) == 3)
                     self.insert(GPOW_FLUENT,
                                 source=CompileUtil.compile_term(fluent.head.params[0]),
@@ -154,7 +154,7 @@ class InstalInstitutionCompiler(InstalCompiler):
                 case IAST.FluentEnum.cross:
                     assert(len(fluent.head.params) == 3)
                     self.insert(CROSS_FLUENT,
-                                power=CompileUtil.compile_term(fluent.head.value),
+                                power=fluent.head.value,
                                 source=CompileUtil.compile_term(fluent.head.params[0]),
                                 fluent=CompileUtil.compile_term(fluent.head.params[1]),
                                 sink=CompileUtil.compile_term(fluent.head.params[2]),
@@ -205,10 +205,10 @@ class InstalInstitutionCompiler(InstalCompiler):
                     assert(isinstance(inst, IAST.BridgeDefAST))
                     delay = "+{relation.delay}" if relation.delay > 0 else ""
                     self.insert(X_GEN_PAT,
-                                event=relation.head,
-                                response=CompileUtil.compile_term(event.body[0]),
-                                source=CompileUtil.compile_term(inst.source[0]),
-                                sink=CompileUtil.compile_term(inst.sink[0]),
+                                event=CompileUtil.compile_term(relation.head),
+                                response=CompileUtil.compile_term(relation.body[0]),
+                                source=CompileUtil.compile_term(inst.sources [0]),
+                                sink=CompileUtil.compile_term(inst.sinks[0]),
                                 bridge=inst_head,
                                 delay=delay,
                                 rhs=rhs)
@@ -225,7 +225,7 @@ class InstalInstitutionCompiler(InstalCompiler):
                 case IAST.RelationalEnum.xterminates:
                     assert(isinstance(inst, IAST.BridgeDefAST))
                     self.insert(X_TERM_PAT,
-                                source=CompileUtil.compile_term(inst.source[0]),
+                                source=CompileUtil.compile_term(inst.sources[0]),
                                 sink=CompileUtil.compile_term(inst.sinks[0]),
                                 bridge=inst_head,
                                 fluent=CompileUtil.compile_term(relation.head),
@@ -237,10 +237,9 @@ class InstalInstitutionCompiler(InstalCompiler):
 
     def compile_nif_rules(self, inst):
         for rule in inst.nif_rules:
-            conditions = {CompileUtil.compile_term(x) for x in rule.body}
+            conditions = CompileUtil.compile_conditions(inst, rule.body)
             types      = CompileUtil.wrap_types(inst.types,
-                                                rule.head,
-                                                *rule.body)
+                                                rule.head)
 
             rhs = ", ".join(sorted(conditions | types))
 

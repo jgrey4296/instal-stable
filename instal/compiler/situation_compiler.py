@@ -49,17 +49,18 @@ class InstalSituationCompiler(InstalCompiler):
 
         if header:
             self.insert(HEADER, header="Initial Situation Specification",
-                        sub=facts.source if facts.source is not None else "")
+                        sub=facts.parse_source if facts.parse_source is not None else "")
 
         for initial in facts.body:
             for state in initial.body:
                 if inst:
+                    inst_head = CompileUtil.compile_term(inst.head)
                     conditions  = CompileUtil.compile_conditions(inst, initial.conditions)
                     type_guards = CompileUtil.wrap_types(inst.types, state)
                     rhs = ", ".join(sorted(conditions | type_guards))
                     self.insert(INITIAL_FACT,
                                 state=CompileUtil.compile_term(state),
-                                inst=inst.head,
+                                inst=inst_head,
                                 rhs=rhs)
                 else:
                     assert(initial.inst is not None)
