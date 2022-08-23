@@ -1,5 +1,5 @@
 %%-- mode COMPOSITE is chosen
-1 {genObserved(E, J) : evtype(E, In, ex), inst(In)} 1 :-
+1 {genObserved(E, J) : eventType(E, In, ex), inst(In)} 1 :-
 	instant(J),
 	not final(J),
 	not extObserved(_, J).
@@ -7,8 +7,8 @@
 :- observed(E, J),
 	 observed(F, J),
 	 instant(J),
-	 evtype(E, InX, ex),
-   evtype(F, InY, ex),
+	 eventType(E, InX, ex),
+   eventType(F, InY, ex),
 	 E!=F,
 	 inst(InX;InY).
 

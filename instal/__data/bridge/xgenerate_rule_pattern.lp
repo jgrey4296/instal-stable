@@ -1,6 +1,4 @@
-%% cross generate rules %
-%%
-% Translation of ${event} of ${source} xgenerates ${response} of ${sink} if ${condition} in ${delay}\n
+% Translation of ${event} of ${source} xgenerates ${response} of ${sink} if [condition] in ${delay}
 occurred(${response}, ${sink}, I${delay}) :-
   occurred(${event}, ${source}, I),
   holdsat(gpow(${source}, ${response}, ${sink}), ${bridge}, I${delay}),

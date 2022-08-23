@@ -3,11 +3,11 @@
 event(null).
 event(viol(null)).
 
-evtype(null, ${inst}, ex).
-evtype(viol(null), ${inst}, viol).
+eventType(null, ${inst}, ex).
+eventType(viol(null), ${inst}, viol).
 
-evinst(null, ${inst}).
-evinst(viol(null), ${inst}).
+eventInst(null, ${inst}).
+eventInst(viol(null), ${inst}).
 
 ifluent(pow(null), ${inst}).
 ifluent(perm(null), ${inst}).

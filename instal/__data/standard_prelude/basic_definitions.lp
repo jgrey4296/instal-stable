@@ -1,7 +1,7 @@
 true.
 
 %%-- suppress_warnings
-event_type(ex;viol;inst).
+eventType(ex;viol;inst).
 
 ifluent(0, 0).
 nifluent(0, 0).

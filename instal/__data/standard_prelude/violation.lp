@@ -2,7 +2,7 @@
 occurred(viol(E), In, I):-
 	occurred(E, In, I),
 	holdsat(live(In), In, I),
-	evinst(E, In),
+	eventInst(E, In),
 	event(E),
 	instant(I),
 	event(viol(E)),

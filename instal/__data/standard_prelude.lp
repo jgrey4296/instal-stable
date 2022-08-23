@@ -7,6 +7,7 @@
 % supresses some clingo warnings
 % and sets printed output
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#const horizon = 5.
 
 % TODO: Remove the need for this in constraint generation
 true.
@@ -25,9 +26,9 @@ bridge(1).
 
 %%-- time
 start(0).
+final(horizon).
 instant(0..T) :- final(T).
 next(T,T+1) :- instant(T).
-final(horizon).
 %%-- end time
 
 %%-- fluent rules
@@ -54,12 +55,12 @@ holdsat(F,I,J) :- holdsat(F,I), start(J).
 %%-- end external fluent rules
 
 %%-- events occur
-occurred(E,In,I):- evtype(E,In,ex),observed(E,In,I),instant(I), inst(In), holdsat(pow(E), In, I).
-occurred(_unempoweredEvent(E), In, I) :- evtype(E,In,ex),observed(E,In,I),instant(I), inst(In), not holdsat(pow(E), In, I).
-occurred(_unrecognisedEvent(E),In,I) :- not evtype(E,In,ex), observed(E,In,I),
+occurred(E,In,I):- eventType(E,In,ex),observed(E,In,I),instant(I), inst(In), holdsat(pow(E), In, I).
+occurred(_unempoweredEvent(E), In, I) :- eventType(E,In,ex),observed(E,In,I),instant(I), inst(In), not holdsat(pow(E), In, I).
+occurred(_unrecognisedEvent(E),In,I) :- not eventType(E,In,ex), observed(E,In,I),
 	instant(I), inst(In).
 
-occurred(null,In,I) :- not evtype(E,In,ex), observed(E,In,I),
+occurred(null,In,I) :- not eventType(E,In,ex), observed(E,In,I),
 	instant(I), inst(In). % TODO: What's the point of the null anyway?
 %%-- end events occur
 
@@ -68,7 +69,7 @@ occurred(null,In,I) :- not evtype(E,In,ex), observed(E,In,I),
 %%-- end event set
 
 %%-- observation sequences
-#external extObserved(E,I) : event(E), evtype(E,_,ex), instant(I).
+#external extObserved(E,I) : event(E), eventType(E,_,ex), instant(I).
 
 recEvent(I) :- extObserved(E, I), event(E), instant(I), not final(I).
 extObserved(_unrecognisedEvent, I) :- not recEvent(I), _eventSet(I).
@@ -79,14 +80,14 @@ occurred(viol(E),In,I):-
 	occurred(E,In,I),
 	not holdsat(perm(E),In,I),
 	holdsat(live(In),In,I),
-	evinst(E,In),
+	eventInst(E,In),
 	event(E),
 	instant(I),
 	event(viol(E)),inst(In).
 %%-- end violations for non-permitted events
 
 %%-- mode COMPOSITE is chosen
-1 {genObserved(E, J) : evtype(E, In, ex), inst(In)} 1 :-
+1 {genObserved(E, J) : eventType(E, In, ex), inst(In)} 1 :-
 	instant(J),
 	not final(J),
 	not extObserved(_, J).
@@ -94,8 +95,8 @@ occurred(viol(E),In,I):-
 :- observed(E,J),
 	 observed(F,J),
 	 instant(J),
-	 evtype(E,InX,ex),
-   evtype(F,InY,ex),
+	 eventType(E,InX,ex),
+   eventType(F,InY,ex),
 	 E!=F,
 	 inst(InX;InY).
 

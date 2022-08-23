@@ -1,4 +1,4 @@
 % Event: ${event} (type: violation)
-event(${event})                 :- ${rhs}.
-evtype(${event}, ${inst}, viol) :- ${rhs}.
-evinst(${event}, ${inst})       :- ${rhs}.
+event(${event})                    :- ${rhs}.
+eventType(${event}, ${inst}, viol) :- ${rhs}.
+eventInst(${event}, ${inst})       :- ${rhs}.
