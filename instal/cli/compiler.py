@@ -19,29 +19,8 @@ from instal.compiler.situation_compiler import InstalSituationCompiler
 ##-- end imports
 
 ##-- Logging
-if __name__ == '__main__':
-    DISPLAY_LEVEL = logmod.DEBUG
-    LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-    LOG_FORMAT    = "%(asctime)s | %(levelname)8s | %(message)s"
-    FILE_MODE     = "w"
-    STREAM_TARGET = stdout
-
-    logger          = logmod.root
-    logger.setLevel(logmod.DEBUG)
-    console_handler = logmod.StreamHandler(STREAM_TARGET)
-    file_handler    = logmod.FileHandler(LOG_FILE_NAME, mode=FILE_MODE)
-
-    console_handler.setLevel(DISPLAY_LEVEL)
-    # console_handler.setFormatter(logmod.Formatter(LOG_FORMAT))
-    file_handler.setLevel(logmod.DEBUG)
-    # file_handler.setFormatter(logmod.Formatter(LOG_FORMAT))
-
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
-    logging = logger
-else:
-    logging = logmod.getLogger(__name__)
-    logging.setLevel(logmod.DEBUG)
+logging = logmod.getLogger(__name__)
+logging.setLevel(logmod.DEBUG)
 ##-- end Logging
 
 ##-- argparse
@@ -64,7 +43,7 @@ def load_prelude() -> str:
 
     return "\n".join(text)
 
-def compile_target(targets:list[pathlib.Path], debug=False):
+def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False):
     logging.info("%% Compiling %s target files", len(targets))
     if debug:
         import instal.parser.debug_functions as dbf
@@ -84,7 +63,7 @@ def compile_target(targets:list[pathlib.Path], debug=False):
                 ast          = parser.parse_institution(text)
                 compiler     = InstalInstitutionCompiler()
                 compiled     = compiler.compile(ast)
-                prelude_text = load_prelude()
+                prelude_text = load_prelude() if with_prelude else ""
                 output.append(prelude_text)
                 output.append(compiled)
             case defaults.BRIDGE_EXT:
@@ -113,6 +92,28 @@ def compile_target(targets:list[pathlib.Path], debug=False):
     return output
 
 def main():
+    ##-- logging
+    DISPLAY_LEVEL = logmod.DEBUG
+    LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
+    LOG_FORMAT    = "%(asctime)s | %(levelname)8s | %(message)s"
+    FILE_MODE     = "w"
+    STREAM_TARGET = stdout
+
+    logger          = logmod.root
+    logger.setLevel(logmod.DEBUG)
+    console_handler = logmod.StreamHandler(STREAM_TARGET)
+    file_handler    = logmod.FileHandler(LOG_FILE_NAME, mode=FILE_MODE)
+
+    console_handler.setLevel(DISPLAY_LEVEL)
+    # console_handler.setFormatter(logmod.Formatter(LOG_FORMAT))
+    file_handler.setLevel(logmod.DEBUG)
+    # file_handler.setFormatter(logmod.Formatter(LOG_FORMAT))
+
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+    logging = logger
+    ##-- end logging
+
     args        = argparser.parse_args()
     args.target = pathlib.Path(args.target)
     if args.target.is_file():
@@ -120,7 +121,7 @@ def main():
     else:
         targets = list(args.target.iterdir())
 
-    result = compile_target(targets, args.debug)
+    result = compile_target(targets, args.debug, with_prelude=True)
 
     if args.output:
         with open(pathlib.Path(args.output), 'w') as f:
@@ -129,6 +130,5 @@ def main():
 
     print("\n".join(result))
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

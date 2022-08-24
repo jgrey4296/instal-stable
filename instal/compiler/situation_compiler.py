@@ -54,10 +54,10 @@ class InstalSituationCompiler(InstalCompiler):
         for initial in facts.body:
             for state in initial.body:
                 if inst:
-                    inst_head = CompileUtil.compile_term(inst.head)
+                    inst_head   = CompileUtil.compile_term(inst.head)
                     conditions  = CompileUtil.compile_conditions(inst, initial.conditions)
                     type_guards = CompileUtil.wrap_types(inst.types, state)
-                    rhs = ", ".join(sorted(conditions | type_guards))
+                    rhs         = ", ".join(sorted(conditions | type_guards))
                     self.insert(INITIAL_FACT,
                                 state=CompileUtil.compile_term(state),
                                 inst=inst_head,

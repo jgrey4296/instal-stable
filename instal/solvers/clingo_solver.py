@@ -2,19 +2,20 @@
 ##-- imports
 from __future__ import annotations
 
-from pathlib import Path
 import logging as logmod
 import os
 import time
 from collections import defaultdict
 from dataclasses import InitVar, dataclass, field
+from pathlib import Path
 from typing import IO, List
 
+import clingo
 import instal
-from clingo import Control, Function, Symbol
+from clingo import Control, Function, Number, Symbol, parse_term
+from instal.interfaces.ast import InitiallyAST, TermAST, QueryAST, DomainSpecAST
 from instal.interfaces.solver_wrapper import SolverWrapper
 from instal.interfaces.state import Trace
-from instal.interfaces.ast import InitiallyAST, TermAST
 from instal.util.misc import InstalModelResult
 
 ##-- end imports
@@ -33,27 +34,55 @@ class ClingoSolver(SolverWrapper):
     ctl     : None|Control = field(init=False, default=None)
 
     def __post_init__(self):
-        clingo_options = self.options or ['-n', str(number),
-                                          '-c', f'horizon={self.length}']
+        assert(self.program or bool(self.input_files))
 
-        self.ctl = Control(clingo_options)
+        self.options = self.options or ['-n', str(1),
+                                        '-c', f'horizon={self.length}']
+
+        self.init_solver()
+
+    def init_solver(self):
+        self.ctl = Control(self.options)
 
         for path in self.input_files:
             logging.info("Clingo Loading: %s", path)
             assert(path.exists())
             self.ctl.load(str(path))
 
+        try:
+            self.ctl.add("base", [], self.program)
+        except Exception as err:
+            logging.exception("Clingo Failed to add Program")
+            logging.debug(self.program)
+            raise err
+
         logging.info("Clingo initialization complete")
 
-    def solve(self, events: List[Symbol]) -> List[dict]:
-        self.observations = events
-        self.cycle        = self.length
+    def solve(self, events:None|list[QueryAST|Symbol]=None, situation:None|list[QueryAST|Symbol]=None, fresh=False) -> int:
+        events    = events or []
+        situation = situation or []
 
-        for x in (self.observations + self.holdsat):
+        if fresh:
+            self.init_solver()
+
+        for x in (situation + events):
             logging.debug("assigning: %s", x)
-            self.ctl.assign_external(x, True)
+            match x:
+                case TermAST():
+                    for sym in self.ast_to_clingo(x):
+                        self.ctl.assign_external(sym, True)
+                case Symbol():
+                    self.ctl.assign_external(x, True)
+                case _:
+                    raise Exception("Unrecognized situation fact")
 
         def on_model_cb(model):
+            """
+            Handler for clingo finding a matching model for the program
+            note: model destroyed on exit/reallocated in clingo,
+            so information is copied into InstalModelResult to be processed
+            later.
+            """
             self.results.append(InstalModelResult(model.symbols(atoms=True),
                                                   model.symbols(shown=True),
                                                   model.cost,
@@ -61,17 +90,16 @@ class ClingoSolver(SolverWrapper):
                                                   model.optimality_proven,
                                                   model.type))
 
-            self.results.append(new_model)
-            ## note: model destroyed on exit/reallocated in clingo
 
 
         logging.info("Grounding Program")
-        ctl.ground([("base", [])])
+        self.ctl.ground([("base", [])])
         logging.info("Running Program")
         result = self.ctl.solve(on_model=on_model_cb)
 
         logging.info("There are %s answer sets", len(self.results))
-        return self.results
+        return len(self.results)
+
 
     @property
     def metadata(self):
@@ -80,8 +108,38 @@ class ClingoSolver(SolverWrapper):
             "source_files"   : [str(x) for x in self.input_files],
             "timestamp"      : self.timestamp,
             "mode"           : "multi_shot",
-            "max_result"     : self.max_result,
             "current_result" : self.current_answer,
             "result_size"    : len(self.results),
             "version"        : instal.__version__,
+            "clingo_version" : clingo.__version__
         }
+
+
+    def ast_to_clingo(self, *asts:TermAST) -> list[Symbol]:
+        logging.debug("Converting to Clingo Symbols: %s", asts)
+        results = []
+        for ast in asts:
+            match ast:
+                case InitiallyAST():
+                    assert(not bool(ast.conditions))
+                    for fact in ast.body:
+                        results.append(Function("holdsat",
+                                                [parse_term(str(fact)),
+                                                 Function(ast.inst)]))
+                case QueryAST():
+                    time = ast.time if ast.time else 0
+                    event = parse_term(str(ast.head)) + [Number(time)]
+                    results.append(Function("extObserved", event))
+                    results.append(Function("_eventSet", [Number(time)]))
+
+                case DomainSpecAST():
+                    for fact in ast.body:
+                        assert(not bool(ast.head.params))
+                        results.append(Function(str(ast.head.value),
+                                                [parse_term(str(x) for x in ast.body)]))
+
+                case TermAST():
+                    results.append(parse_term(str(ast)))
+
+
+        return results

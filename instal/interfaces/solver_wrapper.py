@@ -21,10 +21,7 @@ logging = logmod.getLogger(__name__)
 class _SolverWrapper_Protocol(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
-    def solve(self, events: list): pass
-
-    @abc.abstractmethod
-    def report(self) -> list[str]: pass
+    def solve(self, events:None|list[Any]=None, situation:None|list[Any]=None, fresh=False) -> int: pass
 
     @property
     @abc.abstractmethod
@@ -36,11 +33,8 @@ class SolverWrapper(_SolverWrapper_Protocol):
     An wrapper around a solver (ie: clingo) to interface with the rest of instal
     """
 
-    input_files    : list[Path]              = field(default_factory=list)
-    holdsat        : list[InitiallyAST]      = field(default_factory=list)
-    max_result     : int                     = field(default=1)
-    length         : int                     = field(default=1)
-    verbose        : int                     = field(default=0)
+    program        : None|str                = field(default=None)
+    input_files    : list[Path]              = field(default_factory=list, kw_only=True)
 
     timestamp      : float                   = field(init=False, default_factory=time.time)
     results        : list[InstalModelResult] = field(init=False, default_factory=list)

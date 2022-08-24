@@ -30,6 +30,7 @@ changelog     = "https://github.com/jgrey4296/instal/spam/blob/master/CHANGELOG.
 [project.scripts]
 instal         = "instal.__main__:main"
 instal_compile = "instal.cli.compiler:main"
+instal_query   = "instal.cli.query:main"
 
 [project.gui-scripts]
 # spam-gui      = "spam:main_gui"

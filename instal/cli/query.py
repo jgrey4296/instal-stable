@@ -5,20 +5,73 @@ from __future__ import annotations
 import argparse
 import logging as logmod
 import pathlib
+from importlib.resources import files
 from io import StringIO
 from sys import stderr, stdout
 from typing import IO, List, Optional
 
-from clingo import Symbol, parse_term
+from clingo import Control, Function, Symbol, parse_term
+from instal.solvers.clingo_solver import ClingoSolver
 from instal.util.misc import InstalFileGroup, InstalOptionGroup
-
-# from instal.model_runners.multi_shot import InstalMultiShotModel
-
-from clingo import Control, Function, Symbol
 ##-- end imports
 
 ##-- Logging
-if __name__ == '__main__':
+logging = logmod.getLogger(__name__)
+logging.setLevel(logmod.DEBUG)
+##-- end Logging
+
+##-- data
+inst_prelude    = files("instal.__data.standard_prelude")
+##-- end data
+
+##-- argparse
+argparser = argparse.ArgumentParser()
+argparser.add_argument('-t', '--target',      action="append", help="Specify (multiple) files and directories to load")
+argparser.add_argument('-s', '--situation',   help="Specify a string or file to parse of initial specs")
+argparser.add_argument('-q', '--query',       help="Specify a string or file to parse of observed events")
+
+argparser.add_argument("-o", "--output",      type=str, help="output dir location, defaults to {cwd}/instal_tmp")
+argparser.add_argument("-j", "--json",        action='store_true', help="toggle json output")
+
+argparser.add_argument("-v", "--verbose",     action='count', help="turns on trace output, v for holdsat, vv for more")
+argparser.add_argument('-a', '--answer-set',  type=int, default=0, help='choose an answer set (default all)')
+argparser.add_argument('-n', '--number',      type=int, default=1, help='compute at most <n> models (default 1, 0 for all)')
+argparser.add_argument('-l', '--length',      type=int, default=0, help='length of trace (default 1)')
+argparser.add_argument('-d', '--debug',       action="store_true", help="activate debug parser functions")
+##-- end argparse
+
+def maybe_get_query_and_situation(que:None|str, sit:None|str) -> tuple[list[TermAST], list[TermAST]]:
+    from instal.parser.pyparse_institution import InstalPyParser
+    parser    = InstalPyParser()
+    situation = []
+    query     = []
+
+    if sit:
+        try:
+            sit_path = pathlib.Path(sit).expanduser().resolve()
+            assert(sit_path.exists())
+            sit_text = sit_path.read_text()
+        except:
+            sit_text = sit.replace("\\n", "\n")
+
+        situation += parser.parse_situation(sit_text).body[:]
+
+
+    if que:
+        try:
+            query_path = pathlib.Path(que).expanduser().resolve()
+            assert(query_path.exists())
+            query_text = query_path.read_text()
+        except:
+            query_text = que.replace("\\n", "\n")
+
+        query += parser.parse_query(query_text).body[:]
+
+
+    return query, situation
+
+def main():
+    ##-- Logging
     DISPLAY_LEVEL = logmod.DEBUG
     LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
     LOG_FORMAT    = "%(asctime)s | %(levelname)8s | %(message)s"
@@ -39,24 +92,8 @@ if __name__ == '__main__':
     logger.addHandler(file_handler)
     logging = logger
     logging.setLevel(logmod.DEBUG)
-else:
-    logging = logmod.getLogger(__name__)
-##-- end Logging
+    ##-- end Logging
 
-##-- argparse
-argparser = argparse.ArgumentParser()
-argparser.add_argument('-t', '--target',      action="append", help="Specify (multiple) files and directories to load")
-
-argparser.add_argument("-o", "--output",      type=str, help="output dir location, defaults to {cwd}/instal_tmp")
-argparser.add_argument("-j", "--json",        action='store_true', help="toggle json output")
-
-argparser.add_argument("-v", "--verbose",     action='count', help="turns on trace output, v for holdsat, vv for more")
-argparser.add_argument('-a', '--answer-set',  type=int, default=0, help='choose an answer set (default all)')
-argparser.add_argument('-n', '--number',      type=int, default=1, help='compute at most <n> models (default 1, 0 for all)')
-argparser.add_argument('-l', '--length',      type=int, default=0, help='length of trace (default 1)')
-argparser.add_argument('-d', '--debug',       action="store_true")
-##-- end argparse
-def main():
     args         = argparser.parse_args()
     file_group   = InstalFileGroup.from_targets(*args.target)
     option_group = InstalOptionGroup(verbose=args.verbose if args.verbose else 0,
@@ -68,36 +105,35 @@ def main():
 
     logging.info("Starting Compile -> Query")
     from instal.cli.compiler import compile_target
-    compiled = compile_target(file_group.get_sources(), args.debug)
+    compiled         = compile_target(file_group.get_sources(), args.debug)
+    prelude_files    = list(inst_prelude.iterdir())
+    query, situation = maybe_get_query_and_situation(args.query, args.situation)
 
-    logging.info("Starting Clingo")
-    ctl = Control()
+    solver        = ClingoSolver("\n".join(compiled),
+                                 input_files=prelude_files + file_group.get_compiled(),
+                                 options=['-n', str(option_group.number),
+                                          '-c', f'horizon={option_group.length}'])
 
-    for x in file_group.get_compiled():
-        ctl.load(x)
+    num_models = solver.solve(query)
 
-    ctl.add("base", [], "\n".join(compiled))
-    models = []
-
-    def on_model_cb(model):
-        models.append(InstalModelResult(model.symbols(atoms=True),
-                                                model.symbols(shown=True),
-                                                model.cost,
-                                                model.number,
-                                                model.optimality_proven,
-                                                model.type))
-
-        models.append(new_model)
-        ## note: model destroyed on exit/reallocated in clingo
-
-    logging.info("Grounding Program")
-    ctl.ground([("base", [])])
-    logging.info("Running Program")
-    ctl.solve(on_model=on_model_cb)
+    if num_models == 0:
+        logging.info("Found No Models")
+        exit()
 
     logging.info("Program Results:")
-    for term in models[0].shown:
-        logging.info(term)
+    for i, result in enumerate(solver.results):
+        logging.info("Result %s:", i)
+        logging.info(" ".join(str(x) for x in result.shown))
+
+    match args.output, args.json:
+        case None, _:
+            pass
+        case str(), False:
+            # print out as text to output
+            pass
+        case str(), True:
+            # print out as json to output
+            pass
 
 
 if __name__ == "__main__":

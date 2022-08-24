@@ -62,6 +62,14 @@ class TermAST(InstalAST):
     params : list[InstalAST] = field(default_factory=list)
     is_var : bool            = field(default=False)
 
+    def __str__(self):
+        if bool(self.params):
+            param_str = ", ".join(str(x) for x in params)
+            return self.value + "(" + param_str + ")"
+
+        return self.value
+
+
 ##-- end core base asts
 
 ##-- top level collection asts
