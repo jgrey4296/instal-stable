@@ -3,21 +3,14 @@
 from __future__ import annotations
 
 from pathlib import Path
-import hashlib
 import logging as logmod
 from dataclasses import InitVar, dataclass, field
-from tempfile import NamedTemporaryFile
 from typing import NewType
-
-import _io
-from clingo import Function, Symbol
 
 from instal import defaults
 ##-- end imports
 
 logging = logmod.getLogger(__name__)
-
-InstalFile = NewType("InstalFile",_io._TextIOBase)
 
 @dataclass
 class InstalFileGroup:
@@ -121,32 +114,4 @@ class InstalOptionGroup:
 
             assert(self.json or self.gantt or self.text), "No Output option selected"
 
-
-
-@dataclass
-class InstalModelResult:
-
-    atoms   : list[Any]
-    shown   : list[Any]
-    cost    : float
-    number  : int
-    optimal : bool
-    type    : Any
-
-# ############################################################################
-def temporary_text_file(text="", file_extension="", delete=True) -> "File":
-    """Returns a NamedTemporaryFile with the specified file extension and prints text to it."""
-    tmpfile = NamedTemporaryFile(suffix=file_extension, mode="w+t", delete=delete)
-    print(text, file=tmpfile)
-    return tmpfile
-
-
-def fun_to_asp(fun: Function) -> str:
-    """Takes a gringo fun object and returns what it is in ASP."""
-    if isinstance(fun, Symbol):
-        return str(fun) + ".\n"
-    return ""
-
-def encode_Fun(obj: Symbol) -> dict:
-    return {"__Fun__": True, "name": obj.name, "args": obj.arguments}
 

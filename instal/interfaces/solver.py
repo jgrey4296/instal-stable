@@ -11,11 +11,24 @@ from dataclasses import InitVar, dataclass, field
 from typing import IO, List
 
 from clingo import parse_term
-from instal.util.misc import InstalModelResult
-
 ##-- end imports
 
 logging = logmod.getLogger(__name__)
+
+@dataclass
+class InstalModelResult:
+    """
+    The immediate results data structure returned by a solver.
+    Does no translation from the data structures the solver uses.
+
+    ie: for Clingo, it is lists of clingo.Symbol's
+    """
+    atoms   : list[Any]
+    shown   : list[Any]
+    cost    : float
+    number  : int
+    optimal : bool
+    type    : Any
 
 
 class _SolverWrapper_Protocol(metaclass=abc.ABCMeta):

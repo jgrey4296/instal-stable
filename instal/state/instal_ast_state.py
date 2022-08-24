@@ -1,21 +1,26 @@
-
 ##-- imports
 from __future__ import annotations
 
 import logging as logmod
-from typing import Dict, List
 
-from clingo import Symbol, parse_term
-from instal.parser.atom_parser import (atom_list_to_symbol, atom_sorter,
-                                       symbol_to_atom_list)
-from isnta.interfaces.trace import State
+import simplejson as json
+from clingo import Symbol
+from instal.interfaces.solver import InstalModelResult
+from instal.interfaces.state import Trace, State
+import instal.interfaces.ast as iAST
+from instal.parser.pyparse_institution import TERM
 ##-- end imports
 
 ##-- logging
 logging = logmod.getLogger(__name__)
 ##-- end logging
 
-class InstalState(State):
+class InstalASTState(State):
+    """ A workable representation of a single time Instal Model time step
+    Collects everything that `holdsat`, `occurred` and was `observed`
+    at a step.
+
+    """
 
     @classmethod
     def from_json(cls, json : dict) -> "InstalState":
@@ -31,34 +36,14 @@ class InstalState(State):
         return state
 
     @classmethod
-    def from_list(cls, lst : List[Symbol], metadata : dict = None) -> "InstalState":
+    def from_list(cls, lst:list[Any], metadata:dict=None) -> "InstalState":
         state = InstalState()
         state.metadata = metadata
-        for a in lst:
-            if a.name == "holdsat":
-                state.holdsat.append(a)
-            elif a.name == "occurred":
-                state.occurred.append(a)
-            elif a.name == "observed":
-                state.observed.append(a)
+        for term in lst:
+            state.insert(term)
+
         return state
 
-
-
-    def __str__(self, show_perms=True, show_pows=True, show_cross=True) -> str:
-        out_str = ""
-        for h in atom_sorter(self.holdsat):
-            lst_atom = symbol_to_atom_list(h)
-            if not ((lst_atom[1][0][0] == "perm" and not show_perms) or (lst_atom[1][0][0] == "pow" and not show_pows) or (((lst_atom[1][0][0] == "ipow") or (lst_atom[1][0][0] == "tpow") or (lst_atom[1][0][0] == "gpow")) and not show_cross)):
-                out_str += str(h) + "\n"
-        for o in atom_sorter(self.occurred):
-            out_str += str(o) + "\n"
-        for o in atom_sorter(self.observed):
-            out_str += str(o) + "\n"
-            # TODO This is a horrible hack; deal with the incorrect output from
-            # query first. (The break thing to only get one observed that is.)
-            break
-        return out_str
     def to_json(self) -> Dict:
         state_dict = {
                 "occurred" : [],
@@ -103,9 +88,20 @@ class InstalState(State):
         return [a for a in self.occurred+self.observed+self.holdsat]
 
 
-    def to_solver(self) -> str:
-        pass
-
+    def __str__(self, show_perms=True, show_pows=True, show_cross=True) -> str:
+        out_str = ""
+        for h in atom_sorter(self.holdsat):
+            lst_atom = symbol_to_atom_list(h)
+            if not ((lst_atom[1][0][0] == "perm" and not show_perms) or (lst_atom[1][0][0] == "pow" and not show_pows) or (((lst_atom[1][0][0] == "ipow") or (lst_atom[1][0][0] == "tpow") or (lst_atom[1][0][0] == "gpow")) and not show_cross)):
+                out_str += str(h) + "\n"
+        for o in atom_sorter(self.occurred):
+            out_str += str(o) + "\n"
+        for o in atom_sorter(self.observed):
+            out_str += str(o) + "\n"
+            # TODO This is a horrible hack; deal with the incorrect output from
+            # query first. (The break thing to only get one observed that is.)
+            break
+        return out_str
     def check(self, conditions : dict, verbose=2):
         """Takes an InstAL trace and a set of conditions in the format:
             [
@@ -180,3 +176,21 @@ class InstalState(State):
                 if verbose > 0:
                     print("Occurs (and shouldn't): ", h)
         return errors
+
+    def insert(self, term):
+        if isinstance(term, Symbol):
+            term = TERM.parse_string(str(term))
+
+        assert(isinstance(term, iAST.TermAST))
+        if (int(term.params[-1].value) != self.timestep):
+            logging.info("State %s: Ignoring: %s", self.timestep, term)
+            return
+
+        match term.value:
+            case "holdsat":
+                self.holdsat.append(a)
+            case "occurred":
+                self..occurred.append(a)
+            case "observed":
+                self.observed.append(a)
+

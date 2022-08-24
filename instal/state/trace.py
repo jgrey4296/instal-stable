@@ -1,15 +1,32 @@
+#/usr/bin/env python3
+"""
 
+"""
 ##-- imports
 from __future__ import annotations
 
-import io
+import abc
 import logging as logmod
-import os
-from typing import Dict, List
+from copy import deepcopy
+from dataclasses import InitVar, dataclass, field
+from re import Pattern
+from typing import (TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
+                    Iterable, Iterator, Mapping, Match, MutableMapping,
+                    Protocol, Sequence, Tuple, TypeAlias, TypeGuard, TypeVar,
+                    cast, final, overload, runtime_checkable)
+from uuid import UUID, uuid1
+from weakref import ref
 
+import instal.interfaces.ast as iAST
 import simplejson as json
 from clingo import Symbol
-from instal.interfaces.state import Trace
+from instal.interfaces.solver import InstalModelResult
+from instal.interfaces.state import State, Trace
+from instal.state.instal_ast_state import InstalASTState
+
+if TYPE_CHECKING:
+    # tc only imports
+    pass
 ##-- end imports
 
 ##-- logging
@@ -17,9 +34,15 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 class InstalTrace(Trace):
-    def __init__(self):
-        self.trace = [] # type: List[InstalState]
-        self.filename = None # type: str
+    """ A Workable representation of a sequence of Instal Model time steps.
+    Each time step is an `InstalState`
+
+    """
+    state_class : ClassVar[State] = InstalASTState
+
+    def __init__(self, states=None, filename=None):
+        self.states   = states or []
+        self.filename = filename
 
     @classmethod
     def from_json(cls, json : List[Dict],filename : str = None) -> "InstalStateTrace":
@@ -30,42 +53,26 @@ class InstalTrace(Trace):
         return trace
 
     @classmethod
-    def from_json_file(cls, filename : str) -> "InstalStateTrace":
-        with io.open(filename, "r") as jf:
-            return cls.state_trace_from_json(json.load(jf),filename=filename)
+    def from_model(cls, model:InstalModelResult, model_length:int=1, metadata:dict=None) -> "InstalStateTrace":
+        metadata = metadata or {}
+        states = [cls.state_class(i, metadata.copy()) for i in range(model_length)]
+        for term in model.shown:
+            # Get the step
+            assert(isinstance(term.arguments[-1], int))
+            assert(term.arguments[-1] < len(states))
+            state = states[term.arguments[-1]]
+            # Insert it
+            state.append(term)
 
-    @classmethod
-    def from_list(cls, state : List[List[Symbol]], metadata : dict = None) -> "InstalStateTrace":
-        # It'd be nice if this dealt with the timestep metadata
         trace = InstalStateTrace()
-        for s in state:
-            step_metadata = metadata.copy()
-            trace.append_from_list(s, metadata=step_metadata)
+        for state in states:
+            trace.states.append(state)
+
         return trace
 
-    def append(self, lst : List[Symbol], metadata : dict = None) -> None:
-        self.trace.append(InstalState.state_from_list(lst, metadata=metadata))
-
-    def append(self, json : dict) -> None:
-        self.trace.append(InstalState.state_from_json(json))
 
     def to_json(self) -> List[Dict]:
         return [s.to_json() for s in self.trace]
-
-    def to_json_file(self, filename):
-        with io.open(filename, "w") as jf:
-            print(json.dumps(self.to_json(),
-                             sort_keys=True, separators=(',', ':')), file=jf)
-
-    def get_json_filename(self, filename : str = "", base_dir : str = "") -> str:
-        last = self.trace[-1]
-        fn = ""
-        if base_dir and not filename:
-            return base_dir + "/" + "{}_{}_of_{}.json".format(last.metadata.get("pid"), last.metadata.get("answer_set_n"), last.metadata.get("answer_set_of"))
-        elif last.metadata.get("answer_set_of",0) > 1:
-            return ("" if not base_dir else base_dir + "/") + "{}_{}_of_{}.json".format(os.path.splitext(filename)[0], last.metadata.get("answer_set_n"), last.metadata.get("answer_set_of"))
-        else:
-            return ("" if not base_dir else base_dir + "/") + filename
 
     def __str__(self, show_perms=True, show_pows=True, show_cross=True) -> str:
         # Should string out contain some annotations? Maybe prefixed with % ?
@@ -86,7 +93,7 @@ class InstalTrace(Trace):
     def last(self) -> InstalState:
         return self.trace[-1]
 
-    def check(self, conditions: list, verbose: int=2) -> int:
+    def check(self, conditions:list, verbose:int=2) -> int:
         """A wrapper for check_trace_for that checks if the length of the trace and conditions are the same.
         """
         errors = 0

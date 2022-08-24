@@ -10,7 +10,6 @@ from dataclasses import InitVar, dataclass, field
 from pathlib import Path
 
 from instal.interfaces import ast as ASTs
-from instal.util.misc import temporary_text_file
 
 ##-- end imports
 

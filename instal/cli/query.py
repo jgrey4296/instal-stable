@@ -13,6 +13,7 @@ from typing import IO, List, Optional
 from clingo import Control, Function, Symbol, parse_term
 from instal.solvers.clingo_solver import ClingoSolver
 from instal.util.misc import InstalFileGroup, InstalOptionGroup
+from instal.state.trace import InstalTrace
 ##-- end imports
 
 ##-- Logging
@@ -121,19 +122,30 @@ def main():
         exit()
 
     logging.info("Program Results:")
+    traces = []
     for i, result in enumerate(solver.results):
         logging.info("Result %s:", i)
         logging.info(" ".join(str(x) for x in result.shown))
+        # Convert to a Trace of States.
+        trace = InstalTrace.from_model(result, model_length=option_group.length)
+        traces.append(trace)
+
 
     match args.output, args.json:
         case None, _:
             pass
         case str(), False:
             # print out as text to output
-            pass
+            for trace in traces:
+                trace_s : str = str(trace)
+                # write out the basic representation
+                pass
         case str(), True:
             # print out as json to output
-            pass
+            for trace in traces:
+                trace_j : str = trace.to_json()
+                # write out the json
+                pass
 
 
 if __name__ == "__main__":

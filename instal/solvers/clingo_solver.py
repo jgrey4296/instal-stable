@@ -14,9 +14,8 @@ import clingo
 import instal
 from clingo import Control, Function, Number, Symbol, parse_term
 from instal.interfaces.ast import InitiallyAST, TermAST, QueryAST, DomainSpecAST
-from instal.interfaces.solver_wrapper import SolverWrapper
+from instal.interfaces.solver import SolverWrapper, InstalModelResult
 from instal.interfaces.state import Trace
-from instal.util.misc import InstalModelResult
 
 ##-- end imports
 
