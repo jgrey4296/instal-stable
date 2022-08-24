@@ -1,0 +1,47 @@
+institution lord;
+
+type Person;
+type Age;
+type Gender;
+type Castle;
+
+exogenous event register(Person);
+exogenous event serveInArmy(Person);
+exogenous event deadline;
+exogenous event releaseSolePolicy(Person);
+exogenous event goToWar(Castle);
+exogenous event demandToFight(Castle);
+
+inst event intReleaseSolePolicy(Person);
+inst event intDemandToFight(Castle);
+inst event intRegister(Person);
+inst event intServeInArmy(Person);
+
+violation event illegal(Person);
+
+fluent onlySon(Person);
+fluent ageOlder(Person, Age);
+fluent gender(Person, Gender);
+fluent attacked(Castle);
+
+obligation fluent obl(serveInArmy(Person), deadline, illegal(Person));
+
+register(Person) generates intRegister(Person);
+demandToFight(Castle) generates intDemandToFight(Castle);
+serveInArmy(Person) generates intServeInArmy(Person);
+releaseSolePolicy(Person) generates intReleaseSolePolicy(Person);
+
+intRegister(Person) initiates obl(serveInArmy(Person), deadline, illegal(Person)), perm(serveInArmy(Person)) if ageOlder(Person, sixteen), gender(Person, male);
+intDemandToFight(Castle) initiates perm(goToWar(Castle)) if attacked(Castle);
+intReleaseSolePolicy(Person) terminates obl(serveInArmy(Person), deadline, illegal(Person)), perm(serveInArmy(Person)) if onlySon(Person);
+
+initially perm(register(Person)), pow(intRegister(Person)), perm(intRegister(Person));
+initially perm(deadline);
+initially perm(releaseSolePolicy(Person)), perm(intReleaseSolePolicy(Person)), pow(intReleaseSolePolicy(Person));
+initially perm(demandToFight(Castle)), perm(intDemandToFight(Castle)), pow(intDemandToFight(Castle));
+initially attacked(eastCastle);
+initially onlySon(tom);
+initially ageOlder(tom,sixteen);
+initially gender(tom,male);
+initially ageOlder(bob,sixteen);
+initially gender(bob,male);
