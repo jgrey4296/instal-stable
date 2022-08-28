@@ -6,16 +6,15 @@ import logging as logmod
 import simplejson as json
 from clingo import Symbol
 from instal.interfaces.solver import InstalModelResult
-from instal.interfaces.state import Trace, State
-import instal.interfaces.ast as iAST
-from instal.parser.pyparse_institution import TERM
+from instal.interfaces.trace import State_
+
 ##-- end imports
 
 ##-- logging
 logging = logmod.getLogger(__name__)
 ##-- end logging
 
-class InstalASTState(State):
+class InstalState(State_):
     """ A workable representation of a single time Instal Model time step
     Collects everything that `holdsat`, `occurred` and was `observed`
     at a step.
@@ -178,19 +177,15 @@ class InstalASTState(State):
         return errors
 
     def insert(self, term):
-        if isinstance(term, Symbol):
-            term = TERM.parse_string(str(term))
-
-        assert(isinstance(term, iAST.TermAST))
-        if (int(term.params[-1].value) != self.timestep):
-            logging.info("State %s: Ignoring: %s", self.timestep, term)
+        assert(isinstance(term, Symbol))
+        if (term.arguments[-1] != self.timestep):
+            logging.info("State_ %s: Ignoring: %s", self.timestep, term)
             return
 
-        match term.value:
+        match term.name:
             case "holdsat":
                 self.holdsat.append(a)
             case "occurred":
                 self..occurred.append(a)
             case "observed":
                 self.observed.append(a)
-

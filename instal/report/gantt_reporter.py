@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging as logmod
 from collections import defaultdict
 
-from instal.interfaces.reporter import InstalReporter
+from instal.interfaces.reporter import InstalReporter_i
 ##-- end imports
 
 ##-- logging
@@ -19,7 +19,7 @@ def invert(d):
             result[v] = result[v] + [k]
     return result
 
-class InstalGanttReporter(InstalReporter):
+class InstalGanttReporter(InstalReporter_i):
     """
     InstalGanttTracer
     Implementation of ABC Reporter for gantt output.

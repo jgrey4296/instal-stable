@@ -18,7 +18,6 @@ from uuid import UUID, uuid1
 from weakref import ref
 
 import pyparsing as pp
-from instal.interfaces.parser import InstalParser
 import instal.interfaces.ast as ASTs
 
 if TYPE_CHECKING:
@@ -278,43 +277,3 @@ top_domain = orm(DOMAIN_SPEC)
 top_domain.ignore(comment)
 top_domain.set_parse_action(lambda s, l, t: ASTs.DomainTotalityAST(t[:]))
 ##-- end top level parser entry points
-
-##-- interface implementation
-class InstalPyParser(InstalParser):
-
-    def parse_institution(self, text:str, *, source:str=None) -> ASTs.InstitutionDefAST:
-        """ Mainly for .ial's """
-        result = top_institution.parse_string(text, parse_all=True)[0]
-        if source is not None:
-            result.source = source
-        return result
-
-    def parse_bridge(self, text:str, *, source:str=None) -> ASTs.BridgeDefAST:
-        """ Mainly for .iab's """
-        result = top_bridge.parse_string(text, parse_all=True)[0]
-        if source is not None:
-            result.source = source
-        return result
-
-    def parse_domain(self, text:str, *, source:str=None) -> ASTs.DomainTotalityAST:
-        """ For .idc's """
-        result = top_domain.parse_string(text, parse_all=True)[0]
-        if source is not None:
-            result.source = source
-        return result
-
-    def parse_situation(self, text:str, *, source:str=None) -> ASTs.FactTotalityAST:
-        """ Mainly for .iaf's """
-        result = top_fact.parse_string(text, parse_all=True)[0]
-        if source is not None:
-            result.source = source
-        return result
-
-    def parse_query(self, text:str, *, source:str=None) -> ASTs.QueryTotalityAST:
-        """ Mainly for .iaq's """
-        result = top_query.parse_string(text, parse_all=True)[0]
-        if source is not None:
-            result.source = source
-        return result
-
-##-- end interface implementation

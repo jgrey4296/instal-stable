@@ -14,8 +14,7 @@ import clingo
 import instal
 from clingo import Control, Function, Number, Symbol, parse_term
 from instal.interfaces.ast import InitiallyAST, TermAST, QueryAST, DomainSpecAST
-from instal.interfaces.solver import SolverWrapper, InstalModelResult
-from instal.interfaces.state import Trace
+from instal.interfaces.solver import SolverWrapper_i, InstalModelResult
 
 ##-- end imports
 
@@ -24,7 +23,7 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 @dataclass
-class ClingoSolver(SolverWrapper):
+class ClingoSolver(SolverWrapper_i):
     """
     An Oracle that uses Clingo as the solver
     """
@@ -40,6 +39,10 @@ class ClingoSolver(SolverWrapper):
 
         self.init_solver()
 
+    def __repr__(self):
+        return "[Clingo Solver: {}; Opts: {}; Models: {}]".format(self.ctl is not None,
+                                                                  " ".join(self.options),
+                                                                  len(self.results))
     def init_solver(self):
         self.ctl = Control(self.options)
 
@@ -94,7 +97,7 @@ class ClingoSolver(SolverWrapper):
         logging.info("Grounding Program")
         self.ctl.ground([("base", [])])
         logging.info("Running Program")
-        result = self.ctl.solve(on_model=on_model_cb)
+        self.ctl.solve(on_model=on_model_cb)
 
         logging.info("There are %s answer sets", len(self.results))
         return len(self.results)
