@@ -22,7 +22,7 @@ from weakref import ref
 from instal.compiler.util import CompileUtil
 from instal.errors import InstalCompileError
 from instal.interfaces import ast as IAST
-from instal.interfaces.compiler import InstalCompiler
+from instal.interfaces.compiler import InstalCompiler_i
 
 if TYPE_CHECKING:
     # tc only imports
@@ -71,7 +71,7 @@ NIF_RULE_PAT   = Template((inst_data   / "nif_rule_pattern.lp").read_text())
 
 ##-- end resources
 
-class InstalQueryCompiler(InstalCompiler):
+class InstalQueryCompiler(InstalCompiler_i):
     def compile(self, query:IAST.QueryTotalityAST) -> str:
         """
         Compile sequence of observations into extObserved facts

@@ -6,14 +6,14 @@ import logging as logmod
 
 from instal.errors import InstalBridgeTypeError
 
-from instal.interfaces.checker import InstalChecker
+from instal.interfaces.checker import InstalChecker_i
 ##-- end imports
 
 ##-- logging
 logging = logmod.getLogger(__name__)
 ##-- end logging
 
-class BridgeChecker(InstalChecker):
+class BridgeChecker(InstalChecker_i):
 
     def __init__(self, ir_dict):
         self.source_typechecker = None
@@ -176,7 +176,7 @@ class BridgeChecker(InstalChecker):
                                   1], condition=xterminate[2])
 
     def check_norm_arguments(self, lhs=None, rhs=None, condition=None):
-        # Overridee=d from InstalChecker
+        # Overridee=d from InstalChecker_i
         if not lhs:
             lhs = []
         if not rhs:

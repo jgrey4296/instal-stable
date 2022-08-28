@@ -6,7 +6,7 @@ import logging as logmod
 from importlib.resources import files
 
 from instal.errors import InstalCompileError
-from instal.interfaces.compiler import InstalCompiler
+from instal.interfaces.compiler import InstalCompiler_i
 from instal.interfaces import ast as IAST
 from instal.compiler.util import CompileUtil
 from instal.compiler.situation_compiler import InstalSituationCompiler
@@ -55,7 +55,7 @@ NIF_RULE_PAT   = Template((inst_data   / "nif_rule_pattern.lp").read_text())
 logging = logmod.getLogger(__name__)
 ##-- end logging
 
-class InstalInstitutionCompiler(InstalCompiler):
+class InstalInstitutionCompiler(InstalCompiler_i):
     """
     """
 

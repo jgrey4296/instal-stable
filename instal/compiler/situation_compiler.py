@@ -22,7 +22,7 @@ from weakref import ref
 from instal.compiler.util import CompileUtil
 from instal.errors import InstalCompileError
 from instal.interfaces import ast as IAST
-from instal.interfaces.compiler import InstalCompiler
+from instal.interfaces.compiler import InstalCompiler_i
 
 if TYPE_CHECKING:
     # tc only imports
@@ -43,7 +43,7 @@ INITIAL_FACT   = Template((inst_data   / "initial_fact_pattern.lp").read_text())
 
 ##-- end resources
 
-class InstalSituationCompiler(InstalCompiler):
+class InstalSituationCompiler(InstalCompiler_i):
     def compile(self, facts:IAST.FactTotalityAST, inst:None|IAST.InstitutionDefAST=None, header=False):
         assert(all(isinstance(x, IAST.InitiallyAST) for x in facts.body))
 

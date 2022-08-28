@@ -10,7 +10,9 @@ from sys import stderr, stdout
 from typing import IO, List, Optional
 
 from clingo import Symbol, parse_term
+
 from .models.InstalDummyModel import InstalDummyModel
+
 ##-- end imports
 
 ##-- Logging
@@ -33,7 +35,6 @@ logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 logging = logger
 ##-- end Logging
-
 
 ##-- argparse
 argparser = argparse.ArgumentParser()

@@ -2,13 +2,13 @@
 from collections import defaultdict
 
 from instal.errors import InstalParserNotDeclaredError, InstalParserArgumentError, InstalParserTypeError, InstalParserError
-from instal.interfaces.checker import InstalChecker
+from instal.interfaces.checker import InstalChecker_i
 import networkx
 
 ##-- end imports
 
 
-class InstitutionChecker(InstalChecker):
+class InstitutionChecker(InstalChecker_i):
 
     def __init__(self, ir_dict):
         super(InstitutionChecker, self).__init__(ir_dict)

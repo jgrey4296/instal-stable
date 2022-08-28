@@ -11,11 +11,12 @@ from sys import stderr, stdout
 from typing import IO, List, Optional
 
 from instal import defaults
-from instal.compiler.institution_compiler import InstalInstitutionCompiler
-from instal.compiler.domain_compiler import InstalDomainCompiler
 from instal.compiler.bridge_compiler import InstalBridgeCompiler
+from instal.compiler.domain_compiler import InstalDomainCompiler
+from instal.compiler.institution_compiler import InstalInstitutionCompiler
 from instal.compiler.query_compiler import InstalQueryCompiler
 from instal.compiler.situation_compiler import InstalSituationCompiler
+
 ##-- end imports
 
 ##-- Logging

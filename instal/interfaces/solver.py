@@ -41,7 +41,7 @@ class _SolverWrapper_Protocol(metaclass=abc.ABCMeta):
     def metadata(self): pass
 
 @dataclass
-class SolverWrapper(_SolverWrapper_Protocol):
+class SolverWrapper_i(_SolverWrapper_Protocol):
     """
     An wrapper around a solver (ie: clingo) to interface with the rest of instal
     """

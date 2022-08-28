@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 logging = logmod.getLogger(__name__)
 
-class InstalChecker(metaclass=abc.ABCMeta):
+class InstalChecker_i(metaclass=abc.ABCMeta):
 
     EXPR_SYMBOLS = ['==', '!=', '<', '>', '<=', '>=']
 

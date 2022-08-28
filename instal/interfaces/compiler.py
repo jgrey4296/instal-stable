@@ -21,7 +21,7 @@ class InstalCompiledData:
     institutions : list[str] = field(default_factory=list)
     bridges      : list[str] = field(default_factory=list)
 
-class InstalCompiler(metaclass=abc.ABCMeta):
+class InstalCompiler_i(metaclass=abc.ABCMeta):
     """
     Interface for compiling InstaASTR down to a
     specific solver format

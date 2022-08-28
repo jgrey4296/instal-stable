@@ -12,6 +12,7 @@ import requests
 import simplejson as json
 from instal.defaults import INSTAL_API
 from instal.parser.domainparser import DomainParser
+
 ##-- end imports
 
 ##-- Logging

@@ -13,7 +13,7 @@ from instal.interfaces.state import Trace
 ##-- end imports
 
 @dataclass
-class InstalReporter(metaclass=abc.ABCMeta):
+class InstalReporter_i(metaclass=abc.ABCMeta):
     """
         InstalTracer
         See __init__.py for more details.

@@ -22,7 +22,7 @@ from weakref import ref
 from instal.compiler.util import CompileUtil
 from instal.errors import InstalCompileError
 from instal.interfaces import ast as IAST
-from instal.interfaces.compiler import InstalCompiler
+from instal.interfaces.compiler import InstalCompiler_i
 
 if TYPE_CHECKING:
     # tc only imports
@@ -41,7 +41,7 @@ bridge_data = data_path / "bridge"
 HEADER         = Template((data_path   / "header_pattern").read_text())
 ##-- end resources
 
-class InstalDomainCompiler(InstalCompiler):
+class InstalDomainCompiler(InstalCompiler_i):
     def compile(self, domain:IAST.DomainTotalityAST) -> str:
         """
 
