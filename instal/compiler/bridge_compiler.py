@@ -12,13 +12,14 @@ from instal.interfaces import ast as IAST
 from instal.compiler.util import CompileUtil
 from instal.compiler.institution_compiler import InstalInstitutionCompiler
 from instal.compiler.situation_compiler import InstalSituationCompiler
+from instal.defaults import INSTITUTION_DATA_loc, BRIDGE_DATA_loc, DATA_loc
 
 ##-- end imports
 
 ##-- resources
-data_path   = files("instal.__data")
-inst_data   = data_path / "institution"
-bridge_data = data_path / "bridge"
+data_path   = files(DATA_loc)
+inst_data   = files(INSTITUTION_DATA_loc)
+bridge_data = files(BRIDGE_DATA_loc)
 
 HEADER         = Template((data_path   / "header_pattern").read_text())
 INST_PRELUDE   = Template((inst_data   / "institution_prelude.lp").read_text())

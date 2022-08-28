@@ -14,6 +14,7 @@ from clingo import Control, Function, Symbol, parse_term
 from instal.solvers.clingo_solver import ClingoSolver
 from instal.util.misc import InstalFileGroup, InstalOptionGroup
 from instal.state.trace import InstalTrace
+from instal.defaults import STANDARD_PRELUDE_loc
 ##-- end imports
 
 ##-- Logging
@@ -22,7 +23,7 @@ logging.setLevel(logmod.DEBUG)
 ##-- end Logging
 
 ##-- data
-inst_prelude    = files("instal.__data.standard_prelude")
+inst_prelude    = files(STANDARD_PRELUDE_loc)
 ##-- end data
 
 ##-- argparse
@@ -34,15 +35,21 @@ argparser.add_argument('-q', '--query',       help="Specify a string or file to 
 argparser.add_argument("-o", "--output",      type=str, help="output dir location, defaults to {cwd}/instal_tmp")
 argparser.add_argument("-j", "--json",        action='store_true', help="toggle json output")
 
-argparser.add_argument("-v", "--verbose",     action='count', help="turns on trace output, v for holdsat, vv for more")
+argparser.add_argument("-v", "--verbose",     action='count', help="increase verbosity of logging (repeatable)")
 argparser.add_argument('-a', '--answer-set',  type=int, default=0, help='choose an answer set (default all)')
 argparser.add_argument('-n', '--number',      type=int, default=1, help='compute at most <n> models (default 1, 0 for all)')
-argparser.add_argument('-l', '--length',      type=int, default=0, help='length of trace (default 1)')
+argparser.add_argument('-l', '--length',      type=int, default=3, help='length of model trace (default 3)')
 argparser.add_argument('-d', '--debug',       action="store_true", help="activate debug parser functions")
 ##-- end argparse
 
 def maybe_get_query_and_situation(que:None|str, sit:None|str) -> tuple[list[TermAST], list[TermAST]]:
-    from instal.parser.pyparse_institution import InstalPyParser
+    """
+    Try to parse a query and situation specification,
+    without erroring if no targets are provided
+
+    Returns a tuple of lists of TermASTs, which are empty if the targets produce nothing
+    """
+    from instal.parser.parser import InstalPyParser
     parser    = InstalPyParser()
     situation = []
     query     = []
@@ -124,12 +131,15 @@ def main():
     logging.info("Program Results:")
     traces = []
     for i, result in enumerate(solver.results):
-        logging.info("Result %s:", i)
-        logging.info(" ".join(str(x) for x in result.shown))
+        logging.debug("Result %s:", i)
+        logging.debug(" ".join(str(x) for x in result.shown))
         # Convert to a Trace of States.
-        trace = InstalTrace.from_model(result, model_length=option_group.length)
+        trace = InstalTrace.from_model(result,
+                                       steps=option_group.length,
+                                       metadata=solver.metadata.copy())
         traces.append(trace)
 
+    breakpoint()
 
     match args.output, args.json:
         case None, _:

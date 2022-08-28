@@ -64,7 +64,7 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False):
                 ast          = parser.parse_institution(text)
                 compiler     = InstalInstitutionCompiler()
                 compiled     = compiler.compile(ast)
-                prelude_text = load_prelude() if with_prelude else ""
+                prelude_text = compiler._load_prelude() if with_prelude else ""
                 output.append(prelude_text)
                 output.append(compiled)
             case defaults.BRIDGE_EXT:

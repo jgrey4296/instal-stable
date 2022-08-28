@@ -1,6 +1,7 @@
 ##-- imports
 from __future__ import annotations
 
+from importlib.resources import files
 import abc
 import logging as logmod
 import os
@@ -10,16 +11,16 @@ from dataclasses import InitVar, dataclass, field
 from pathlib import Path
 
 from instal.interfaces import ast as ASTs
+from instal.defaults import STANDARD_PRELUDE_loc
 
 ##-- end imports
 
 logging = logmod.getLogger(__name__)
 
+##-- data
+inst_prelude    = files(STANDARD_PRELUDE_loc)
 
-@dataclass
-class InstalCompiledData:
-    institutions : list[str] = field(default_factory=list)
-    bridges      : list[str] = field(default_factory=list)
+##-- end data
 
 class InstalCompiler_i(metaclass=abc.ABCMeta):
     """
@@ -47,5 +48,14 @@ class InstalCompiler_i(metaclass=abc.ABCMeta):
                 self._compiled_text.append(pattern.format_map(kwargs))
             case _:
                 raise TypeError("Unrecognised compile pattern type", pattern)
+
+    def _load_prelude() -> str:
+        assert(inst_prelude.is_dir())
+        text = []
+        for path in inst_prelude.iterdir():
+            text += path.read_text().split("\n")
+
+        return "\n".join(text)
+
     @abc.abstractmethod
     def compile(self, data:ASTs.InstalAST) -> str: pass
