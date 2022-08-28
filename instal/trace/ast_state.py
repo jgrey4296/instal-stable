@@ -21,6 +21,8 @@ class InstalASTState(State_i):
     Collects everything that `holdsat`, `occurred` and was `observed`
     at a step.
 
+    Representation of Terms: instal.interfaces.ast.TermAST
+
     """
 
     @staticmethod

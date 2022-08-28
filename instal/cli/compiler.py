@@ -1,4 +1,15 @@
 #! /usr/bin/env python
+"""
+A Straightforward CLI Instal Compiler.
+Give it a target file or directory,
+and it will print the compiled logic program to stdout for redirection
+
+Give it an output target, it'll write the logic program to that file.
+
+Activate debugging to see the parser at work to identify parse problems.
+
+
+"""
 ##-- imports
 from __future__ import annotations
 
@@ -31,26 +42,23 @@ argparser.add_argument('-d', '--debug', action="store_true")
 argparser.add_argument('-o', '--output')
 ##-- end argparse
 
-##-- data
-inst_prelude    = files("instal.__data.standard_prelude")
+def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False) -> list[str]:
+    """
+    Compile targets (an explicit list, will not search or handle directories)
+    using the default pyparsing parser.
+    debug=True will activate parsing debug functions before loading the parser.
 
-##-- end data
+    with_prelude=True includes the default instal prelude from insta.__data.standard_prelude
+    in the output.
 
-def load_prelude() -> str:
-    assert(inst_prelude.is_dir())
-    text = []
-    for path in inst_prelude.iterdir():
-        text += path.read_text().split("\n")
-
-    return "\n".join(text)
-
-def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False):
+    Returns a list of strings of each separate compiled file addition.
+    """
     logging.info("%% Compiling %s target files", len(targets))
     if debug:
         import instal.parser.debug_functions as dbf
         dbf.debug_pyparsing()
 
-    import instal.parser.pyparse_institution as pi
+    import instal.parser.parser as pi
     parser   = pi.InstalPyParser()
 
     output : list[str] = []

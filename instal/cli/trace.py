@@ -1,4 +1,8 @@
 #! /usr/bin/env python
+"""
+CLI program to load instal trace JSONs and create different output formats of them
+
+"""
 ##-- imports
 from __future__ import annotations
 
@@ -7,10 +11,10 @@ import os
 import pathlib
 from sys import stderr, stdout
 
-from instal.state.InstalStateTrace import InstalStateTrace
-from instal.tracers.InstalGanttTracer import InstalGanttTracer
-from instal.tracers.InstalPDFTracer import InstalPDFTracer
-from instal.tracers.InstalTextTracer import InstalTextTracer
+from instal.trace.InstalStateTrace import InstalStateTrace
+from instal.report.InstalGanttTracer import InstalGanttTracer
+from instal.report.InstalPDFTracer import InstalPDFTracer
+from instal.report.InstalTextTracer import InstalTextTracer
 ##-- end imports
 
 ##-- Logging

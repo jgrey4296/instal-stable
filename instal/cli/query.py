@@ -1,4 +1,13 @@
 #! /usr/bin/env python
+"""
+CLI program to Compile and Run an Instal logic program.
+
+If you point it to a compiled logic program, it will run that without parsing it.
+
+Can Supplement the logic program with initial situational facts, and a query.
+
+Prints result traces to the output directory, as strings, or json.
+"""
 ##-- imports
 from __future__ import annotations
 
@@ -11,9 +20,9 @@ from sys import stderr, stdout
 from typing import IO, List, Optional
 
 from clingo import Control, Function, Symbol, parse_term
-from instal.solvers.clingo_solver import ClingoSolver
+from instal.solve.clingo_solver import ClingoSolver
 from instal.util.misc import InstalFileGroup, InstalOptionGroup
-from instal.state.trace import InstalTrace
+from instal.trace.trace import InstalTrace
 from instal.defaults import STANDARD_PRELUDE_loc
 ##-- end imports
 

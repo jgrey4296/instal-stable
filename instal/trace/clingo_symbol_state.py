@@ -4,9 +4,9 @@ from __future__ import annotations
 import logging as logmod
 
 import simplejson as json
-from clingo import Symbol
+from clingo import Symbol, SymbolType
 from instal.interfaces.solver import InstalModelResult
-from instal.interfaces.trace import State_
+from instal.interfaces.trace import State_i
 
 ##-- end imports
 
@@ -14,15 +14,17 @@ from instal.interfaces.trace import State_
 logging = logmod.getLogger(__name__)
 ##-- end logging
 
-class InstalState(State_):
+class InstalClingoState(State_i):
     """ A workable representation of a single time Instal Model time step
     Collects everything that `holdsat`, `occurred` and was `observed`
     at a step.
 
+    Representation of Terms: clingo.Symbol.
     """
 
-    @classmethod
-    def from_json(cls, json : dict) -> "InstalState":
+
+    @staticmethod
+    def from_json(json : dict) -> State_i:
         state = InstalState()
         state.metadata = json["metadata"]
         for a in json["state"]["occurred"]:
@@ -34,16 +36,39 @@ class InstalState(State_):
                 state.holdsat.append(atom_list_to_symbol(a))
         return state
 
-    @classmethod
-    def from_list(cls, lst:list[Any], metadata:dict=None) -> "InstalState":
-        state = InstalState()
-        state.metadata = metadata
-        for term in lst:
-            state.insert(term)
+    def __repr__(self) -> str:
+        result = []
+        result.append(f"-- Model Timestep {self.timestep}.")
+        result.append("Active Fluents: ")
+        max_key = max(len(x) for x in self.holdsat.keys())
+        for k, v in self.holdsat.items():
+            if not bool(v):
+                continue
+            v_str = " ".join(str(x) for x in v)
+            result.append(f"{k:<{max_key}}: {v_str}")
 
-        return state
+        result.append("")
+        result.append("Occurred Events: ")
+        if bool(self.occurred):
+            result.append(" ".join(str(x) for x in self.occurred))
 
-    def to_json(self) -> Dict:
+        result.append("")
+        result.append("Observed Events: ")
+        if bool(self.observed):
+            result.append(" ".join(str(x) for x in self.observed))
+
+        if bool(self.rest):
+            result.append("")
+            result.append(f"Misc Terms: {len(self.rest)}")
+            result.append(" ".join(str(x) for x in self.rest))
+
+        result.append("")
+
+        return "\n".join(result)
+
+
+
+    def to_json(self) -> dict:
         state_dict = {
                 "occurred" : [],
                 "observed" : [],
@@ -83,25 +108,7 @@ class InstalState(State_):
                  "metadata" : self.metadata }
 
 
-    def to_list(self) -> List[Symbol]:
-        return [a for a in self.occurred+self.observed+self.holdsat]
-
-
-    def __str__(self, show_perms=True, show_pows=True, show_cross=True) -> str:
-        out_str = ""
-        for h in atom_sorter(self.holdsat):
-            lst_atom = symbol_to_atom_list(h)
-            if not ((lst_atom[1][0][0] == "perm" and not show_perms) or (lst_atom[1][0][0] == "pow" and not show_pows) or (((lst_atom[1][0][0] == "ipow") or (lst_atom[1][0][0] == "tpow") or (lst_atom[1][0][0] == "gpow")) and not show_cross)):
-                out_str += str(h) + "\n"
-        for o in atom_sorter(self.occurred):
-            out_str += str(o) + "\n"
-        for o in atom_sorter(self.observed):
-            out_str += str(o) + "\n"
-            # TODO This is a horrible hack; deal with the incorrect output from
-            # query first. (The break thing to only get one observed that is.)
-            break
-        return out_str
-    def check(self, conditions : dict, verbose=2):
+    def check(self, conditions : dict, verbose=2) -> bool:
         """Takes an InstAL trace and a set of conditions in the format:
             [
                 { "holdsat" : [],
@@ -176,16 +183,17 @@ class InstalState(State_):
                     print("Occurs (and shouldn't): ", h)
         return errors
 
-    def insert(self, term):
-        assert(isinstance(term, Symbol))
-        if (term.arguments[-1] != self.timestep):
-            logging.info("State_ %s: Ignoring: %s", self.timestep, term)
-            return
-
-        match term.name:
-            case "holdsat":
-                self.holdsat.append(a)
-            case "occurred":
-                self..occurred.append(a)
-            case "observed":
-                self.observed.append(a)
+    def insert(self, term:Symbol|iAST.TermAST):
+        match (term.name, term.arguments[-1]):
+            case _, step if step.type != SymbolType.Number:
+                logging.debug("State_i %s: Ignoring: %s", self.timestep, term)
+            case _, step if step.number != self.timestep:
+                logging.debug("State_i %s: Ignoring: %s", self.timestep, term)
+            case "holdsat", _ if term.arguments[0].name in self.holdsat:
+                self.holdsat[term.arguments[0].name].append(term)
+            case "occurred", _:
+                self.occurred.append(term)
+            case "observed", _:
+                self.observed.append(term)
+            case _, _:
+                self.rest.append(term)

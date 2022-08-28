@@ -49,7 +49,7 @@ class InstalCompiler_i(metaclass=abc.ABCMeta):
             case _:
                 raise TypeError("Unrecognised compile pattern type", pattern)
 
-    def _load_prelude() -> str:
+    def _load_prelude(self) -> str:
         assert(inst_prelude.is_dir())
         text = []
         for path in inst_prelude.iterdir():

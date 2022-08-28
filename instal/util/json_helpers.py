@@ -5,8 +5,6 @@ import json
 import logging as logmod
 
 from clingo import Function, Symbol, parse_term
-
-from .instalutility import fun_to_asp
 ##-- end imports
 
 ##-- logging
