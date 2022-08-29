@@ -18,6 +18,7 @@ from importlib.resources import files
 from io import StringIO
 from sys import stderr, stdout
 from typing import IO, List, Optional
+from json import dumps
 
 from clingo import Control, Function, Symbol, parse_term
 from instal.solve.clingo_solver import ClingoSolver
@@ -26,10 +27,25 @@ from instal.trace.trace import InstalTrace
 from instal.defaults import STANDARD_PRELUDE_loc
 ##-- end imports
 
-##-- Logging
-logging = logmod.getLogger(__name__)
-logging.setLevel(logmod.DEBUG)
-##-- end Logging
+##-- logging
+LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
+LOG_FORMAT    = "%(levelname)8s | %(name)8s | %(message)s"
+FILE_FORMAT   = "%(asctime)s | %(levelname)8s | %(message)s"
+FILE_MODE     = "w"
+STREAM_TARGET = stdout
+
+logging = logmod.root
+logging.setLevel(logmod.NOTSET)
+console_handler = logmod.StreamHandler(STREAM_TARGET)
+file_handler    = logmod.FileHandler(LOG_FILE_NAME, mode=FILE_MODE)
+
+console_handler.setFormatter(logmod.Formatter(LOG_FORMAT))
+file_handler.setLevel(logmod.DEBUG)
+file_handler.setFormatter(logmod.Formatter(FILE_FORMAT))
+
+logging.addHandler(console_handler)
+logging.addHandler(file_handler)
+##-- end logging
 
 ##-- data
 inst_prelude    = files(STANDARD_PRELUDE_loc)
@@ -45,6 +61,7 @@ argparser.add_argument("-o", "--output",      type=str, help="output dir locatio
 argparser.add_argument("-j", "--json",        action='store_true', help="toggle json output")
 
 argparser.add_argument("-v", "--verbose",     action='count', help="increase verbosity of logging (repeatable)")
+argparser.add_argument('--logfilter',         action="append", default=[])
 argparser.add_argument('-a', '--answer-set',  type=int, default=0, help='choose an answer set (default all)')
 argparser.add_argument('-n', '--number',      type=int, default=1, help='compute at most <n> models (default 1, 0 for all)')
 argparser.add_argument('-l', '--length',      type=int, default=3, help='length of model trace (default 3)')
@@ -88,37 +105,18 @@ def maybe_get_query_and_situation(que:None|str, sit:None|str) -> tuple[list[Term
     return query, situation
 
 def main():
-    ##-- Logging
-    DISPLAY_LEVEL = logmod.DEBUG
-    LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-    LOG_FORMAT    = "%(asctime)s | %(levelname)8s | %(message)s"
-    FILE_MODE     = "w"
-    STREAM_TARGET = stdout
-
-    logmod.root.setLevel(DISPLAY_LEVEL)
-    logger          = logmod.getLogger(__name__)
-    console_handler = logmod.StreamHandler(STREAM_TARGET)
-    file_handler    = logmod.FileHandler(LOG_FILE_NAME, mode=FILE_MODE)
-
-    console_handler.setLevel(DISPLAY_LEVEL)
-    # console_handler.setFormatter(logmod.Formatter(LOG_FORMAT))
-    file_handler.setLevel(logmod.DEBUG)
-    # file_handler.setFormatter(logmod.Formatter(LOG_FORMAT))
-
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
-    logging = logger
-    logging.setLevel(logmod.DEBUG)
-    ##-- end Logging
 
     args         = argparser.parse_args()
     file_group   = InstalFileGroup.from_targets(*args.target)
-    option_group = InstalOptionGroup(verbose=args.verbose if args.verbose else 0,
+    option_group = InstalOptionGroup(verbose=args.verbose,
                                      answer_set=args.answer_set,
                                      length=args.length,
                                      number=args.number,
-                                     output=pathlib.Path(args.output) if args.output else None,
+                                     output=pathlib.Path(args.output if args.output else "instal_tmp").expanduser().resolve(),
                                      json=args.json)
+    console_handler.setLevel(option_group.loglevel)
+    for name in args.logfilter:
+        console_handler.addFilter(logmod.Filter(name))
 
     logging.info("Starting Compile -> Query")
     from instal.cli.compiler import compile_target
@@ -130,42 +128,42 @@ def main():
                                  input_files=prelude_files + file_group.get_compiled(),
                                  options=['-n', str(option_group.number),
                                           '-c', f'horizon={option_group.length}'])
-
     num_models = solver.solve(query)
 
     if num_models == 0:
         logging.info("Found No Models")
         exit()
 
-    logging.info("Program Results:")
+    print("Program Results:")
     traces = []
     for i, result in enumerate(solver.results):
-        logging.debug("Result %s:", i)
-        logging.debug(" ".join(str(x) for x in result.shown))
+        print(f"Result {i}:")
+        print(" ".join(str(x) for x in result.shown))
+        print("")
         # Convert to a Trace of States.
         trace = InstalTrace.from_model(result,
                                        steps=option_group.length,
-                                       metadata=solver.metadata.copy())
+                                       metadata=solver.metadata.copy(),
+                                       sources=file_group.get_sources())
         traces.append(trace)
 
-    breakpoint()
+    ext : str = ".json" if args.json else ".txt"
+    logging.info("Writing Traces to %s/trace_[num]%s", option_group.output, ext)
+    for i, trace in enumerate(traces):
+        trace_s : str = ""
+        current_filename = f"trace_{i}{ext}"
+        match args.json:
+            case False:
+                trace_s = repr(trace)
+            case True:
+                data_dict = trace.to_json()
+                data_dict['metadata']['filename'] = current_filename
+                trace_s = dumps(data_dict,
+                                sort_keys=True,
+                                indent=4)
 
-    match args.output, args.json:
-        case None, _:
-            pass
-        case str(), False:
-            # print out as text to output
-            for trace in traces:
-                trace_s : str = str(trace)
-                # write out the basic representation
-                pass
-        case str(), True:
-            # print out as json to output
-            for trace in traces:
-                trace_j : str = trace.to_json()
-                # write out the json
-                pass
-
+        with open(option_group.output / current_filename, 'w') as f:
+            f.write(trace_s)
 
 if __name__ == "__main__":
     main()

@@ -42,18 +42,38 @@ class InstalTrace(Trace_i):
 
     @staticmethod
     def from_json(json : List[Dict],filename : str = None) -> "InstalStateTrace":
-        trace = InstalStateTrace()
-        trace.filename = filename
-        for d in json:
-            trace.append_from_json(d)
+        metadata  = json['metadata']
+        trace_len = metadata['model_length']
+
+        states   = [InstalTrace.state_constructor(i)
+                    for i in range(trace_len + 1)]
+        for state_dict in json['states']:
+            assert(isinstance(state_dict, dict))
+            step = state_dict['timestep']
+            state = states[step]
+            for k,v in state_dict.items():
+                if k == "timestep":
+                    continue
+                if k == "holdsat" and isinstance(v, dict):
+                    terms = [y for x in v.values() for y in x]
+                else:
+                    terms = v
+
+                for term in terms:
+                    state.insert(term)
+
+        # Wrap as a trace
+        trace = InstalTrace(states, metadata=metadata)
         return trace
 
     @staticmethod
-    def from_model(model:InstalModelResult, steps:int=1, metadata:dict=None) -> "InstalStateTrace":
+    def from_model(model:InstalModelResult, steps:int=1, sources:list[str]=None, metadata:dict=None) -> "InstalStateTrace":
         metadata                   = metadata or {}
         metadata['cost']           = model.cost
         metadata['current_result'] = model.number
         metadata['optimal']        = model.optimal
+        metadata['model_length']   = steps
+        metadata['instal_files']        = [str(x) for x in sources] or []
 
         states   = [InstalTrace.state_constructor(i)
                     for i in range(steps + 1)]
@@ -80,7 +100,7 @@ class InstalTrace(Trace_i):
         result = []
         result.append(f"----- Instal Trace {self.metadata['current_result']} of {self.metadata['result_size']}.")
         result.append(f"Cost  : {self.metadata['cost']}")
-        result.append(f"Length: {len(self.states)}")
+        result.append(f"Length: {self.metadata['model_length']}")
         result.append("")
         for state in self[:]:
             result.append(str(state))
@@ -92,7 +112,12 @@ class InstalTrace(Trace_i):
         pass
 
     def to_json(self) -> List[Dict]:
-        return [s.to_json() for s in self.trace]
+        trace_obj = {
+            "metadata" : self.metadata,
+            "states"   : [s.to_json() for s in self[:]]
+            }
+
+        return trace_obj
 
 
     def meets(self, conditions:list) -> bool:

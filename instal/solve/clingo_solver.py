@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging as logmod
 import os
 import time
+from functools import partial
 from collections import defaultdict
 from dataclasses import InitVar, dataclass, field
 from pathlib import Path
@@ -19,8 +20,40 @@ from instal.interfaces.solver import SolverWrapper_i, InstalModelResult
 ##-- end imports
 
 ##-- logging
-logging = logmod.getLogger(__name__)
+logging       = logmod.getLogger(__name__)
+clingo_logger = logmod.getLogger(__name__ + ".ffi.clingo")
 ##-- end logging
+
+def clingo_intercept_logger(code, msg):
+    """
+    Intercepts messages from clingo, and controls
+    the logging of them
+    """
+    msg = msg.replace("\n", "")
+    match code:
+        case clingo.MessageCode.AtomUndefined:
+            clingo_logger.debug(msg)
+        case clingo.MessageCode.RuntimeError:
+            clingo_logger.exception(msg)
+        case _:
+            clingo_logger.info(msg)
+
+def model_cb(self, model:clingo.Model):
+    """
+    Partial callback for clingo.
+    Used for storing models.
+    *Must* be constructed using functools.partial
+    with 'self' bound to the SolverWrapper
+
+    NOTE: Clingo Models are destroyed/reallocated on exit of the callback,
+    Which is why we don't just store the model itself
+    """
+    self.results.append(InstalModelResult(model.symbols(atoms=True),
+                                            model.symbols(shown=True),
+                                            model.cost,
+                                            model.number,
+                                            model.optimality_proven,
+                                            model.type))
 
 @dataclass
 class ClingoSolver(SolverWrapper_i):
@@ -44,10 +77,10 @@ class ClingoSolver(SolverWrapper_i):
                                                                   " ".join(self.options),
                                                                   len(self.results))
     def init_solver(self):
-        self.ctl = Control(self.options)
+        self.ctl = Control(self.options, logger=clingo_intercept_logger)
 
         for path in self.input_files:
-            logging.info("Clingo Loading: %s", path)
+            logging.debug("Clingo Loading: %s", path)
             assert(path.exists())
             self.ctl.load(str(path))
 
@@ -78,23 +111,9 @@ class ClingoSolver(SolverWrapper_i):
                 case _:
                     raise Exception("Unrecognized situation fact")
 
-        def on_model_cb(model):
-            """
-            Handler for clingo finding a matching model for the program
-            note: model destroyed on exit/reallocated in clingo,
-            so information is copied into InstalModelResult to be processed
-            later.
-            """
-            self.results.append(InstalModelResult(model.symbols(atoms=True),
-                                                  model.symbols(shown=True),
-                                                  model.cost,
-                                                  model.number,
-                                                  model.optimality_proven,
-                                                  model.type))
+        on_model_cb = partial(model_cb, self)
 
-
-
-        logging.info("Grounding Program")
+        logging.debug("Grounding Program")
         self.ctl.ground([("base", [])])
         logging.info("Running Program")
         self.ctl.solve(on_model=on_model_cb)

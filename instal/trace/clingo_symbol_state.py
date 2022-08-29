@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging as logmod
 
 import simplejson as json
-from clingo import Symbol, SymbolType
+from clingo import Symbol, SymbolType, parse_term
 from instal.interfaces.solver import InstalModelResult
 from instal.interfaces.trace import State_i
 
@@ -22,19 +22,6 @@ class InstalClingoState(State_i):
     Representation of Terms: clingo.Symbol.
     """
 
-
-    @staticmethod
-    def from_json(json : dict) -> State_i:
-        state = InstalState()
-        state.metadata = json["metadata"]
-        for a in json["state"]["occurred"]:
-            state.occurred.append(atom_list_to_symbol(a))
-        for a in json["state"]["observed"]:
-            state.observed.append(atom_list_to_symbol(a))
-        for k, v in json["state"]["holdsat"].items():
-            for a in v:
-                state.holdsat.append(atom_list_to_symbol(a))
-        return state
 
     def __repr__(self) -> str:
         result = []
@@ -183,7 +170,11 @@ class InstalClingoState(State_i):
                     print("Occurs (and shouldn't): ", h)
         return errors
 
-    def insert(self, term:Symbol|iAST.TermAST):
+    def insert(self, term:str|Symbol|iAST.TermAST):
+        if not isinstance(term, Symbol):
+            term = parse_term(str(term))
+
+        assert(isinstance(term, Symbol))
         match (term.name, term.arguments[-1]):
             case _, step if step.type != SymbolType.Number:
                 logging.debug("State_i %s: Ignoring: %s", self.timestep, term)

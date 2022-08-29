@@ -25,19 +25,6 @@ class InstalASTState(State_i):
 
     """
 
-    @staticmethod
-    def from_json(json : dict) -> State_i:
-        state = InstalState()
-        state.metadata = json["metadata"]
-        for a in json["state"]["occurred"]:
-            state.occurred.append(atom_list_to_symbol(a))
-        for a in json["state"]["observed"]:
-            state.observed.append(atom_list_to_symbol(a))
-        for k, v in json["state"]["holdsat"].items():
-            for a in v:
-                state.holdsat.append(atom_list_to_symbol(a))
-        return state
-
     def __repr__(self) -> str:
         result = []
         result.append(f"-- Model Timestep {self.timestep}.")
@@ -72,43 +59,17 @@ class InstalASTState(State_i):
 
     def to_json(self) -> dict:
         state_dict = {
-                "occurred" : [],
-                "observed" : [],
-                "holdsat" : {
-                    "perms" : [],
-                    "pows" : [],
-                    "tpows" : [],
-                    "ipows" : [],
-                    "gpows" : [],
-                    "obls" : [],
-                    "fluents" : []
-                    }
-                }
-        for o in self.occurred:
-            state_dict["occurred"].append(symbol_to_atom_list(o))
-        for o in self.observed:
-            state_dict["observed"].append(symbol_to_atom_list(o))
-        for h in self.holdsat:
-            lst_atom = symbol_to_atom_list(h)
-            key = lst_atom[1][0][0]
-            if key == "perm":
-                state_dict["holdsat"]["perms"].append(lst_atom )
-            elif key == "pow":
-                state_dict["holdsat"]["pows"].append(lst_atom )
-            elif key == "tpow":
-                state_dict["holdsat"]["tpows"].append(lst_atom )
-            elif key == "gpow":
-                state_dict["holdsat"]["gpows"].append(lst_atom )
-            elif key == "ipow":
-                state_dict["holdsat"]["ipows"].append(lst_atom )
-            elif key == "obl":
-                state_dict["holdsat"]["obls"].append(lst_atom)
-            else:
-                state_dict["holdsat"]["fluents"].append(lst_atom)
+            "timestep" : self.timestep,
+            "occurred" : [str(x) for x in self.occurred],
+            "observed" : [str(x) for x in self.observed],
+            "holdsat"  : {},
+            "rest"     : [str(x) for x in self.rest]
+        }
 
-        return { "state" : state_dict,
-                 "metadata" : self.metadata }
+        for k, v in self.holdsat.items():
+            state_dict['holdsat'][k] = [str(x) for x in v]
 
+        return state_dict
 
     def check(self, conditions : dict, verbose=2) -> bool:
         """Takes an InstAL trace and a set of conditions in the format:
@@ -185,20 +146,25 @@ class InstalASTState(State_i):
                     print("Occurs (and shouldn't): ", h)
         return errors
 
-    def insert(self, term:Symbol|iAST.TermAST):
-        if isinstance(term, Symbol):
+    def insert(self, term:str|Symbol|iAST.TermAST):
+        if not isinstance(term, iAST.TermAST):
             term = TERM.parse_string(str(term))[0]
 
         assert(isinstance(term, iAST.TermAST))
+        try:
+            step = int(term.params[-1].value)
+            if step != self.timestep:
+                raise ValueError()
+        except ValueError as err:
+            logging.debug("State_i %s: Ignoring: %s", self.timestep, term)
+            return
 
-        match (term.value, int(term.params[-1].value)):
-            case "holdsat", self.timestep if term.params[0].value in self.holdsat:
+        match term.value:
+            case "holdsat" if term.params[0].value in self.holdsat:
                 self.holdsat[term.params[0].value].append(term)
-            case "occurred", self.timestep:
+            case "occurred":
                 self.occurred.append(term)
-            case "observed", self.timestep:
+            case "observed":
                 self.observed.append(term)
-            case _, self.timestep:
+            case _:
                 self.rest.append(term)
-            case _, _:
-                logging.debug("State_i %s: Ignoring: %s", self.timestep, term)

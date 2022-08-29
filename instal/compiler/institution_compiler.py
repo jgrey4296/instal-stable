@@ -61,6 +61,7 @@ class InstalInstitutionCompiler(InstalCompiler_i):
     """
 
     def compile(self, ial: IAST.InstitutionDefAST) -> str:
+        logging.debug("Compiling Institution")
         assert(isinstance(ial, IAST.InstitutionDefAST))
         assert(not isinstance(ial, IAST.BridgeDefAST))
         self.clear()
@@ -87,6 +88,7 @@ class InstalInstitutionCompiler(InstalCompiler_i):
         return "\n".join(self._compiled_text)
 
     def compile_types(self, type_list:list[IAST.TypeAST]) -> None:
+        logging.debug("Compiling Types")
         # Print types. Also adds a constraint that every type must be grounded.
         self.insert(HEADER, header="Type Grounding and declaration", sub="")
         for t in type_list:
@@ -96,6 +98,7 @@ class InstalInstitutionCompiler(InstalCompiler_i):
             self.insert(TYPE_GROUND, x=t.head.value.lower())
 
     def compile_events(self, inst):
+        logging.debug("Compiling Events")
         # should be sorted already
         for event in inst.events:
             rhs   : str = ", ".join(sorted(CompileUtil.wrap_types(inst.types, event.head)))
@@ -119,6 +122,7 @@ class InstalInstitutionCompiler(InstalCompiler_i):
         self.insert(NULL_EV, inst=CompileUtil.compile_term(inst.head))
 
     def compile_fluents(self, inst):
+        logging.debug("Compiling Fluents")
         inst_head : str = CompileUtil.compile_term(inst.head)
         for fluent in inst.fluents:
             rhs : str = ", ".join(sorted(CompileUtil.wrap_types(inst.types, fluent.head)))
@@ -167,6 +171,7 @@ class InstalInstitutionCompiler(InstalCompiler_i):
 
 
     def compile_generation(self, inst):
+        logging.debug("Compiling Rules")
         inst_head = CompileUtil.compile_term(inst.head)
         for relation in inst.relations:
             conditions  = CompileUtil.compile_conditions(inst, relation.conditions)
@@ -237,6 +242,7 @@ class InstalInstitutionCompiler(InstalCompiler_i):
 
 
     def compile_nif_rules(self, inst):
+        logging.debug("Compiling NIF Rules")
         for rule in inst.nif_rules:
             conditions = CompileUtil.compile_conditions(inst, rule.body)
             types      = CompileUtil.wrap_types(inst.types,

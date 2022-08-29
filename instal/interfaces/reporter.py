@@ -8,7 +8,7 @@ from typing import (TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
                     Protocol, Sequence, Tuple, TypeAlias, TypeGuard, TypeVar,
                     cast, final, overload, runtime_checkable)
 
-from instal.interfaces.state import Trace
+from instal.interfaces.trace import Trace_i
 
 ##-- end imports
 

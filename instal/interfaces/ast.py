@@ -54,7 +54,7 @@ class RelationalEnum(Enum):
 ##-- core base asts
 @dataclass(frozen=True)
 class InstalAST:
-    parse_source : None|str = field(default=None, kw_only=True)
+    parse_source : list[str] = field(default_factory=list, kw_only=True)
 
 @dataclass(frozen=True)
 class TermAST(InstalAST):

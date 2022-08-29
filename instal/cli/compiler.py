@@ -32,14 +32,16 @@ from instal.compiler.situation_compiler import InstalSituationCompiler
 
 ##-- Logging
 logging = logmod.getLogger(__name__)
-logging.setLevel(logmod.DEBUG)
 ##-- end Logging
 
 ##-- argparse
 argparser = argparse.ArgumentParser()
 argparser.add_argument('-t', '--target', help="Specify (multiple) files and directories to load")
 argparser.add_argument('-d', '--debug', action="store_true")
+argparser.add_argument("-v", "--verbose", action='count', help="increase verbosity of logging (repeatable)")
 argparser.add_argument('-o', '--output')
+argparser.add_argument('--noprint', action="store_true")
+
 ##-- end argparse
 
 def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False) -> list[str]:
@@ -53,7 +55,7 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False) 
 
     Returns a list of strings of each separate compiled file addition.
     """
-    logging.info("%% Compiling %s target files", len(targets))
+    logging.info("Compiling %s target files", len(targets))
     if debug:
         import instal.parser.debug_functions as dbf
         dbf.debug_pyparsing()
@@ -64,66 +66,70 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False) 
     output : list[str] = []
 
     for target in targets:
-        logging.info("%% Reading %s", str(target))
+        logging.info("Reading %s", str(target))
         # read the target
         text = target.read_text()
         match target.suffix:
             case defaults.INST_EXT:
-                ast          = parser.parse_institution(text)
+                ast          = parser.parse_institution(text, parse_source=target)
                 compiler     = InstalInstitutionCompiler()
                 compiled     = compiler.compile(ast)
                 prelude_text = compiler._load_prelude() if with_prelude else ""
                 output.append(prelude_text)
                 output.append(compiled)
             case defaults.BRIDGE_EXT:
-                ast          = parser.parse_bridge(text)
+                ast          = parser.parse_bridge(text, parse_source=target)
                 compiler     = InstalBridgeCompiler()
                 compiled     = compiler.compile(ast)
                 output.append(compiled)
             case defaults.QUERY_EXT:
-                ast          = parser.parse_query(text)
+                ast          = parser.parse_query(text, parse_source=target)
                 compiler     = InstalQueryCompiler()
                 compiled     = compiler.compile(ast)
                 output.append(compiled)
             case defaults.DOMAIN_EXT:
-                ast      = parser.parse_domain(text)
+                ast      = parser.parse_domain(text, parse_source=target)
                 compiler = InstalDomainCompiler()
                 compiled = compiler.compile(ast)
                 output.append(compiled)
             case defaults.SITUATION_EXT:
-                ast          = parser.parse_situation(text)
+                ast          = parser.parse_situation(text, parse_source=target)
                 compiler     = InstalSituationCompiler()
                 compiled     = compiler.compile(ast)
                 output.append(compiled)
             case _:
                 logging.warning("Unrecognized compilation target: %s", target)
 
+    logging.info("Parse and Compilation Finished")
     return output
 
 def main():
     ##-- logging
     DISPLAY_LEVEL = logmod.DEBUG
     LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-    LOG_FORMAT    = "%(asctime)s | %(levelname)8s | %(message)s"
+    LOG_FORMAT    = "%% %(levelname)8s | %(message)s"
+    FILE_FORMAT    = "%(asctime)s | %(levelname)8s | %(message)s"
     FILE_MODE     = "w"
     STREAM_TARGET = stdout
 
-    logger          = logmod.root
-    logger.setLevel(logmod.DEBUG)
+    logging = logmod.root
+    logging.setLevel(logmod.NOTSET)
     console_handler = logmod.StreamHandler(STREAM_TARGET)
     file_handler    = logmod.FileHandler(LOG_FILE_NAME, mode=FILE_MODE)
 
     console_handler.setLevel(DISPLAY_LEVEL)
-    # console_handler.setFormatter(logmod.Formatter(LOG_FORMAT))
+    console_handler.setFormatter(logmod.Formatter(LOG_FORMAT))
     file_handler.setLevel(logmod.DEBUG)
-    # file_handler.setFormatter(logmod.Formatter(LOG_FORMAT))
+    file_handler.setFormatter(logmod.Formatter(FILE_FORMAT))
 
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
-    logging = logger
+    logging.addHandler(console_handler)
+    logging.addHandler(file_handler)
     ##-- end logging
 
-    args        = argparser.parse_args()
+    args      = argparser.parse_args()
+    verbosity = max(logmod.DEBUG, logmod.WARNING - (10 * (args.verbose or 0)))
+    console_handler.setLevel(verbosity)
+
     args.target = pathlib.Path(args.target)
     if args.target.is_file():
         targets = [args.target]
@@ -133,11 +139,15 @@ def main():
     result = compile_target(targets, args.debug, with_prelude=True)
 
     if args.output:
+        logging.info("Writing to Output: %s", args.output)
         with open(pathlib.Path(args.output), 'w') as f:
             f.write("\n".join(result))
 
 
-    print("\n".join(result))
+    if not args.noprint:
+        print("\n".join(result))
+    else:
+        logging.info("Not Printing Result")
 
 if __name__ == '__main__':
     main()

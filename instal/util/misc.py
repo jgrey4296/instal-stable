@@ -93,22 +93,24 @@ class InstalOptionGroup:
     gantt      : bool      = field(default=False)
     text       : bool      = field(default=True)
     trace      : Any       = field(default=None)
+    loglevel   : int       = field(default=logmod.WARNING)
 
     def __post_init__(self):
         # set the log verbosity,
         # create output dir's as necessary
+        self.verbose = self.verbose or 0
         instal_root  = logmod.getLogger("instal")
         max_level    = logmod.ERROR
-        active_level = logmod.DEBUG + (10 * self.verbose)
+        active_level = logmod.WARNING - (10 * self.verbose)
 
-        instal_root.setLevel(max(logmod.DEBUG, min(active_level, max_level)))
-        logging.warning("Logging Level Set to: %s", logmod.getLevelName(instal_root.level))
+        self.loglevel = max(logmod.NOTSET, active_level)
 
         if self.output is None:
             logging.warning("No Output directory specified")
         else:
-            assert(self.output.is_dir())
-            if not self.output.exists():
+            if self.output.exists():
+                assert(self.output.is_dir())
+            else:
                 logging.info("Making Output Directory: %s", self.output)
                 self.output.mkdir(parents=True)
 

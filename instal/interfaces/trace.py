@@ -20,6 +20,7 @@ from weakref import ref
 from instal.interfaces.solver import InstalModelResult
 from instal.interfaces.ast import TermAST
 from instal.defaults import STATE_HOLDSAT_GROUPS
+from clingo import Symbol
 
 if TYPE_CHECKING:
     # tc only imports
@@ -32,10 +33,6 @@ logging = logmod.getLogger(__name__)
 
 class _State_Protocol(metaclass=abc.ABCMeta):
 
-    @staticmethod
-    @abc.abstractmethod
-    def from_json(path) -> "State_i": pass
-
     @abc.abstractmethod
     def __repr__(self): pass
 
@@ -46,7 +43,7 @@ class _State_Protocol(metaclass=abc.ABCMeta):
     def check(self, conditions) -> bool: pass
 
     @abc.abstractmethod
-    def insert(self, val): pass
+    def insert(self, val:str|TermAST|Symbol): pass
 
 @dataclass
 class State_i(_State_Protocol):
@@ -72,7 +69,6 @@ class Trace_i(Sequence):
     """
     states   : list[State_i] = field(default_factory=list)
     metadata : dict          = field(default_factory=dict)
-    filename : None|str      = field(default=None)
 
     state_constructor : ClassVar[State_i] = None
 
