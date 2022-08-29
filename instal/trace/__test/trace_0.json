@@ -1,0 +1,141 @@
+{
+    "metadata": {
+        "clingo_version": "5.5.2",
+        "cost": [],
+        "current_result": 1,
+        "instal_files": [
+            "/Volumes/documents/github/MAS/instal-stable/examples/basic/basic.ial",
+            "/Volumes/documents/github/MAS/instal-stable/examples/basic/basic.idc",
+            "/Volumes/documents/github/MAS/instal-stable/examples/basic/basic-init.iaf",
+            "/Volumes/documents/github/MAS/instal-stable/examples/basic/basic-events.iaq"
+        ],
+        "mode": "multi_shot",
+        "model_length": 3,
+        "optimal": false,
+        "pid": 87705,
+        "result_size": 1,
+        "source_files": [
+            "/Volumes/documents/github/MAS/instal-stable/instal/__data/standard_prelude/basic_definitions.lp",
+            "/Volumes/documents/github/MAS/instal-stable/instal/__data/standard_prelude/bridge.lp",
+            "/Volumes/documents/github/MAS/instal-stable/instal/__data/standard_prelude/event_generation.lp",
+            "/Volumes/documents/github/MAS/instal-stable/instal/__data/standard_prelude/event_occurrence.lp",
+            "/Volumes/documents/github/MAS/instal-stable/instal/__data/standard_prelude/fluent_rules.lp",
+            "/Volumes/documents/github/MAS/instal-stable/instal/__data/standard_prelude/observation.lp",
+            "/Volumes/documents/github/MAS/instal-stable/instal/__data/standard_prelude/time.lp",
+            "/Volumes/documents/github/MAS/instal-stable/instal/__data/standard_prelude/violation.lp"
+        ],
+        "timestamp": 1661729079.4061399,
+        "version": "1.0.1"
+    },
+    "states": [
+        {
+            "holdsat": {
+                "fluent": [],
+                "gpow": [],
+                "ipow": [],
+                "obl": [],
+                "perm": [
+                    "holdsat(perm(ex_blue(foo)), basic, 0)",
+                    "holdsat(perm(ex_red(foo)), basic, 0)",
+                    "holdsat(perm(in_red(foo)), basic, 0)",
+                    "holdsat(perm(null), basic, 0)"
+                ],
+                "pow": [
+                    "holdsat(pow(in_red(foo)), basic, 0)",
+                    "holdsat(pow(null), basic, 0)"
+                ],
+                "tpow": []
+            },
+            "observed": [
+                "observed(ex_red(foo), 0)"
+            ],
+            "occurred": [
+                "occurred(_unempoweredEvent(ex_red(foo)), basic, 0)"
+            ],
+            "rest": [
+                "holdsat(live(basic), basic, 0)"
+            ],
+            "timestep": 0
+        },
+        {
+            "holdsat": {
+                "fluent": [],
+                "gpow": [],
+                "ipow": [],
+                "obl": [],
+                "perm": [
+                    "holdsat(perm(null), basic, 1)",
+                    "holdsat(perm(in_red(foo)), basic, 1)",
+                    "holdsat(perm(ex_red(foo)), basic, 1)",
+                    "holdsat(perm(ex_blue(foo)), basic, 1)"
+                ],
+                "pow": [
+                    "holdsat(pow(null), basic, 1)"
+                ],
+                "tpow": []
+            },
+            "observed": [
+                "observed(ex_blue(foo), 1)"
+            ],
+            "occurred": [
+                "occurred(_unempoweredEvent(ex_blue(foo)), basic, 1)"
+            ],
+            "rest": [
+                "holdsat(live(basic), basic, 1)"
+            ],
+            "timestep": 1
+        },
+        {
+            "holdsat": {
+                "fluent": [],
+                "gpow": [],
+                "ipow": [],
+                "obl": [],
+                "perm": [
+                    "holdsat(perm(ex_blue(foo)), basic, 2)",
+                    "holdsat(perm(ex_red(foo)), basic, 2)",
+                    "holdsat(perm(in_red(foo)), basic, 2)",
+                    "holdsat(perm(null), basic, 2)"
+                ],
+                "pow": [
+                    "holdsat(pow(null), basic, 2)"
+                ],
+                "tpow": []
+            },
+            "observed": [
+                "observed(ex_green(foo), 2)"
+            ],
+            "occurred": [
+                "occurred(_unempoweredEvent(ex_green(foo)), basic, 2)"
+            ],
+            "rest": [
+                "holdsat(live(basic), basic, 2)"
+            ],
+            "timestep": 2
+        },
+        {
+            "holdsat": {
+                "fluent": [],
+                "gpow": [],
+                "ipow": [],
+                "obl": [],
+                "perm": [
+                    "holdsat(perm(null), basic, 3)",
+                    "holdsat(perm(in_red(foo)), basic, 3)",
+                    "holdsat(perm(ex_red(foo)), basic, 3)",
+                    "holdsat(perm(ex_blue(foo)), basic, 3)"
+                ],
+                "pow": [
+                    "holdsat(pow(null), basic, 3)"
+                ],
+                "tpow": []
+            },
+            "observed": [],
+            "occurred": [],
+            "rest": [
+                "holdsat(live(basic), basic, 3)"
+            ],
+            "timestep": 3
+        }
+    ]
+}
