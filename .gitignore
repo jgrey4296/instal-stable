@@ -6,3 +6,6 @@ instal_stable.egg-info/
 .vscode
 lint.html
 pylintscript.sh
+instal_tmp
+.venv
+.dir-locals.el
