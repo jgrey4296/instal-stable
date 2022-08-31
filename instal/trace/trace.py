@@ -73,7 +73,7 @@ class InstalTrace(Trace_i):
         metadata['current_result'] = model.number
         metadata['optimal']        = model.optimal
         metadata['model_length']   = steps
-        metadata['instal_files']        = [str(x) for x in sources] or []
+        metadata['instal_files']   = [str(x) for x in sources or []]
 
         states   = [InstalTrace.state_constructor(i)
                     for i in range(steps + 1)]

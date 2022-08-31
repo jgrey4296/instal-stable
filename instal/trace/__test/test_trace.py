@@ -10,6 +10,9 @@ import logging as logmod
 import pathlib
 import unittest
 import warnings
+from clingo import Symbol
+from clingo import parse_term as cpt
+from instal.interfaces.solver import InstalModelResult
 from importlib.resources import files
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
@@ -50,10 +53,57 @@ class TestTrace(unittest.TestCase):
     def tearDownClass(cls):
         logmod.root.removeHandler(cls.file_h)
 
-    def test_initial(self):
+    def test_load_from_json(self):
         trace = InstalTrace.from_json(json.loads(data_text))
         self.assertIsNotNone(trace)
         self.assertEqual(len(trace), 4)
+
+    def test_build_from_model_three_events(self):
+        model = InstalModelResult(atoms=[],
+                                  shown=[cpt("occurred(something, 1)"),
+                                         cpt("occurred(other, 2)"),
+                                         cpt("occurred(else, 3)")],
+                                  cost=1,
+                                  number=1,
+                                  optimal=False,
+                                  type="test")
+
+        trace = InstalTrace.from_model(model, steps=3)
+        self.assertEqual(len(trace), 4)
+        for state in trace.states[1:]:
+            self.assertTrue(state.occurred)
+
+    def test_build_from_model_holdsat(self):
+        model = InstalModelResult(atoms=[],
+                                  shown=[cpt("holdsat(perm(something), 0)"),
+                                         cpt("holdsat(perm(other), 0)"),
+                                         cpt("holdsat(perm(else), 0)")],
+                                  cost=1,
+                                  number=1,
+                                  optimal=False,
+                                  type="test")
+
+        trace = InstalTrace.from_model(model, steps=1)
+        self.assertEqual(len(trace), 2)
+        self.assertEqual(len(trace.states[0].holdsat['perm']), 3)
+
+
+    def test_build_from_model_holdsat(self):
+        model = InstalModelResult(atoms=[],
+                                  shown=[cpt("observed(something, 1)"),
+                                         cpt("observed(other, 1)"),
+                                         cpt("observed(else, 2)")],
+                                  cost=1,
+                                  number=1,
+                                  optimal=False,
+                                  type="test")
+
+        trace = InstalTrace.from_model(model, steps=2)
+        self.assertEqual(len(trace), 3)
+        self.assertEqual(len(trace.states[1].observed), 2)
+        self.assertEqual(len(trace.states[2].observed), 1)
+
+
 
     def test_equivalence(self):
         """ Check a trace loads and saves without changing anything """
