@@ -1,0 +1,19 @@
+%% --------------------------------------------------
+%  Institution Trace Start
+%% --------------------------------------------------
+\newlength{\tableWidth}
+\setlength{\tableWidth}{${tw}}
+\begin{longtable}{@{}l@{}}
+\resizebox{\textwidth}{!}{
+  \begin{tikzpicture}[
+    start chain=trace going right,
+    %% state chain args
+    ${states}
+    node distance=1cm and 5.2cm
+    ]
+    {{ [continue chain=trace]
+        %% state chain nodes
+        ${nodes}
+        %% state chain bodies
+        ${node_bodies}
+      }}
