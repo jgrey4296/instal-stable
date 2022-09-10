@@ -9,3 +9,4 @@ pylintscript.sh
 instal_tmp
 .venv
 .dir-locals.el
+*.auctex
