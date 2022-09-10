@@ -36,10 +36,10 @@ logging = logmod.getLogger(__name__)
 
 ##-- argparse
 argparser = argparse.ArgumentParser()
-argparser.add_argument('-t', '--target', help="Specify (multiple) files and directories to load")
-argparser.add_argument('-d', '--debug', action="store_true")
-argparser.add_argument("-v", "--verbose", action='count', help="increase verbosity of logging (repeatable)")
+argparser.add_argument('-t', '--target', help="Specify (multiple) files and directories to load", required=True)
 argparser.add_argument('-o', '--output')
+argparser.add_argument("-v", "--verbose", action='count', help="increase verbosity of logging (repeatable)")
+argparser.add_argument('-d', '--debug', action="store_true")
 argparser.add_argument('--noprint', action="store_true")
 
 ##-- end argparse

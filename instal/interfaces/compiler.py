@@ -6,19 +6,22 @@ import abc
 import logging as logmod
 import os
 from string import Template
-import pathlib
 from dataclasses import InitVar, dataclass, field
 from pathlib import Path
 
 from instal.interfaces import ast as ASTs
-from instal.defaults import STANDARD_PRELUDE_loc
+from instal.defaults import STANDARD_PRELUDE_loc, DATA_loc
 
 ##-- end imports
 
 logging = logmod.getLogger(__name__)
 
 ##-- data
-inst_prelude    = files(STANDARD_PRELUDE_loc)
+try:
+    inst_prelude = files(STANDARD_PRELUDE_loc)
+except ModuleNotFoundError:
+    data = files(DATA_loc)
+    inst_prelude = data / STANDARD_PRELUDE_loc
 
 ##-- end data
 
@@ -50,10 +53,15 @@ class InstalCompiler_i(metaclass=abc.ABCMeta):
                 raise TypeError("Unrecognised compile pattern type", pattern)
 
     def _load_prelude(self) -> str:
-        assert(inst_prelude.is_dir())
         text = []
-        for path in inst_prelude.iterdir():
-            text += path.read_text().split("\n")
+        if inst_prelude.is_dir():
+            for path in sorted(inst_prelude.iterdir()):
+                text += path.read_text().split("\n")
+        else:
+            assert(inst_prelude.is_file())
+            text.append(inst_prelude.read_text())
+
+        text.append("%% End of Prelude")
 
         return "\n".join(text)
 

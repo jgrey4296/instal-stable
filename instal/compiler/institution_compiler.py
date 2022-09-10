@@ -67,7 +67,7 @@ class InstalInstitutionCompiler(InstalCompiler_i):
         self.clear()
         self.insert(INST_PRELUDE,
                     institution=CompileUtil.compile_term(ial.head),
-                    source_file=ial.parse_source)
+                    source_file=ial.sources_str)
         self.insert(HEADER, header='Part 1: Initial Setup and types', sub="")
 
         self.compile_events(ial)

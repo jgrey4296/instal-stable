@@ -12,7 +12,7 @@ import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from instal.parser.pyparse_institution import InstalPyParser
+from instal.parser.parser import InstalPyParser
 from instal.interfaces import ast as ASTs
 from instal.compiler.query_compiler import InstalQueryCompiler
 from unittest import mock
@@ -50,12 +50,12 @@ class TestQueryCompiler(unittest.TestCase):
         result = compiler.compile(data)
 
         self.assertIsInstance(result, str)
-        expected = [" %%",
-                    " %-------------------------------",
-                    " % Query Specification",
-                    " % ",
-                    " %-------------------------------",
-                    " %",
+        expected = ["%%",
+                    "%-------------------------------",
+                    "% Query Specification",
+                    "% ",
+                    "%-------------------------------",
+                    "%%",
                     "",
                     "extObserved(test, 0).",
                     "_eventSet(0).",
@@ -74,12 +74,12 @@ class TestQueryCompiler(unittest.TestCase):
         result = compiler.compile(data)
 
         self.assertIsInstance(result, str)
-        expected = [" %%",
-                    " %-------------------------------",
-                    " % Query Specification",
-                    " % ",
-                    " %-------------------------------",
-                    " %",
+        expected = ["%%",
+                    "%-------------------------------",
+                    "% Query Specification",
+                    "% ",
+                    "%-------------------------------",
+                    "%%",
                     "",
                     "extObserved(test, 0).",
                     "_eventSet(0).",
@@ -100,12 +100,12 @@ class TestQueryCompiler(unittest.TestCase):
         result = compiler.compile(data)
 
         self.assertIsInstance(result, str)
-        expected = [" %%",
-                    " %-------------------------------",
-                    " % Query Specification",
-                    " % ",
-                    " %-------------------------------",
-                    " %",
+        expected = ["%%",
+                    "%-------------------------------",
+                    "% Query Specification",
+                    "% ",
+                    "%-------------------------------",
+                    "%%",
                     "",
                     "extObserved(test, 0).",
                     "_eventSet(0).",
@@ -119,18 +119,18 @@ class TestQueryCompiler(unittest.TestCase):
     def test_explicit_source_query(self):
         """ query/iaq -> lp """
         compiler = InstalQueryCompiler()
-        data = ASTs.QueryTotalityAST(parse_source="custom")
+        data = ASTs.QueryTotalityAST(parse_source=["custom"])
         data.body.append(ASTs.QueryAST(ASTs.TermAST("test")))
 
         result = compiler.compile(data)
 
         self.assertIsInstance(result, str)
-        expected = [" %%",
-                    " %-------------------------------",
-                    " % Query Specification",
-                    " % custom",
-                    " %-------------------------------",
-                    " %",
+        expected = ["%%",
+                    "%-------------------------------",
+                    "% Query Specification",
+                    "% custom",
+                    "%-------------------------------",
+                    "%%",
                     "",
                     "extObserved(test, 0).",
                     "_eventSet(0).",

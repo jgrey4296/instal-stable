@@ -81,7 +81,8 @@ class InstalQueryCompiler(InstalCompiler_i):
         assert(all(isinstance(x, IAST.QueryAST) for x in query.body))
         self.clear()
         self.insert(HEADER, header="Query Specification",
-                    sub=query.parse_source if query.parse_source is not None else "")
+                    sub=query.sources_str)
+        self.insert("#program base.")
         for i, q in enumerate(query.body):
             if q.time is not None:
                 i = q.time

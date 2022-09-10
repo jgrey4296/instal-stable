@@ -28,10 +28,10 @@ repository    = "https://github.com/jgrey4296/instal"
 changelog     = "https://github.com/jgrey4296/instal/spam/blob/master/CHANGELOG.md"
 
 [project.scripts]
+# keep these and __main__ synced
 instal         = "instal.__main__:main"
 instalc        = "instal.cli.compiler:main"
 instalq        = "instal.cli.query:main"
-instalt        = "instal.cli.trace:main"
 instalr        = "instal.cli.reporter:main"
 
 [project.gui-scripts]

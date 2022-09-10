@@ -50,8 +50,9 @@ class InstalSituationCompiler(InstalCompiler_i):
 
         if header:
             self.insert(HEADER, header="Initial Situation Specification",
-                        sub=facts.parse_source if facts.parse_source is not None else "")
+                        sub=facts.sources_str)
 
+        self.insert("#program base.")
         for initial in facts.body:
             for state in initial.body:
                 if inst:

@@ -27,12 +27,12 @@ logging = logmod.getLogger(__name__)
 
 ##-- argparse
 parser = argparse.ArgumentParser()
-parser.add_argument('-t', '--target',      help="Specify (multiple) files and directories to load")
+parser.add_argument('-t', '--target',      help="Specify (multiple) files and directories to load", required=True)
 parser.add_argument("-o", "--output",      type=str, help="output dir location, defaults to {cwd}/instal_tmp")
 parser.add_argument("-v", "--verbose", action='count', help="turns on trace output, v for holdsat, vv for more")
 parser.add_argument("-g", "--gantt",   action="store_true", help="specify output file for gantt visualization")
 parser.add_argument("-x", "--text",    action="store_true", help="specify output file for text trace")
-parser.add_argument("-j", "--json",    action="store_true", help="specify json output file")
+parser.add_argument("-p", "--pdf",    action="store_true", help="specify output file for pdf trace")
 ##-- end argparse
 
 def main():
@@ -58,28 +58,32 @@ def main():
     ##-- end Logging
 
     args = parser.parse_args()
+    trace_path = pathlib.Path(args.target).expanduser().resolve()
+    assert(trace_path.exists())
+    assert(trace_path.suffix == ".json")
 
-    option_group = InstalOptionGroup(verbose=args.verbose)
+    option_group = InstalOptionGroup(verbose=args.verbose,
+                                     output=pathlib.Path(args.output if args.output else "instal_tmp").expanduser().resolve(),
+                                     )
     logging.setLevel(option_group.loglevel)
 
-    path = pathlib.Path(args.target).expanduser().resolve()
-    assert(path.exists())
-    assert(path.suffix == ".json")
+    logging.info("Loading Trace: %s", trace_path)
+    trace = InstalTrace.from_json(json.loads(trace_path.read_text()))
 
-    trace = InstalTrace.from_json(json.loads(path.read_text()))
+    if args.gantt:
+        logging.info("Building Gantt Report")
+        instal_gantt_reporter = InstalGanttReporter()
+        instal_gantt_reporter.trace_to_file(trace, option_group.output / "gantt_report.tex")
 
-    if option_group.gantt_out:
-        instal_gantt_tracer = InstalGanttTracer(trace, gantt_file)
-        instal_gantt_tracer.trace_to_file()
+    if args.pdf:
+        logging.info("Building Pdf Report")
+        instal_pdf_reporter = InstalPDFReporter()
+        instal_pdf_reporter.trace_to_file(trace, option_group.output / "pdf_report.tex")
 
-    if option_group.text_out:
-        instal_text_tracer = InstalTextTracer(trace, text_file)
-        instal_text_tracer.trace_to_file()
-
-    if option_group.pdf_out:
-        instal_pdf_tracer = InstalPDFTracer(trace, pdf_file)
-        instal_pdf_tracer.trace_to_file()
-
+    if args.text or not (args.gantt or args.pdf):
+        logging.info("Building Text Report")
+        instal_text_reporter = InstalTextReporter()
+        instal_text_reporter.trace_to_file(trace, option_group.output / "text_report.txt")
 
 
 if __name__ == "__main__":

@@ -71,7 +71,7 @@ class InstalBridgeCompiler(InstalInstitutionCompiler, InstalCompiler_i):
                     bridge=CompileUtil.compile_term(iab.head),
                     source=CompileUtil.compile_term(iab.sources[0]),
                     sink=CompileUtil.compile_term(iab.sinks[0]),
-                    source_file=iab.parse_source)
+                    source_file=iab.sources_str)
 
         self.insert(HEADER, header='Part 1: Events and Fluents', sub="")
         self.compile_events(iab)

@@ -53,7 +53,7 @@ inst_prelude    = files(STANDARD_PRELUDE_loc)
 
 ##-- argparse
 argparser = argparse.ArgumentParser()
-argparser.add_argument('-t', '--target',      action="append", help="Specify (multiple) files and directories to load")
+argparser.add_argument('-t', '--target',      action="append", help="Specify (multiple) files and directories to load", required=True)
 argparser.add_argument('-s', '--situation',   help="Specify a string or file to parse of initial specs")
 argparser.add_argument('-q', '--query',       help="Specify a string or file to parse of observed events")
 
