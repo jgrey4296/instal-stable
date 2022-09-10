@@ -19,27 +19,32 @@ from importlib.resources import files
 ##-- end imports
 
 ##-- data
-data_path        = files("instal.__data")
-tex_path         = files(TEX_loc)
+data_path       = files("instal.__data")
+tex_path        = files(TEX_loc)
 
-HEADER_PAT       = Template((data_path / "header_pattern").read_text())
-PDF_PRELUDE      = Template((tex_path / "pdf_prelude.tex").read_text())
+HEADER_PAT      = Template((data_path / "header_pattern").read_text())
+PDF_PRELUDE     = Template((tex_path / "pdf_prelude.tex").read_text())
 
-TRACE_PRELUDE    = Template((tex_path / "trace.tex").read_text())
-EVENT_MACRO      = Template((tex_path / "event_macro.tex").read_text())
-STATE_MACRO      = Template((tex_path / "state_macro.tex").read_text())
-STATE_CHAIN_ARG  = Template((tex_path / "state_chain_arg.tex").read_text())
-STATE_CHAIN_NODE = Template((tex_path / "state_chain_node.tex").read_text())
-STATE_CHAIN_BODY = Template((tex_path / "state_chain_body.tex").read_text())
-STATE_CHAIN_LINK = Template((tex_path / "state_chain_link.tex").read_text())
+TRACE           = Template((tex_path / "trace.tex").read_text())
 
-EVENT_CHAIN_BODY = Template((tex_path / "event_chain_body.tex").read_text())
+EVENT_MACRO     = Template((tex_path / "event_macro.tex").read_text())
+FLUENT_MACRO    = Template((tex_path / "fluent_macro.tex").read_text())
 
+SUB_CHAIN       = Template((tex_path / "subchain.tex").read_text())
 
-FLUENT           = Template((tex_path / "fluent.tex").read_text())
-INST_TERM        = Template((tex_path / "inst_term.tex").read_text())
-TERM             = Template((tex_path / "term.tex").read_text())
-TERM_BODY        = Template((tex_path / "term_body.tex").read_text())
+CHAIN_NODE      = Template((tex_path / "chain_node.tex").read_text())
+CHAIN_LINK      = Template((tex_path / "chain_link.tex").read_text())
+
+FLUENT_SUBCHAIN = Template((tex_path / "fluent_subchain.tex").read_text())
+EVENT_SUBCHAIN  = Template((tex_path / "event_subchain.tex").read_text())
+
+FLUENT_LINK     = Template((tex_path / "fluent_link.tex").read_text())
+EVENT_LINK      = Template((tex_path / "event_link.tex").read_text())
+
+FLUENT          = Template((tex_path / "fluent.tex").read_text())
+INST_TERM       = Template((tex_path / "inst_term.tex").read_text())
+TERM            = Template((tex_path / "term.tex").read_text())
+TERM_BODY       = Template((tex_path / "term_body.tex").read_text())
 ##-- end data
 
 BOLD =  r"\textbf"
@@ -105,8 +110,8 @@ class InstalPDFReporter(InstalReporter_i):
         return sorted(init_render), sorted(holds_render), sorted(termin_render)
 
     def render_macros(self, trace) -> tuple[list, list]:
-        event_macros = []
-        state_macros = []
+        event_macros  = []
+        fluent_macros = []
         # Generate Macros
         for i, state, pre, post in trace.contextual_iter():
             macro = macro_key(i)
@@ -115,7 +120,7 @@ class InstalPDFReporter(InstalReporter_i):
             occ   = [self.render_term(x.params[0]) for x in state.occurred]
             # Render states to text
             init, holds, term = self.render_fluents(state, pre)
-            empty_state    = EMPTY if not any((init, holds, term)) else []
+            empty_state       = EMPTY if not any((init, holds, term)) else []
 
             event_macros.append(self.expand(EVENT_MACRO,
                                             key=macro,
@@ -124,15 +129,15 @@ class InstalPDFReporter(InstalReporter_i):
                                             )
                                 )
 
-            state_macros.append(self.expand(STATE_MACRO,
-                                            key=macro,
-                                            holding="\n    ".join(holds or empty_state),
-                                            initiated="\n    ".join(init),
-                                            terminated="\n    ".join(term),
-                                            )
-                                )
+            fluent_macros.append(self.expand(FLUENT_MACRO,
+                                             key=macro,
+                                             holding="\n    ".join(holds or empty_state),
+                                             initiated="\n    ".join(init),
+                                             terminated="\n    ".join(term),
+                                             )
+                                 )
 
-        return (event_macros, state_macros)
+        return (event_macros, fluent_macros)
 
     def trace_to_file(self, trace, path):
         """
@@ -147,29 +152,43 @@ class InstalPDFReporter(InstalReporter_i):
 
 
         # Build the macros
-        event_m, state_m = self.render_macros(trace)
+        event_m, fluent_m = self.render_macros(trace)
         # build State chain args
-        state_args   = [self.expand(STATE_CHAIN_ARG, num=i).strip() for i in range(len(trace))]
+        subchains         = [self.expand(SUB_CHAIN, num=i).strip() for i in range(len(trace))]
         # build State chain nodes
-        state_nodes  = [self.expand(STATE_CHAIN_NODE, num=i).strip() for i in range(len(trace))]
-        # build event bodies
-        event_bodies = [self.expand(EVENT_CHAIN_BODY, key=macro_key(i), num=i, numPlus=i+1).strip() for i in range(len(trace)-1)]
-        # build State chain bodies
-        state_bodies = [self.expand(STATE_CHAIN_BODY, num=i, key=macro_key(i)) for i in range(len(trace))]
-        # build links from states to main chain
-        state_links  = [self.expand(STATE_CHAIN_LINK, num=i).strip() for i in range(len(trace))]
+        chain_nodes       = [self.expand(CHAIN_NODE, num=i).strip() for i in range(len(trace))]
+        # link the main states together
+        chain_links       = [self.expand(CHAIN_LINK, num=i, numPlus=i+1).strip() for i in range(len(trace)-1)]
+
+        # build event subchains
+        event_subchains   = [self.expand(EVENT_SUBCHAIN, key=macro_key(i), num=i).strip() for i in range(len(trace)-1)]
+        # build fluent subchains
+        fluent_subchains  = [self.expand(FLUENT_SUBCHAIN, num=i, key=macro_key(i)) for i in range(len(trace))]
+        # link event subchains to main
+        event_links       = [self.expand(EVENT_LINK, num=i).strip() for i in range(len(trace)-1)]
+        # link fluent subchains to main
+        fluent_links      = [self.expand(FLUENT_LINK, num=i).strip() for i in range(len(trace))]
+
         # Trace
-        trace = self.expand(TRACE_PRELUDE,
-                            args="\n".join(state_args),
-                            nodes="\n".join(state_nodes),
-                            events="\n".join(event_bodies),
-                            bodies="\n".join(state_bodies),
-                            links="\n".join(state_links))
+        trace_template = TRACE
+
+        is_partial = True if trace[0].timestep != 0 else False
+
+        trace = self.expand(trace_template,
+                            is_partial=r"\IsPartialTracetrue" if is_partial else "",
+                            last=len(trace)-1,
+                            subchains="\n".join(subchains),
+                            chain_nodes="\n".join(chain_nodes),
+                            chain_links="\n".join(chain_links),
+                            fluent_subchains="\n".join(fluent_subchains),
+                            event_subchains="\n".join(event_subchains),
+                            fluent_links="\n".join(fluent_links),
+                            event_links="\n".join(event_links))
 
         # Combine it all in the prelude:
         self.insert(PDF_PRELUDE,
                     event_macros="\n".join(event_m),
-                    state_macros="\n".join(state_m),
+                    fluent_macros="\n".join(fluent_m),
                     trace=trace,
                     caption=trace_caption
                     )

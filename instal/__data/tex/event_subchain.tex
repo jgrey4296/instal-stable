@@ -1,0 +1,9 @@
+{[continue chain=event${num} going above]
+  \node [on chain=event${num}, above=of i${num}mid,rectangle,draw,inner frame sep=0pt]
+  (e${num}a) {\Event${key}Observe};
+
+  \node [on chain=event${num},rectangle,draw,inner frame sep=0pt]
+  (e${num}b) {\Event${key}Occur};
+
+  \draw[very thin](e${num}a) -- (e${num}b);
+}

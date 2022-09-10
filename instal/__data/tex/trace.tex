@@ -1,24 +1,48 @@
 %% --------------------------------------------------
 %  Institution Trace Start
 %% --------------------------------------------------
+%% Logical Variable
+\newif\ifIsPartialTrace
+
+%% Maybe set vars to true
+${is_partial}
+
 \begin{longtable}{@{}l@{}}
   \resizebox{\textwidth}{!}{
     \begin{tikzpicture}[
       start chain=trace going right,
-      %% state chain args
-${args}
+      %% subchains
+${subchains}
       node distance=1cm and 5.2cm
       ]
       { [continue chain=trace]
-          %% state chain nodes
-${nodes}
-          %% Events
-${events}
+        %% nodes
+        \ifIsPartialTrace
+        \node[coordinate, on chain=trace] (iStart) {};
+        \fi
+
+${chain_nodes}
+
+        \ifIsPartialTrace
+        \node[coordinate, on chain=trace] (iEnd) {};
+        \fi
+        %% Linking
+        \ifIsPartialTrace
+        \draw[dash pattern=on 2pt off 2pt] (iStart) -- (i0);
+        \fi
+
+${chain_links}
+
+        \ifIsPartialTrace
+        \draw[dash pattern=on 2pt off 2pt] (i${last}) -- (iEnd);
+        \fi
       }
-      %% state chain bodies
-${bodies}
-      %% final linking
-${links}
+      %% Sub Chain Bodies
+${fluent_subchains}
+${event_subchains}
+      %% final linking to main chain
+${fluent_links}
+${event_links}
     \end{tikzpicture}
   }
 \end{longtable}
