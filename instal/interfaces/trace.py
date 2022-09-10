@@ -31,22 +31,8 @@ if TYPE_CHECKING:
 logging = logmod.getLogger(__name__)
 
 
-class _State_Protocol(metaclass=abc.ABCMeta):
-
-    @abc.abstractmethod
-    def __repr__(self): pass
-
-    @abc.abstractmethod
-    def to_json(self) -> dict: pass
-
-    @abc.abstractmethod
-    def check(self, conditions) -> bool: pass
-
-    @abc.abstractmethod
-    def insert(self, val:str|TermAST|Symbol): pass
-
 @dataclass
-class State_i(_State_Protocol):
+class State_i:
     """
     Description of a single moment in a model's trace.
     """
@@ -60,6 +46,32 @@ class State_i(_State_Protocol):
     def __post_init__(self):
         for x in STATE_HOLDSAT_GROUPS:
             self.holdsat[x] = []
+
+    @property
+    def fluents(self) -> iter[Any]:
+        """ Iterate through all the fluents as a list
+        instead of as a dict of separate types of fluent
+        """
+        for items in self.holdsat.values():
+            for entry in items:
+                yield entry
+
+
+    @abc.abstractmethod
+    def __repr__(self): pass
+
+    @abc.abstractmethod
+    def to_json(self) -> dict: pass
+
+    @abc.abstractmethod
+    def check(self, conditions) -> bool: pass
+
+    @abc.abstractmethod
+    def insert(self, val:str|TermAST|Symbol): pass
+
+
+    @abc.abstractmethod
+    def filter(self, allow:list[Any], reject:list[Any]) -> State_i: pass
 
 @dataclass
 class Trace_i(Sequence):
@@ -81,6 +93,19 @@ class Trace_i(Sequence):
     def __getitem__(self, index):
         return self.states[index]
 
+    def __iter__(self):
+        return iter(self.states)
+
+    def contextual_iter(self) -> iter[tuple]:
+        """
+        provide an iterator of tuples
+        [timestep, state, state-1, state+1]
+        """
+        return zip(range(len(self)),
+                   self.states,
+                   [None] + self.states,
+                   self.states[1:] + [None])
+
     def __len__(self):
         return len(self.states)
 
@@ -96,3 +121,7 @@ class Trace_i(Sequence):
     def check(self, conditions:list) -> bool: pass
     @abc.abstractmethod
     def to_json(self) -> dict: pass
+
+
+    @abc.abstractmethod
+    def filter(self, allow:list[Any], reject:list[Any], start=None, end=None) -> Trace_i: pass

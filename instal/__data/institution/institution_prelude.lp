@@ -3,6 +3,7 @@
 %% ${institution}
 %% From    : ${source_file}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#program base.
 
 % Rules for Institution ${institution} %
 inst(${institution}).

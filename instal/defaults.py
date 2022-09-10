@@ -30,4 +30,4 @@ BRIDGE_DATA_loc      = "instal.__data.bridge"
 TEX_loc              = "instal.__data.tex"
 
 # Default groupings of holdsat in instal.interfaces.trace.State_i
-STATE_HOLDSAT_GROUPS = ["perm", "pow", "tpow", "ipow", "gpow", "obl", "fluent"]
+STATE_HOLDSAT_GROUPS = ["perm", "pow", "tpow", "ipow", "gpow", "obl", "fluent", "other"]

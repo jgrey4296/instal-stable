@@ -137,3 +137,6 @@ class InstalTrace(Trace_i):
         for i in range(0, len(conditions)):
             errors += self.trace[i + offset].check_trace_for(conditions[i], verbose)
         return bool(errors)
+
+    def filter(self, *args):
+        return False

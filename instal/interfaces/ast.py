@@ -56,6 +56,10 @@ class RelationalEnum(Enum):
 class InstalAST:
     parse_source : list[str] = field(default_factory=list, kw_only=True)
 
+    @property
+    def sources_str(self):
+        return " ".join(str(x) for x in self.parse_source)
+
 @dataclass(frozen=True)
 class TermAST(InstalAST):
     value  : str             = field()
@@ -67,7 +71,13 @@ class TermAST(InstalAST):
             param_str = ", ".join(str(x) for x in self.params)
             return self.value + "(" + param_str + ")"
 
-        return self.value
+        return str(self.value)
+
+    def __eq__(self, other):
+        if not self.value == other.value:
+            return False
+
+        return all(x == y for x,y in zip(self.params, other.params))
 
 
 ##-- end core base asts

@@ -12,9 +12,12 @@
     "longtable"
     "enumitem"
     "tikz"
+    "layout"
     "ulem")
    (LaTeX-add-environments
     "events"
-    "states"))
+    "states")
+   (LaTeX-add-lengths
+    "tableWidth"))
  :latex)
 

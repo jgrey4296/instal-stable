@@ -1,5 +1,4 @@
 {[continue chain=state${num} going below]
-  \node [on chain=state${num}, below=of i{$text},rectangle,draw,inner frame sep=0pt]
-  (s${num}) {\State_${num};
+  \node [on chain=state${num}, below=of i${num},rectangle,draw,inner frame sep=0pt]
+  (s${num}) {\State${key}};
 }
-\draw (i${num}) -- (s${num});

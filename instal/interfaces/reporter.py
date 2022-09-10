@@ -26,20 +26,23 @@ class InstalReporter_i(metaclass=abc.ABCMeta):
     def clear(self):
         self._compiled_text = []
 
+    def expand(self, pattern:str|Template, **kwargs):
+        match pattern:
+            case Template():
+                return pattern.safe_substitute(kwargs)
+            case str() if not bool(kwargs):
+                return pattern
+            case str():
+                return pattern.format_map(kwargs)
+            case _:
+                raise TypeError("Unrecognised compile pattern type", pattern)
+
     def insert(self, pattern:str|Template, **kwargs):
         """
         insert a given pattern text into the compiled output,
         formatting it with kwargs.
         """
-        match pattern:
-            case Template():
-                self._compiled_text.append(pattern.safe_substitute(kwargs))
-            case str() if not bool(kwargs):
-                self._compiled_text.append(pattern)
-            case str():
-                self._compiled_text.append(pattern.format_map(kwargs))
-            case _:
-                raise TypeError("Unrecognised compile pattern type", pattern)
+        self._compiled_text.append(self.expand(pattern, **kwargs))
 
     @abc.abstractmethod
     def trace_to_file(self, trace:Trace_i, path:Path): pass

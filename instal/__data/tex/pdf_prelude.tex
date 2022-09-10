@@ -7,6 +7,7 @@
 \usepackage{longtable}
 \usepackage{enumitem}
 \usepackage{tikz}
+\usepackage{layout}
 \pagestyle{empty}
 \thispagestyle{empty}
 \usetikzlibrary{shadows}
@@ -22,13 +23,29 @@
 %% Only if the base font of the document is to be sans serif:
 \renewcommand*\familydefault{\sfdefault}
 \usepackage[normalem]{ulem}
-\newenvironment{events}
-{\begin{tabular}{>{\centering}m{\tableWidth}}}
-{\end{tabular}}
-\newenvironment{states}
-{\begin{minipage}
-    {\tableWidth}
-    \raggedright
-    \begin{description}[align=left,leftmargin=1em,noitemsep,labelsep=\parindent]}
-{\end{description} \end{minipage}}
+
+\newlength{\tableWidth}
+\setlength{\tableWidth}{5cm}
+
+%% Environment for Events: A Centered Table
+\newenvironment{events} {\begin{tabular}{>{\centering}m{\tableWidth}}} {\end{tabular}}
+%% Environment for States: left aligned boxes of item lists
+\newenvironment{states} {\begin{minipage}{\tableWidth}\raggedright \begin{description}[align=left,leftmargin=1em,noitemsep,labelsep=\parindent]} {\end{description}\end{minipage}}
+
+%% Event Macros
+${event_macros}
+
+%% State Macros
+${state_macros}
+
 \begin{document}
+
+\begin{figure}
+${trace}
+\caption{${caption}.\\
+  Bold Fluents are initiated. Struck Through Fluents are terminated.}
+\end{figure}
+
+\clearpage
+\layout*
+\end{document}

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging as logmod
+from dataclasses import replace
 
 import instal.interfaces.ast as iAST
 import simplejson as json
@@ -71,81 +72,28 @@ class InstalASTState(State_i):
 
         return state_dict
 
-    def check(self, conditions : dict, verbose=2) -> bool:
-        """Takes an InstAL trace and a set of conditions in the format:
-            [
-                { "holdsat" : [],
-                  "occurred" : [],
-                  "notholdsat" : [],
-                  "notoccurred" : []
-            ,
-                { ... }
-            ]
+    def __contains__(self, term) -> bool:
+        try:
+            if int(term.params[-1].value) != self.timestep:
+                term = iAST.TermAST(term.value,
+                                    params=(term.params[:-1]
+                                            + [iAST.TermAST(str(self.timestep))])
+                                    )
+        except ValueError as err:
+            return False
 
-            Returns: 0 if the trace fits those conditions, +1 for each condition it doesn't meet.
-            """
-        errors = 0
-        for h in conditions.get("holdsat", []):
-            found = False
-            t = parse_term(h)
-            for a in self.holdsat:
-                if a == t:
-                    found = True
-                    break
-            if found:
-                if verbose > 1:
-                    print("Holds (correctly)", h)
-            else:
-                errors += 1
-                if verbose > 0:
-                    print("Doesn't hold (and should): ", h)
+        match term.value:
+            case "holdsat":
+                return term in self.fluents
+            case "occurred":
+                return term in self.occurred
+            case "observed":
+                return term in self.observed
+            case _:
+                return term in self.rest
 
-        for h in conditions.get("occurred", []):
-            found = False
-            t = parse_term(h)
-            for a in self.occurred:
-                if a == t:
-                    found = True
-                    break
-            if found:
-                if verbose > 1:
-                    print("Occurred (correctly)", h)
-            else:
-                errors += 1
-                if verbose > 0:
-                    print("Didn't occur (and should have): ", h)
-
-        for h in conditions.get("notholdsat", []):
-            found = False
-            t = parse_term(h)
-            for a in self.holdsat:
-                if a == t:
-                    found = True
-                    break
-            if not found:
-                if verbose > 1:
-                    print("Doesn't Hold (correctly)", h)
-            else:
-                errors += 1
-                if verbose > 0:
-                    print("Holds (and shouldn't): ", h)
-
-        for h in conditions.get("notoccurred", []):
-            found = False
-            t = parse_term(h)
-            for a in self.occurred:
-                if a == t:
-                    found = True
-                    break
-            if not found:
-                if verbose > 1:
-                    print("Doesn't occur (correctly)", h)
-            else:
-                errors += 1
-                if verbose > 0:
-                    print("Occurs (and shouldn't): ", h)
-        return errors
-
+    def check(self, conditions) -> bool:
+        return False
     def insert(self, term:str|Symbol|iAST.TermAST):
         if not isinstance(term, iAST.TermAST):
             term = TERM.parse_string(str(term))[0]
@@ -162,9 +110,17 @@ class InstalASTState(State_i):
         match term.value:
             case "holdsat" if term.params[0].value in self.holdsat:
                 self.holdsat[term.params[0].value].append(term)
+            case "holdsat":
+                self.holdsat["other"].append(term)
             case "occurred":
                 self.occurred.append(term)
             case "observed":
                 self.observed.append(term)
             case _:
                 self.rest.append(term)
+
+
+
+
+    def filter(self, *args):
+        return False
