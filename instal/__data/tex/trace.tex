@@ -3,17 +3,20 @@
 %% --------------------------------------------------
 %% Logical Variable
 \newif\ifIsPartialTrace
+\newif\ifIsVerticalTrace
 
 %% Maybe set vars to true
 ${is_partial}
+${is_vertical}
+
 
 \begin{longtable}{@{}l@{}}
   \resizebox{\textwidth}{!}{
     \begin{tikzpicture}[
-      start chain=trace going right,
+      start chain=trace going \MainChainRightOrDown,
       %% subchains
 ${subchains}
-      node distance=1cm and 5.2cm
+      node distance=\VHDist,
       ]
       { [continue chain=trace]
         %% nodes

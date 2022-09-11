@@ -120,7 +120,7 @@ class InstalPDFReporter(InstalReporter_i):
             occ   = [self.render_term(x.params[0]) for x in state.occurred]
             # Render states to text
             init, holds, term = self.render_fluents(state, pre)
-            empty_state       = EMPTY if not any((init, holds, term)) else []
+            empty_state       = ["\item" + EMPTY[0]] if not any((init, holds, term)) else []
 
             event_macros.append(self.expand(EVENT_MACRO,
                                             key=macro,
@@ -173,9 +173,11 @@ class InstalPDFReporter(InstalReporter_i):
         trace_template = TRACE
 
         is_partial = True if trace[0].timestep != 0 else False
+        is_vertical = False
 
         trace = self.expand(trace_template,
                             is_partial=r"\IsPartialTracetrue" if is_partial else "",
+                            is_vertical=r"\IsVerticalTracetrue" if is_vertical else "",
                             last=len(trace)-1,
                             subchains="\n".join(subchains),
                             chain_nodes="\n".join(chain_nodes),

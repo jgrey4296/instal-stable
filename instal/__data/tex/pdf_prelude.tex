@@ -38,6 +38,13 @@ ${event_macros}
 %% Fluent Macros
 ${fluent_macros}
 
+
+%% Direction Control Macros
+\newcommand{\MainChainRightOrDown}{\ifIsVerticalTrace below\else right\fi}
+\newcommand{\SubChainLeftOrBelow}{\ifIsVerticalTrace left\else below\fi}
+\newcommand{\SubChainRightOrAbove}{\ifIsVerticalTrace right\else above\fi}
+\newcommand{\VHDist}{\ifIsVerticalTrace 5cm and 5cm\else 1cm and 5cm\fi}
+
 \begin{document}
 
 \begin{figure}
