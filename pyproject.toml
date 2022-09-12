@@ -32,6 +32,7 @@ changelog     = "https://github.com/jgrey4296/instal/spam/blob/master/CHANGELOG.
 instal         = "instal.__main__:main"
 instalc        = "instal.cli.compiler:main"
 instalq        = "instal.cli.query:main"
+instalf        = "instal.cli.filter:main"
 instalr        = "instal.cli.reporter:main"
 
 [project.gui-scripts]

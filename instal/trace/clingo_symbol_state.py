@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import logging as logmod
 
-import simplejson as json
 from clingo import Symbol, SymbolType, parse_term
 from instal.interfaces.solver import InstalModelResult
 from instal.interfaces.trace import State_i

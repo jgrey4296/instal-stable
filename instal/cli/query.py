@@ -156,11 +156,7 @@ def main():
             case False:
                 trace_s = repr(trace)
             case True:
-                data_dict = trace.to_json()
-                data_dict['metadata']['filename'] = current_filename
-                trace_s = dumps(data_dict,
-                                sort_keys=True,
-                                indent=4)
+                trace_s = trace.to_json(current_filename)
 
         with open(option_group.output / current_filename, 'w') as f:
             f.write(trace_s)

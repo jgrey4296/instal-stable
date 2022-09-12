@@ -4,8 +4,8 @@ from __future__ import annotations
 import logging as logmod
 from dataclasses import replace
 
+import re
 import instal.interfaces.ast as iAST
-import simplejson as json
 from clingo import Symbol
 from instal.interfaces.solver import InstalModelResult
 from instal.interfaces.trace import State_i
@@ -122,5 +122,27 @@ class InstalASTState(State_i):
 
 
 
-    def filter(self, *args):
-        return False
+    def filter(self, allow:list[Any], reject:list[Any]) -> State_i:
+
+        allow_re  = re.compile("|".join(allow)) if bool(allow) else None
+        reject_re = re.compile("|".join(reject)) if bool(reject) else None
+
+        new_state = InstalASTState(self.timestep)
+
+        for term in self:
+            allowed, rejected = False, True
+            term_s = str(term)
+            logging.info("Testing: %s", term_s)
+            if not allow_re or allow_re.search(term_s):
+                logging.info("Term Passed")
+                allowed = True
+
+            if not reject_re or not reject_re.search(term_s):
+                logging.info("Term not Rejected")
+                rejected = False
+
+            if allowed and not rejected:
+                logging.info("Inserting Term")
+                new_state.insert(term)
+
+        return new_state

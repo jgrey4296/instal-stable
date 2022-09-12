@@ -5,7 +5,9 @@
 ##-- imports
 from __future__ import annotations
 
+import sys
 import abc
+import json
 import logging as logmod
 from copy import deepcopy
 from dataclasses import InitVar, dataclass, field
@@ -18,7 +20,6 @@ from uuid import UUID, uuid1
 from weakref import ref
 
 import instal.interfaces.ast as iAST
-import simplejson as json
 from clingo import Symbol, SymbolType
 from instal.interfaces.solver import InstalModelResult
 from instal.interfaces.trace import State_i, Trace_i
@@ -102,7 +103,7 @@ class InstalTrace(Trace_i):
         result.append(f"Cost  : {self.metadata['cost']}")
         result.append(f"Length: {self.metadata['model_length']}")
         result.append("")
-        for state in self[:]:
+        for state in self:
             result.append(str(state))
 
         return "\n".join(result)
@@ -111,13 +112,15 @@ class InstalTrace(Trace_i):
         # Used for test cases.
         pass
 
-    def to_json(self) -> List[Dict]:
+    def to_json(self, filename=None) -> List[Dict]:
         trace_obj = {
             "metadata" : self.metadata,
-            "states"   : [s.to_json() for s in self[:]]
+            "states"   : [s.to_json() for s in self]
             }
+        if filename is not None:
+            trace_obj['metadata']['filename'] = str(filename)
 
-        return trace_obj
+        return json.dumps(trace_obj, sort_keys=True, indent=4)
 
 
     def meets(self, conditions:list) -> bool:
@@ -138,5 +141,15 @@ class InstalTrace(Trace_i):
             errors += self.trace[i + offset].check_trace_for(conditions[i], verbose)
         return bool(errors)
 
-    def filter(self, *args):
-        return False
+    def filter(self, allow:list[str], reject:list[str], start:None|int=None, end:None|int=None) -> Trace_i:
+        logging.info("Filtering")
+        start           = start or 0
+        end             = end if (end is not None) else -1
+        end_proper      = end if end > -1 else sys.maxsize
+
+        in_range        = [x for x in self if x.timestep >= start and x.timestep <= end_proper]
+        filtered_states = [x.filter(allow, reject) for x in in_range] if allow or reject else in_range
+
+        filtered_trace  = InstalTrace(filtered_states, metadata=self.metadata.copy())
+
+        return filtered_trace
