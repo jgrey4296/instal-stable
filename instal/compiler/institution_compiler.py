@@ -10,12 +10,17 @@ from instal.interfaces.compiler import InstalCompiler_i
 from instal.interfaces import ast as IAST
 from instal.compiler.util import CompileUtil
 from instal.compiler.situation_compiler import InstalSituationCompiler
-from instal.defaults import INSTITUTION_DATA_loc, BRIDGE_DATA_loc, DATA_loc
+from instal.defaults import INSTITUTION_DATA_loc, BRIDGE_DATA_loc, DATA_loc, STANDARD_PRELUDE_loc
 
 ##-- end imports
 
 ##-- resources
 data_path   = files(DATA_loc)
+try:
+    inst_prelude = files(STANDARD_PRELUDE_loc)
+except ModuleNotFoundError:
+    inst_prelude = data_path / STANDARD_PRELUDE_loc
+
 inst_data   = files(INSTITUTION_DATA_loc)
 bridge_data = files(BRIDGE_DATA_loc)
 
@@ -60,6 +65,18 @@ class InstalInstitutionCompiler(InstalCompiler_i):
     """
     """
 
+    def load_prelude(self) -> str:
+        text = []
+        if inst_prelude.is_dir():
+            for path in sorted(inst_prelude.iterdir()):
+                text += path.read_text().split("\n")
+        else:
+            assert(inst_prelude.is_file())
+            text.append(inst_prelude.read_text())
+
+        text.append("%% End of Prelude")
+
+        return "\n".join(text)
     def compile(self, ial: IAST.InstitutionDefAST) -> str:
         logging.debug("Compiling Institution")
         assert(isinstance(ial, IAST.InstitutionDefAST))
