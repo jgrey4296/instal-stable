@@ -10,3 +10,4 @@ instal_tmp
 .venv
 .dir-locals.el
 *.auctex
+*.auctex-auto
