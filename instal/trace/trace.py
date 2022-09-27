@@ -8,6 +8,7 @@ from __future__ import annotations
 import sys
 import abc
 import json
+from collections import defaultdict
 import logging as logmod
 from copy import deepcopy
 from dataclasses import InitVar, dataclass, field
@@ -75,10 +76,16 @@ class InstalTrace(Trace_i):
         metadata['optimal']        = model.optimal
         metadata['model_length']   = steps
         metadata['instal_files']   = [str(x) for x in sources or []]
+        metadata['institutions']  = []
 
+        i_set : set[str] = set()
         states   = [InstalTrace.state_constructor(i)
                     for i in range(steps + 1)]
         for term in model.shown:
+            if term.name == "inst":
+                i_set.add(str(term.arguments[0]))
+                continue
+
             # Get the step
             match term.arguments[-1]:
                 case int() as x if x < len(state):
@@ -92,6 +99,7 @@ class InstalTrace(Trace_i):
             state.insert(term)
 
         # Wrap as a trace
+        metadata['institutions'] += list(i_set)
         trace = InstalTrace(states, metadata=metadata)
         return trace
 
@@ -123,24 +131,8 @@ class InstalTrace(Trace_i):
         return json.dumps(trace_obj, sort_keys=True, indent=4)
 
 
-    def meets(self, conditions:list) -> bool:
-        pass
     def check(self, conditions:list) -> bool:
-        """
-        A wrapper for check_trace_for that checks if the length of the trace and conditions are the same.
-        """
-        errors = 0
-        if len(self.trace) == len(conditions):
-            offset = 0
-        elif len(self.trace) == len(conditions) + 1:
-            offset = 1
-        else:
-            raise Exception("Trace_i given not long enough. (Trace_i: {}, conditions: {})".format(
-                len(self.trace), len(conditions)))
-        for i in range(0, len(conditions)):
-            errors += self.trace[i + offset].check_trace_for(conditions[i], verbose)
-        return bool(errors)
-
+        pass
     def filter(self, allow:list[str], reject:list[str], start:None|int=None, end:None|int=None) -> Trace_i:
         logging.info("Filtering")
         start           = start or 0
@@ -153,3 +145,26 @@ class InstalTrace(Trace_i):
         filtered_trace  = InstalTrace(filtered_states, metadata=self.metadata.copy())
 
         return filtered_trace
+
+
+    def fluent_intervals(self) -> list[tuple[str, int, int]]:
+        """
+        Convert the Trace's individual timesteps
+        into a set of intervals for each fluent.
+        [fluent: TermAST, stepOn:int, stepOff:int]
+        """
+        results  = []
+        # dict to track when a fluent enters and exits
+        tracking : dict[str, list] = {}
+
+        for state in self:
+            curr_time = state.timestep
+            for fluent in state.fluents:
+                key = str(fluent.params[0])
+                match key in tracking:
+                    case False:
+                        tracking[key] = [fluent, curr_time, curr_time]
+                    case True:
+                        tracking[key][-1] = curr_time
+
+        return list(tracking.values())

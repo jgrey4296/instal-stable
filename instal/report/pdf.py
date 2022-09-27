@@ -1,22 +1,19 @@
+
 ##-- imports
 from __future__ import annotations
 
-from string import Template
 import logging as logmod
 from collections import defaultdict
-from string import ascii_uppercase
+from importlib.resources import files
+from string import Template, ascii_uppercase
 
-from instal.interfaces.reporter import InstalReporter_i
 from instal.defaults import STATE_HOLDSAT_GROUPS, TEX_loc
+from instal.interfaces.reporter import InstalReporter_i
 ##-- end imports
 
 ##-- logging
 logging = logmod.getLogger(__name__)
 ##-- end logging
-
-##-- imports
-from importlib.resources import files
-##-- end imports
 
 ##-- data
 data_path       = files("instal.__data")
