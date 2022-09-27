@@ -14,7 +14,7 @@ from typing import IO, List
 import clingo
 import instal
 from clingo import Control, Function, Number, Symbol, parse_term
-from instal.interfaces.ast import InitiallyAST, TermAST, QueryAST, DomainSpecAST
+from instal.interfaces.ast import InitiallyAST, TermAST, QueryAST, DomainSpecAST, InstalAST
 from instal.interfaces.solver import SolverWrapper_i, InstalModelResult
 
 ##-- end imports
@@ -93,28 +93,32 @@ class ClingoSolver(SolverWrapper_i):
 
         logging.info("Clingo initialization complete")
 
-    def solve(self, events:None|list[QueryAST|Symbol]=None, situation:None|list[QueryAST|Symbol]=None, fresh=False) -> int:
-        events    = events or []
+    def solve(self, events:None|list[str|QueryAST|Symbol]=None, situation:None|list[str|InitiallyAST|Symbol]=None, fresh=False) -> int:
+        events    = events    or []
         situation = situation or []
 
         if fresh:
             self.init_solver()
 
+        logging.debug("Grounding Program")
+        self.ctl.ground([("base", [])])
+
         for x in (situation + events):
             logging.debug("assigning: %s", x)
             match x:
-                case TermAST():
+                case InstalAST():
                     for sym in self.ast_to_clingo(x):
                         self.ctl.assign_external(sym, True)
                 case Symbol():
                     self.ctl.assign_external(x, True)
+                case str():
+                    self.ctl.assign_external(parse_term(x), True)
                 case _:
                     raise Exception("Unrecognized situation fact")
 
         on_model_cb = partial(model_cb, self)
 
-        logging.debug("Grounding Program")
-        self.ctl.ground([("base", [])])
+
         logging.info("Running Program")
         self.ctl.solve(on_model=on_model_cb)
 
@@ -144,13 +148,13 @@ class ClingoSolver(SolverWrapper_i):
                 case InitiallyAST():
                     assert(not bool(ast.conditions))
                     for fact in ast.body:
-                        results.append(Function("holdsat",
+                        results.append(Function("extHoldsat",
                                                 [parse_term(str(fact)),
-                                                 Function(ast.inst)]))
+                                                 parse_term(str(ast.inst))]))
                 case QueryAST():
                     time = ast.time if ast.time else 0
-                    event = parse_term(str(ast.head)) + [Number(time)]
-                    results.append(Function("extObserved", event))
+                    event = parse_term(str(ast.head))
+                    results.append(Function("extObserved", [event, Number(time)]))
                     results.append(Function("_eventSet", [Number(time)]))
 
                 case DomainSpecAST():
@@ -161,6 +165,8 @@ class ClingoSolver(SolverWrapper_i):
 
                 case TermAST():
                     results.append(parse_term(str(ast)))
+                case _:
+                    raise Exception("Unrecognised AST sent to solver: ", ast)
 
 
         return results

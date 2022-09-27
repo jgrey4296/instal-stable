@@ -36,7 +36,6 @@ INITIAL_FACT   = Template((inst_data   / "initial_fact_pattern.lp").read_text())
 EXO_EV         = Template((inst_data   / "exogenous_event_pattern.lp").read_text())
 INST_EV        = Template((inst_data   / "inst_event_pattern.lp").read_text())
 VIOLATION_EV   = Template((inst_data   / "violation_event_pattern.lp").read_text())
-NULL_EV        = Template((inst_data   / "null_event_pattern.lp").read_text())
 
 IN_FLUENT      = Template((inst_data   / "inertial_fluent_pattern.lp").read_text())
 NONIN_FLUENT   = Template((inst_data   / "noninertial_fluent_pattern.lp").read_text())
@@ -68,7 +67,7 @@ class InstalInstitutionCompiler(InstalCompiler_i):
     def load_prelude(self) -> str:
         text = []
         if inst_prelude.is_dir():
-            for path in sorted(inst_prelude.iterdir()):
+            for path in sorted(x for x in inst_prelude.iterdir() if x.name != ".DS_Store"):
                 text += path.read_text().split("\n")
         else:
             assert(inst_prelude.is_file())
@@ -135,8 +134,6 @@ class InstalInstitutionCompiler(InstalCompiler_i):
                         event=CompileUtil.compile_term(event.head),
                         inst=CompileUtil.compile_term(inst.head),
                         rhs=rhs)
-
-        self.insert(NULL_EV, inst=CompileUtil.compile_term(inst.head))
 
     def compile_fluents(self, inst):
         logging.debug("Compiling Fluents")

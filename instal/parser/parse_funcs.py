@@ -99,11 +99,12 @@ def build_fluent(string, loc, toks) -> ASTs.FluentAST:
             annotation = ASTs.FluentEnum.noninertial
         case "obligation":
             annotation = ASTs.FluentEnum.obligation
-            assert(len(head.params) == 3), "Obligation Fluents need a requirement, deadline, and violation"
+            assert(len(head.params) == 4), "Obligation Fluents need a requirement, deadline, violation, and repeat"
         case _:
             annotation = ASTs.FluentEnum.inertial
 
     return ASTs.FluentAST(head, annotation)
+
 
 def build_event(string, loc, toks) -> ASTs.EventAST:
     head     = toks['head']
@@ -234,9 +235,9 @@ IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body']], t.
 ##-- end iaf facts / situation
 
 ##-- iaq query specification
-OBSERVED = s_kw('observed') + TERM('fact') + in_inst + op(s_kw('at') + pp.common.integer('time')) + pp.line_end
+OBSERVED = s_kw('observed') + TERM('fact') + op(s_kw('at') + pp.common.integer('time')) + pp.line_end
 # OBSERVED.set_parse_action(lambda s, l, t: breakpoint())
-OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'], inst=t.inst, time=t.time if t.time != '' else None))
+OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'], time=t.time if t.time != '' else None))
 ##-- end iaq query specification
 
 ##-- top level parser entry points

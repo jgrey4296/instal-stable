@@ -154,7 +154,6 @@ class DomainSpecAST(InstalAST):
 @dataclass(frozen=True)
 class QueryAST(InstalAST):
     head : TermAST      = field()
-    inst : None|TermAST = field(default=None)
     time : None|int     = field(default=None)
 
 @dataclass(frozen=True)

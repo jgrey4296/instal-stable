@@ -33,7 +33,6 @@ INITIAL_FACT   = Template((inst_data   / "initial_fact_pattern.lp").read_text())
 EXO_EV         = Template((inst_data   / "exogenous_event_pattern.lp").read_text())
 INST_EV        = Template((inst_data   / "inst_event_pattern.lp").read_text())
 VIOLATION_EV   = Template((inst_data   / "violation_event_pattern.lp").read_text())
-NULL_EV        = Template((inst_data   / "null_event_pattern.lp").read_text())
 
 IN_FLUENT      = Template((inst_data   / "inertial_fluent_pattern.lp").read_text())
 NONIN_FLUENT   = Template((inst_data   / "noninertial_fluent_pattern.lp").read_text())
