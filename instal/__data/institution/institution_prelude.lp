@@ -5,9 +5,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #program base.
 
-% Rules for Institution ${institution} %
+% Basic Fact for Institution ${institution} %
 inst(${institution}).
-ifluent(live(${institution}), ${institution}).
-fluent(live(${institution}), ${institution}).
 
 :- not _preludeLoaded.
