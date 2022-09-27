@@ -19,7 +19,6 @@ from instal.report.gantt import InstalGanttReporter
 from instal.report.pdf import InstalPDFReporter
 from instal.report.text import InstalTextReporter
 from instal.trace.trace import InstalTrace
-from instal.util.misc import InstalOptionGroup
 
 ##-- end imports
 
@@ -100,6 +99,7 @@ def filter_loop(trace):
                 case "i":
                     print("Trace Length       : ", len(current))
                     print("Available Timesteps: ", ", ".join(str(x) for x in current.timesteps))
+                    print("Institutions       : ", ", ".join(current.metadata['institutions']))
                     input()
                 case "t":
                     step = int(last_command[1:])
@@ -156,14 +156,13 @@ def main():
     args       = parser.parse_args()
     assert(not (args.interactive and (args.blacklist or args.whitelist))), "Either use a black/whitelist or use interactive."
 
+    # Set Logging level
+    console_handler.setLevel(max(logmod.NOTSET, logmod.WARNING - (10 * self.verbose)))
+
     trace_path = pathlib.Path(args.target).expanduser().resolve()
     assert(trace_path.exists())
     assert(trace_path.suffix == ".json"), "You must specify a json trace to load"
 
-    option_group = InstalOptionGroup(verbose=args.verbose,
-                                     output=pathlib.Path(args.output if args.output else "instal_tmp").expanduser().resolve(),
-                                     )
-    logging.setLevel(option_group.loglevel)
 
     logging.info("Loading Trace: %s", trace_path)
     trace = InstalTrace.from_json(json.loads(trace_path.read_text()))
@@ -172,7 +171,7 @@ def main():
         filter_loop(trace)
         exit()
 
-
+    # Run a single filter
     filtered = trace.filter(args.whitelist or [], args.blacklist or [],
                             start=args.start, end=args.end)
     print("Filtered Trace: ")

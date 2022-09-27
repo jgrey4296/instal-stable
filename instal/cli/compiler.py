@@ -28,6 +28,8 @@ from instal.compiler.institution_compiler import InstalInstitutionCompiler
 from instal.compiler.query_compiler import InstalQueryCompiler
 from instal.compiler.situation_compiler import InstalSituationCompiler
 
+from instal.checkers.institution_checker import InstitutionChecker
+
 ##-- end imports
 
 ##-- Logging
@@ -40,11 +42,12 @@ argparser.add_argument('-t', '--target', help="Specify (multiple) files and dire
 argparser.add_argument('-o', '--output')
 argparser.add_argument("-v", "--verbose", action='count', help="increase verbosity of logging (repeatable)")
 argparser.add_argument('-d', '--debug', action="store_true")
+argparser.add_argument('-c', '--check', action="store_true")
 argparser.add_argument('--noprint', action="store_true")
 
 ##-- end argparse
 
-def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False) -> list[str]:
+def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, check=False) -> list[str]:
     """
     Compile targets (an explicit list, will not search or handle directories)
     using the default pyparsing parser.
@@ -68,37 +71,45 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False) 
     for target in targets:
         logging.info("Reading %s", str(target))
         # read the target
-        text = target.read_text()
+        compiler = None
+        parse_fn = None
+        checker  = None
+        text     = target.read_text()
+
+        ##-- match
         match target.suffix:
             case defaults.INST_EXT:
-                ast          = parser.parse_institution(text, parse_source=target)
-                compiler     = InstalInstitutionCompiler()
-                compiled     = compiler.compile(ast)
-                prelude_text = compiler._load_prelude() if with_prelude else ""
-                output.append(prelude_text)
-                output.append(compiled)
+                parse_fn = parser.parse_institution
+                checker  = InstitutionChecker()
+                compiler = InstalInstitutionCompiler()
             case defaults.BRIDGE_EXT:
-                ast          = parser.parse_bridge(text, parse_source=target)
-                compiler     = InstalBridgeCompiler()
-                compiled     = compiler.compile(ast)
-                output.append(compiled)
+                parse_fn = parser.parse_bridge
+                compiler = InstalBridgeCompiler()
             case defaults.QUERY_EXT:
-                ast          = parser.parse_query(text, parse_source=target)
-                compiler     = InstalQueryCompiler()
-                compiled     = compiler.compile(ast)
-                output.append(compiled)
+                parse_fn = parser.parse_query
+                compiler = InstalQueryCompiler()
             case defaults.DOMAIN_EXT:
-                ast      = parser.parse_domain(text, parse_source=target)
+                parse_fn = parser.parse_domain
                 compiler = InstalDomainCompiler()
-                compiled = compiler.compile(ast)
-                output.append(compiled)
             case defaults.SITUATION_EXT:
-                ast          = parser.parse_situation(text, parse_source=target)
-                compiler     = InstalSituationCompiler()
-                compiled     = compiler.compile(ast)
-                output.append(compiled)
+                parse_fn = parser.parse_situation
+                compiler = InstalSituationCompiler()
             case _:
                 logging.warning("Unrecognized compilation target: %s", target)
+                continue
+
+
+        ##-- end match
+
+        if with_prelude:
+            output.append(compiler.load_prelude())
+
+        ast          = parse_fn(text, parse_source=target)
+        if check and checker:
+            checker.check(ast)
+
+        compiled     = compiler.compile(ast)
+        output.append(compiled)
 
     logging.info("Parse and Compilation Finished")
     return output
@@ -108,7 +119,7 @@ def main():
     DISPLAY_LEVEL = logmod.DEBUG
     LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
     LOG_FORMAT    = "%% %(levelname)8s | %(message)s"
-    FILE_FORMAT    = "%(asctime)s | %(levelname)8s | %(message)s"
+    FILE_FORMAT   = "%(asctime)s | %(levelname)8s | %(message)s"
     FILE_MODE     = "w"
     STREAM_TARGET = stdout
 
@@ -127,8 +138,9 @@ def main():
     ##-- end logging
 
     args      = argparser.parse_args()
-    verbosity = max(logmod.DEBUG, logmod.WARNING - (10 * (args.verbose or 0)))
-    console_handler.setLevel(verbosity)
+
+    # Set Logging Level
+    console_handler.setLevel(max(logmod.NOTSET, logmod.WARNING - (10 * (args.verbose or 0))))
 
     args.target = pathlib.Path(args.target)
     if args.target.is_file():
@@ -136,13 +148,12 @@ def main():
     else:
         targets = list(args.target.iterdir())
 
-    result = compile_target(targets, args.debug, with_prelude=True)
+    result = compile_target(targets, args.debug, with_prelude=True, check=args.check)
 
     if args.output:
         logging.info("Writing to Output: %s", args.output)
         with open(pathlib.Path(args.output), 'w') as f:
             f.write("\n".join(result))
-
 
     if not args.noprint:
         print("\n".join(result))

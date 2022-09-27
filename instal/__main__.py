@@ -23,9 +23,10 @@ logging = logmod.getLogger(__name__)
 def main():
     print("Instal: An Institutional Action Language")
     print("CLI:")
-    print("instalc: The Compiler")
-    print("instalq: Run a Query")
-    print("instalr: Generate a Trace Report")
+    print("instalc: Compiler for Instal DSL -> Clingo.")
+    print("instalq: Run a Query, generating traces.")
+    print("instalf: Filter a trace.")
+    print("instalr: Generate a Trace Report.")
 
 
 if __name__ == "__main__":

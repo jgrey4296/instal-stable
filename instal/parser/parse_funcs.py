@@ -147,7 +147,7 @@ def build_relation(string, loc, toks) -> ASTs.RelationalAST:
 ##-- end constructors
 
 ##-- term parser
-name = pp.Word(pp.alphanums + "_")
+name = pp.Word(pp.alphas.lower(), pp.alphanums + "_")
 name.set_parse_action(lambda s, l, t: (False, t[0]))
 name.set_name("name")
 # TODO: handle explicit type annotation

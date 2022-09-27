@@ -17,7 +17,6 @@ from instal.report.gantt import InstalGanttReporter
 from instal.report.pdf import InstalPDFReporter
 from instal.report.text import InstalTextReporter
 from instal.trace.trace import InstalTrace
-from instal.util.misc import InstalOptionGroup
 
 ##-- end imports
 
@@ -57,15 +56,14 @@ def main():
     logging = logger
     ##-- end Logging
 
-    args = parser.parse_args()
+    args       = parser.parse_args()
     trace_path = pathlib.Path(args.target).expanduser().resolve()
+    output     = pathlib.Path(args.output if args.output else "instal_tmp").expanduser().resolve(),
     assert(trace_path.exists())
     assert(trace_path.suffix == ".json")
 
-    option_group = InstalOptionGroup(verbose=args.verbose,
-                                     output=pathlib.Path(args.output if args.output else "instal_tmp").expanduser().resolve(),
-                                     )
-    logging.setLevel(option_group.loglevel)
+    # Set Logging level
+    console_handler.setLevel(max(logmod.NOTSET, logmod.WARNING - (10 * self.verbose)))
 
     logging.info("Loading Trace: %s", trace_path)
     trace = InstalTrace.from_json(json.loads(trace_path.read_text()))
@@ -73,17 +71,17 @@ def main():
     if args.gantt:
         logging.info("Building Gantt Report")
         instal_gantt_reporter = InstalGanttReporter()
-        instal_gantt_reporter.trace_to_file(trace, option_group.output / "gantt_report.tex")
+        instal_gantt_reporter.trace_to_file(trace, output / "gantt_report.tex")
 
     if args.pdf:
         logging.info("Building Pdf Report")
         instal_pdf_reporter = InstalPDFReporter()
-        instal_pdf_reporter.trace_to_file(trace, option_group.output / "pdf_report.tex")
+        instal_pdf_reporter.trace_to_file(trace, output / "pdf_report.tex")
 
     if args.text or not (args.gantt or args.pdf):
         logging.info("Building Text Report")
         instal_text_reporter = InstalTextReporter()
-        instal_text_reporter.trace_to_file(trace, option_group.output / "text_report.txt")
+        instal_text_reporter.trace_to_file(trace, output / "text_report.txt")
 
 
 if __name__ == "__main__":

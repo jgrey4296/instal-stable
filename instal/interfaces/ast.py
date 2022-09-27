@@ -74,6 +74,9 @@ class TermAST(InstalAST):
         return str(self.value)
 
     def __eq__(self, other):
+        if not isinstance(other, TermAST):
+            return False
+
         if not self.value == other.value:
             return False
 

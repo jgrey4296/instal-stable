@@ -138,12 +138,12 @@ class Trace_i(Sequence):
     def __repr__(self): pass
 
     @abc.abstractmethod
-    def meets(self, conditions:list) -> bool: pass
-    @abc.abstractmethod
     def check(self, conditions:list) -> bool: pass
     @abc.abstractmethod
     def to_json(self, filename=None) -> str: pass
 
-
     @abc.abstractmethod
     def filter(self, allow:list[str], reject:list[str], start:None|int=None, end:None|int=None) -> Trace_i: pass
+
+    @abc.abstractmethod
+    def fluent_intervals(self) -> list[tuple[str, int, int]]: pass

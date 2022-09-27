@@ -12,6 +12,7 @@ from instal import defaults
 
 logging = logmod.getLogger(__name__)
 
+
 @dataclass
 class InstalFileGroup:
     institutions : list[Path] = field(default_factory=list)
@@ -80,40 +81,4 @@ class InstalFileGroup:
 
     def get_compiled(self):
         return self.compiled
-
-@dataclass
-class InstalOptionGroup:
-    verbose    : int       = field(default=0)
-    answer_set : int       = field(default=0)
-    length     : int       = field(default=1)
-    number     : int       = field(default=1)
-
-    output     : None|Path = field(default=None)
-    json       : bool      = field(default=False)
-    gantt      : bool      = field(default=False)
-    text       : bool      = field(default=True)
-    trace      : Any       = field(default=None)
-    loglevel   : int       = field(default=logmod.WARNING)
-
-    def __post_init__(self):
-        # set the log verbosity,
-        # create output dir's as necessary
-        self.verbose = self.verbose or 0
-        instal_root  = logmod.getLogger("instal")
-        max_level    = logmod.ERROR
-        active_level = logmod.WARNING - (10 * self.verbose)
-
-        self.loglevel = max(logmod.NOTSET, active_level)
-
-        if self.output is None:
-            logging.warning("No Output directory specified")
-        else:
-            if self.output.exists():
-                assert(self.output.is_dir())
-            else:
-                logging.info("Making Output Directory: %s", self.output)
-                self.output.mkdir(parents=True)
-
-            assert(self.json or self.gantt or self.text), "No Output option selected"
-
 
