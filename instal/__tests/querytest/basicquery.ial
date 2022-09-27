@@ -1,5 +1,0 @@
-institution query;
-
-type Foo;
-
-exogenous event ex(Foo);

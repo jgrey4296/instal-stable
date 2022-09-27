@@ -1,3 +1,0 @@
-initially(perm(ex_multiple),fluentchange)
-initially(perm(in_multiple),fluentchange)
-initially(pow(ex_multiple),fluentchange)

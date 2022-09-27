@@ -1,3 +1,0 @@
-initially(perm(ex_condition),fluentchange)
-initially(perm(in_condition),fluentchange)
-initially(pow(ex_condition),fluentchange)

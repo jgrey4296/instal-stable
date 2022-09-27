@@ -1,1 +1,0 @@
-nosetests --processes=3 --process-timeout=1000 --process-restartworker
