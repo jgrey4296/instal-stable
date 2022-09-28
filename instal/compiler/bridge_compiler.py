@@ -61,11 +61,18 @@ class InstalBridgeCompiler(InstalInstitutionCompiler, InstalCompiler_i):
     """
     """
 
-    def compile(self, iab: IAST.BridgeDefAST) -> str:
+    def compile(self, iabs: list[IAST.BridgeDefAST]) -> str:
+        logging.debug("Compiling %s Bridges", len(ials))
+        self.clear()
+        for iab in iabs:
+            self.compile_bridge(iab)
+
+        return self.compilation
+
+    def compile_bridge(self, iab):
         assert(isinstance(iab, IAST.BridgeDefAST))
         assert(len(iab.sources) == 1)
         assert(len(iab.sinks) == 1)
-        self.clear()
         self.insert(BRIDGE_PRELUDE,
                     bridge=CompileUtil.compile_term(iab.head),
                     source=CompileUtil.compile_term(iab.sources[0]),
@@ -77,16 +84,12 @@ class InstalBridgeCompiler(InstalInstitutionCompiler, InstalCompiler_i):
         self.compile_fluents(iab)
 
         self.insert(HEADER, header='Part 2: Generation and Consequence', sub="")
-        self.compile_generation(iab)
-        self.compile_nif_rules(iab)
+        self.compile_rules(iab)
 
         self.insert(HEADER, header='Part 3: Initial Situation Specification', sub="")
         situation          = InstalSituationCompiler()
-        compiled_situation = situation.compile(IAST.FactTotalityAST(iab.initial), iab, header=False)
+        compiled_situation = situation.compile(iab.initial, iab, header=False)
         self.insert(compiled_situation)
 
         self.compile_types(iab.types)
         self.insert("%% End of {bridge}", bridge=CompileUtil.compile_term(iab.head))
-
-        return "\n".join(self._compiled_text)
-

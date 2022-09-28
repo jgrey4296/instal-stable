@@ -1,24 +1,33 @@
 %%-- obligation rules
 % obligation completion are institutional events:
-eventType(obl(O), Ins, inst) :- ofluent(obl(O, _, _, _), Ins).
+eventType(obligation(O), Ins, inst) :- obligationalFluent(obligation(O, _, _, _), Ins).
 % As are violations:
-eventType(viol(V), Ins, viol) :- ofluent(obl(_, _, V, _), Ins).
+eventType(violation(V), Ins, viol)  :- obligationalFluent(obligation(_, _, V, _), Ins).
 
 % Initiation?
 
 % An obligation terminates if it holds when it reaches its deadline
-terminated(obl(O, I, V, R), Ins, I) :- inst(Ins), instant(I), holdsat(obl(O, I, V, R), Ins, I).
+terminated(obligation(O, I, V, R), Ins, I) :- instant(I),
+                                              institution(Ins),
+                                              holdsat(obligation(O, I, V, R), Ins, I).
 
 % An obligation terminates once its obligation is completed before its deadline
 % *if* it is oneshot
-terminated(obl(O, D, V, oneshot), Ins, I) :- instant(I), inst(Ins), event(obl(O)),  occurred(obl(O), Ins, I), holdsat(obl(O, D, V, oneshot), Ins, I).
+terminated(obligation(O, D, V, oneshot), Ins, I) :- instant(I),
+                                                    institution(Ins),
+                                                    event(obligation(O)),
+                                                    occurred(obligation(O), Ins, I),
+                                                    holdsat(obligation(O, D, V, oneshot), Ins, I).
 
 % or an obligation terminates if it is violated,
 % *if* it is oneshot
-terminated(obl(O, D, V, oneshot), Ins, I) :- instant(I), inst(Ins), event(viol(V)), occurred(viol(V), Ins, I), holdsat(obl(O, D, V, oneshot), Ins, I).
+terminated(obligation(O, D, V, oneshot), Ins, I) :- instant(I),
+                                                    institution(Ins),
+                                                    event(violation(V)),
+                                                    occurred(violation(V), Ins, I),
+                                                    holdsat(obligation(O, D, V, oneshot), Ins, I).
 
 % reject all obligations that aren't well formed
-:- ofluent(obl(_, _, _, R), _), not obligation_types(R).
-
+:- obligationalFluent(obligation(_, _, _, R), _), not obligationTypes(R).
 
 %%-- end obligation rules

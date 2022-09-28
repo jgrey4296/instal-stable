@@ -21,11 +21,11 @@ from weakref import ref
 
 __all__ = [
     "EventEnum", "FluentEnum", "RelationalEnum", "InstalAST",
-    "TermAST", "ModelAST", "DomainTotalityAST", "QueryTotalityAST",
-    "FactTotalityAST", "TypeTotalityAST", "InstitutionDefAST",
+    "TermAST", "InstitutionDefAST",
     "BridgeDefAST", "DomainSpecAST", "QueryAST", "InitiallyAST",
     "TypeAST", "EventAST", "FluentAST", "ConditionAST",
-    "RelationalAST", "NifRuleAST", "SinkAST", "SourceAST",
+    "RuleAST", "GenerationRuleAST", "InertialRuleAST",
+    "TransientRuleAST", "SinkAST", "SourceAST",
 ]
 logging = logmod.getLogger(__name__)
 
@@ -37,17 +37,21 @@ class EventEnum(Enum):
 
 class FluentEnum(Enum):
     inertial    = auto()
-    noninertial = auto()
+    transient   = auto()
     obligation  = auto()
     cross       = auto()
 
-class RelationalEnum(Enum):
+class RuleEnum(Enum):
+    # Event:
     generates   = auto()
+    # Inertial:
     initiates   = auto()
     terminates  = auto()
     xgenerates  = auto()
     xinitiates  = auto()
     xterminates = auto()
+    # Transient:
+    transient   = auto()
 
 ##-- end enums
 
@@ -85,55 +89,15 @@ class TermAST(InstalAST):
 
 ##-- end core base asts
 
-##-- top level collection asts
-@dataclass(frozen=True)
-class ModelAST(InstalAST):
-    """
-    Combines institutions and bridges together
-    """
-    institutions : list[InstalAST] = field(default_factory=list)
-    bridges      : list[InstalAST] = field(default_factory=list)
-
-
-@dataclass(frozen=True)
-class DomainTotalityAST(InstalAST):
-    body : list[DomainSpecAST] = field(default_factory=list)
-
-    def __len__(self):
-        return len(self.body)
-
-@dataclass(frozen=True)
-class QueryTotalityAST(InstalAST):
-    body : list[QueryAST] = field(default_factory=list)
-
-    def __len__(self):
-        return len(self.body)
-
-@dataclass(frozen=True)
-class FactTotalityAST(InstalAST):
-    body : list[InitiallyAST] = field(default_factory=list)
-
-    def __len__(self):
-        return len(self.body)
-
-@dataclass(frozen=True)
-class TypeTotalityAST(InstalAST):
-    body : list[TypeAST] = field(default_factory=list)
-
-    def __len__(self):
-        return len(self.body)
-##-- end top level collection asts
-
 ##-- institutions and bridges
 @dataclass(frozen=True)
 class InstitutionDefAST(InstalAST):
-    head      : TermAST             = field()
-    fluents   : list[FluentAST]     = field(default_factory=list)
-    events    : list[EventAST]      = field(default_factory=list)
-    types     : list[TypeAST]       = field(default_factory=list)
-    relations : list[RelationalAST] = field(default_factory=list)
-    nif_rules : list[NifRuleAST]    = field(default_factory=list)
-    initial   : list[InitiallyAST]  = field(default_factory=list)
+    head            : TermAST                = field()
+    fluents         : list[FluentAST]        = field(default_factory=list)
+    events          : list[EventAST]         = field(default_factory=list)
+    types           : list[TypeAST]          = field(default_factory=list)
+    rules           : list[RuleAST]          = field(default_factory=list)
+    initial         : list[InitiallyAST]     = field(default_factory=list)
 
 @dataclass(frozen=True)
 class BridgeDefAST(InstitutionDefAST):
@@ -180,29 +144,6 @@ class FluentAST(InstalAST):
 
 
 @dataclass(frozen=True)
-class ConditionAST(InstalAST):
-    head     : TermAST      = field()
-    negated  : bool         = field(default=False)
-    operator : None|str     = field(default=None)
-    rhs      : None|TermAST = field(default=None)
-
-@dataclass(frozen=True)
-class RelationalAST(InstalAST):
-    """
-    for generation and consequence relations
-    """
-    head       : TermAST            = field()
-    annotation : RelationalEnum     = field()
-    body       : list[TermAST]      = field(default_factory=list)
-    conditions : list[ConditionAST] = field(default_factory=list)
-    delay      : int                = field(default=0)
-
-@dataclass(frozen=True)
-class NifRuleAST(InstalAST):
-    head : TermAST       = field()
-    body : list[ConditionAST] = field(default_factory=list)
-
-@dataclass(frozen=True)
 class SinkAST(InstalAST):
     head : TermAST = field()
 
@@ -211,3 +152,46 @@ class SourceAST(InstalAST):
     head : TermAST = field()
 
 ##-- end specialised asts
+
+##-- Rules
+@dataclass(frozen=True)
+class RuleAST(InstalAST):
+    head       : TermAST            = field()
+    body       : list[TermAST]      = field(default_factory=list)
+    conditions : list[ConditionAST] = field(default_factory=list)
+    delay      : int                = field(default=0)
+    annotation : RuleEnum           = field(kw_only=True)
+
+@dataclass(frozen=True)
+class GenerationRuleAST(RuleAST):
+    """
+    event generation rule
+    {head} generates {body} if {conditions}
+    """
+    pass
+
+@dataclass(frozen=True)
+class InertialRuleAST(RuleAST):
+    """
+    inertial fluent change rules
+    {head} initiates/terminates {body} if {conditions}
+    """
+    pass
+
+@dataclass(frozen=True)
+class TransientRuleAST(RuleAST):
+    """
+    transient fluent consequence rules
+    """
+    pass
+
+@dataclass(frozen=True)
+class ConditionAST(InstalAST):
+    """
+    Conditions for rules
+    """
+    head     : TermAST      = field()
+    negated  : bool         = field(default=False)
+    operator : None|str     = field(default=None)
+    rhs      : None|TermAST = field(default=None)
+##-- end Rules

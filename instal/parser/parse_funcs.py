@@ -46,11 +46,11 @@ ln.set_name("ln")
 comment = pp.Regex(r"%.+?\n")
 semi    = (lit(";") + pp.line_end).suppress()
 
-fluent_kws   = pp.MatchFirst(kw(x) for x in ["cross", "noninertial", "obligation"])
-event_kws    = pp.MatchFirst(kw(x) for x in ["exogenous", "inst", "violation"])
-relation_kws = pp.MatchFirst(kw(x) for x in ["generates", "initiates", "terminates",
-                                              "xgenerates", "xinitiates", "xterminates"])
-op_lits      = pp.MatchFirst(lit(x) for x in ["<=", ">=", "<>", "!=", "<", ">", "=", ])
+event_kws      = pp.MatchFirst(kw(x) for x in ["exogenous", "institutional", "violation", "ex", "inst", "viol"])
+fluent_kws     = pp.MatchFirst(kw(x) for x in ["cross", "noninertial", "obligation", "x", "transient", "obl"])
+generation_kws = pp.MatchFirst(kw(x) for x in ["generates", "xgenerates"])
+inertial_kws   = pp.MatchFirst(kw(x) for x in ["initiates", "terminates", "xinitiates", "xterminates"])
+op_lits        = pp.MatchFirst(lit(x) for x in ["<=", ">=", "<>", "!=", "<", ">", "=", ])
 
 ##-- end util
 
@@ -68,8 +68,8 @@ def build_institution(string, loc, toks):
                 inst.types.append(elem)
             case ASTs.RelationalAST():
                 inst.relations.append(elem)
-            case ASTs.NifRuleAST():
-                inst.nif_rules.append(elem)
+            case ASTs.TransientFluentRuleAST():
+                inst.transient_rules.append(elem)
             case ASTs.InitiallyAST():
                 inst.initial.append(elem)
             case ASTs.SourceAST():
@@ -96,7 +96,9 @@ def build_fluent(string, loc, toks) -> ASTs.FluentAST:
         case "cross":
             annotation = ASTs.FluentEnum.cross
         case "noninertial":
-            annotation = ASTs.FluentEnum.noninertial
+            annotation = ASTs.FluentEnum.transient
+        case "transient":
+            annotation = ASTs.FluentEnum.transient
         case "obligation":
             annotation = ASTs.FluentEnum.obligation
             assert(len(head.params) == 4), "Obligation Fluents need a requirement, deadline, violation, and repeat"
@@ -119,31 +121,56 @@ def build_event(string, loc, toks) -> ASTs.EventAST:
 
     return ASTs.EventAST(head, annotation)
 
-def build_relation(string, loc, toks) -> ASTs.RelationalAST:
+def build_generate_rule(string, loc, toks) -> ASTs.GenerationRuleAST:
     head       = toks['head']
     body       = toks['body'][:]
     conditions = toks['conditions'] if 'conditions' in toks else []
 
     match toks['annotation']:
         case "xgenerates":
-            annotation = ASTs.RelationalEnum.xgenerates
+            annotation = ASTs.RuleEnum.xgenerates
         case "generates":
-            annotation = ASTs.RelationalEnum.generates
-        case "xinitiates":
-            annotation = ASTs.RelationalEnum.xinitiates
-        case "initiates":
-            annotation = ASTs.RelationalEnum.initiates
-        case "xterminates":
-            annotation = ASTs.RelationalEnum.xterminates
-        case "terminates":
-            annotation = ASTs.RelationalEnum.terminates
+            annotation = ASTs.RuleEnum.generates
         case _:
             raise Exception("Not Recognised consequence relation: %s", toks['annotation'])
 
-    return ASTs.RelationalAST(head,
-                              annotation,
-                              body,
-                              conditions)
+    return ASTs.GenerationRuleAST(head,
+                                  body,
+                                  conditions
+                                  annotation=annotation
+                                  )
+
+
+    pass
+def build_inertial_rule(string, loc, toks) -> ASTs.InertialRuleAST:
+    head       = toks['head']
+    body       = toks['body'][:]
+    conditions = toks['conditions'] if 'conditions' in toks else []
+
+    match toks['annotation']:
+        case "xinitiates":
+            annotation = ASTs.RuleEnum.xinitiates
+        case "initiates":
+            annotation = ASTs.RuleEnum.initiates
+        case "xterminates":
+            annotation = ASTs.RuleEnum.xterminates
+        case "terminates":
+            annotation = ASTs.RuleEnum.terminates
+        case _:
+            raise Exception("Not Recognised consequence relation: %s", toks['annotation'])
+
+    return ASTs.InertialRuleAST(head,
+                                body,
+                                conditions,
+                                annotation=annotation
+                                )
+
+
+def build_transient_rule(string, loc, toks) -> ASTs.TransientRuleAST:
+    return ASTs.TransientRuleAST(toks['head'],
+                                 [],
+                                 toks['conditions'],
+                                 annotation=ASTs.RuleEnum.transient)
 
 ##-- end constructors
 
@@ -168,6 +195,37 @@ TERM.set_name("term")
 in_inst       = s_kw('in') + TERM('inst')
 ##-- end term parser
 
+##-- rules
+CONDITION   = op(kw("not"))("not") + TERM("head")
+CONDITION.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['head'], True if 'not' in t else False))
+CONDITION.set_name("condition")
+
+COMPARISON  = TERM("lhs") + op_lits("op") + TERM("rhs")
+COMPARISON.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['lhs'], False, operator=t['op'], rhs=t['rhs']))
+
+# TODO handle 'in {time}'
+CONDITIONS  = pp.delimited_list(op(ln) + (COMPARISON | CONDITION))
+
+GEN_RULE       = (TERM("head")
+               + generation_kws("annotation")
+               + term_list("body") + op(op(ln) + s_kw("if") + CONDITIONS)("conditions") + semi)
+GEN_RULE.set_parse_action(build_generate_rule)
+GEN_RULE.set_name("event generation rule")
+
+INERTIAL_RULE  = (TERM("head")
+               + inertial_kws("annotation")
+               + term_list("body") + op(op(ln) + s_kw("if") + CONDITIONS)("conditions") + semi)
+INERTIAL_RULE.set_parse_action(build_inertial_rule)
+INERTIAL_RULE.set_name("inertial fluent rule")
+
+TRANSIENT_RULE  = TERM("head") + s_kw("when") + CONDITIONS("conditions") + semi
+TRANSIENT_RULE.set_parse_action(build_transient_rule)
+TRANSIENT_RULE.set_name("transient rule")
+
+RULE = GEN_RULE | INERTIAL_RULE | TRANSIENT_RULE
+
+##-- end rules
+
 ##-- parser components
 TYPE_DEC    = s_kw("type") + TERM('head') + semi
 TYPE_DEC.set_parse_action(lambda s, l, t: ASTs.TypeAST(t['head']))
@@ -181,25 +239,6 @@ EVENT       = event_kws('annotation')  + s_kw("event")  + TERM("head") + semi
 EVENT.set_parse_action(build_event)
 EVENT.set_name("event")
 
-CONDITION   = op(kw("not"))("not") + TERM("head")
-CONDITION.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['head'], True if 'not' in t else False))
-CONDITION.set_name("condition")
-
-COMPARISON  = TERM("lhs") + op_lits("op") + TERM("rhs")
-COMPARISON.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['lhs'], False, operator=t['op'], rhs=t['rhs']))
-
-# TODO handle 'in {time}'
-CONDITIONS  = pp.delimited_list(op(ln) + (COMPARISON | CONDITION))
-
-RELATION    = (TERM("head")
-               + relation_kws("annotation")
-               + term_list("body") + op(op(ln) + s_kw("if") + CONDITIONS)("conditions") + semi)
-RELATION.set_parse_action(build_relation)
-RELATION.set_name("relation")
-
-NIF_RULE  = TERM("head") + s_kw("when") + CONDITIONS("body") + semi
-NIF_RULE.set_parse_action(lambda s, l, t: ASTs.NifRuleAST(t['head'], t['body'][:]))
-NIF_RULE.set_name("nif_rule")
 
 INITIALLY   = s_kw("initially") + term_list("body") + op(s_kw("if") + CONDITIONS)("conditions") + semi
 INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST(t['body'][:], t.conditions[:]))
@@ -241,40 +280,38 @@ OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'], time=t.time i
 ##-- end iaq query specification
 
 ##-- top level parser entry points
-top_institution = (INSTITUTION('head')
-                   + orm(ln
-                         | TYPE_DEC
-                         | EVENT
-                         | FLUENT
-                         | RELATION
-                         | NIF_RULE
-                         | INITIALLY) ('body'))
+institution_structure = (INSTITUTION('head')
+                         + zrm(ln
+                               | TYPE_DEC
+                               | EVENT
+                               | FLUENT
+                               | RULE
+                               | INITIALLY) ('body'))
+institution_structure.set_parse_action(build_institution)
 
-
+top_institution = orm(institution_structure)
 top_institution.ignore(comment)
-top_institution.set_parse_action(build_institution)
 
-top_bridge = (BRIDGE('head')
-              + orm(SOURCE
-                    | SINK
-                    | TYPE_DEC
-                    | EVENT
-                    | FLUENT
-                    | RELATION
-                    | NIF_RULE
-                    | INITIALLY)('body'))
+bridge_structure = (BRIDGE('head')
+                    + zrm(SOURCE
+                          | SINK
+                          | TYPE_DEC
+                          | EVENT
+                          | FLUENT
+                          | RULE
+                          | INITIALLY)('body'))
+
+bridge_structure.set_parse_action(build_institution)
+
+top_bridge = orm(bridge_structure)
 top_bridge.ignore(comment)
-top_bridge.set_parse_action(build_institution)
 
 top_fact = orm(IAF_INITIALLY)
 top_fact.ignore(comment)
-top_fact.set_parse_action(lambda s, l, t: ASTs.FactTotalityAST(t[:]))
 
 top_query = orm(OBSERVED)
 top_query.ignore(comment)
-top_query.set_parse_action(lambda s, l, t: ASTs.QueryTotalityAST(t[:]))
 
 top_domain = orm(DOMAIN_SPEC)
 top_domain.ignore(comment)
-top_domain.set_parse_action(lambda s, l, t: ASTs.DomainTotalityAST(t[:]))
 ##-- end top level parser entry points

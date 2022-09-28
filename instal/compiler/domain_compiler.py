@@ -44,20 +44,20 @@ HEADER         = Template((data_path   / "header_pattern").read_text())
 ##-- end resources
 
 class InstalDomainCompiler(InstalCompiler_i):
-    def compile(self, domain:IAST.DomainTotalityAST) -> str:
+    def compile(self, domain:list[IAST.DomainSpecAST]) -> str:
         """
 
         """
-        assert(all(isinstance(x, IAST.DomainSpecAST) for x in domain.body))
+        assert(all(isinstance(x, IAST.DomainSpecAST) for x in domain))
         self.clear()
         self.insert(HEADER, header="Domain Specification",
-                    sub=domain.sources_str)
+                    sub=domain[0].sources_str)
         self.insert("#program base.")
-        for assignment in domain.body:
+        for assignment in domain:
             wrapper = assignment.head.value.lower()
             for term in assignment.body:
                 assert(not bool(term.params))
                 term_str = CompileUtil.compile_term(term)
                 self.insert(f"{wrapper}({term_str}).")
 
-        return "\n".join(self._compiled_text)
+        return self.compilation

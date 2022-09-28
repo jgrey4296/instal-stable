@@ -24,6 +24,9 @@ class InstalCompiler_i(metaclass=abc.ABCMeta):
     def __init__(self):
         self._compiled_text : list[str] = []
 
+    @property
+    def compilation(self):
+        return "\n".join(self._compiled_text)
     def clear(self):
         self._compiled_text = []
 
@@ -47,4 +50,4 @@ class InstalCompiler_i(metaclass=abc.ABCMeta):
         return ""
 
     @abc.abstractmethod
-    def compile(self, data:ASTs.InstalAST) -> str: pass
+    def compile(self, data:list[ASTs.InstalAST]) -> str: pass

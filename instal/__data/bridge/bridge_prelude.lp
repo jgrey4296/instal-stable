@@ -6,7 +6,7 @@
 #program base.
 
 % bridge/3 (in standard prelude) is built from these:
-inst(${bridge}).
+institution(${bridge}).
 source(${source}, ${bridge}).
 sink(${sink}, ${bridge}).
 

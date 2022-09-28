@@ -1,2 +1,2 @@
 %% inertial fluent: ${fluent} %
-ifluent(${fluent}, ${inst}) :- ${rhs}.
+inertialFluent(${fluent}, ${inst}) :- ${rhs}.

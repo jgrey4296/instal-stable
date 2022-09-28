@@ -6,6 +6,6 @@
 #program base.
 
 % Basic Fact for Institution ${institution} %
-inst(${institution}).
+institution(${institution}).
 
 :- not _preludeLoaded.

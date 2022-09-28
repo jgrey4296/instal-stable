@@ -34,44 +34,44 @@ logging = logmod.getLogger(__name__)
 ##-- interface implementation
 class InstalPyParser(InstalParser_i):
 
-    def parse_institution(self, text:str, *, parse_source:str=None) -> ASTs.InstitutionDefAST:
+    def parse_institution(self, text:str, *, parse_source:str=None) -> list[ASTs.InstitutionDefAST]:
         """ Mainly for .ial's """
         logging.debug("Parsing Institution, parse_source: %s", parse_source)
-        result = PF.top_institution.parse_string(text, parse_all=True)[0]
+        result = PF.top_institution.parse_string(text, parse_all=True)[:]
         if parse_source is not None:
-            result.parse_source.append(parse_source)
+            [x.parse_source.append(parse_source) for x in result]
         return result
 
-    def parse_bridge(self, text:str, *, parse_source:str=None) -> ASTs.BridgeDefAST:
+    def parse_bridge(self, text:str, *, parse_source:str=None) -> list[ASTs.BridgeDefAST]:
         """ Mainly for .iab's """
         logging.debug("Parsing Bridge, parse_source: %s", parse_source)
-        result = PF.top_bridge.parse_string(text, parse_all=True)[0]
+        result = PF.top_bridge.parse_string(text, parse_all=True)[:]
         if parse_source is not None:
-            result.parse_source.append(parse_source)
+            [x.parse_source.append(parse_source) for x in result]
         return result
 
-    def parse_domain(self, text:str, *, parse_source:str=None) -> ASTs.DomainTotalityAST:
+    def parse_domain(self, text:str, *, parse_source:str=None) -> list[ASTs.DomainSpecAST]:
         """ For .idc's """
         logging.debug("Parsing Domain, parse_source: %s", parse_source)
-        result = PF.top_domain.parse_string(text, parse_all=True)[0]
+        result = PF.top_domain.parse_string(text, parse_all=True)[:]
         if parse_source is not None:
-            result.parse_source.append(parse_source)
+            [x.parse_source.append(parse_source) for x in result]
         return result
 
-    def parse_situation(self, text:str, *, parse_source:str=None) -> ASTs.FactTotalityAST:
+    def parse_situation(self, text:str, *, parse_source:str=None) -> list[ASTs.InitiallyAST]:
         """ Mainly for .iaf's """
         logging.debug("Parsing Situation, parse_source: %s", parse_source)
-        result = PF.top_fact.parse_string(text, parse_all=True)[0]
+        result = PF.top_fact.parse_string(text, parse_all=True)[:]
         if parse_source is not None:
-            result.parse_source.append(parse_source)
+            [x.parse_source.append(parse_source) for x in result]
         return result
 
-    def parse_query(self, text:str, *, parse_source:str=None) -> ASTs.QueryTotalityAST:
+    def parse_query(self, text:str, *, parse_source:str=None) -> list[ASTs.QueryAST]:
         """ Mainly for .iaq's """
         logging.debug("Parsing Query, parse_source: %s", parse_source)
-        result = PF.top_query.parse_string(text, parse_all=True)[0]
+        result = PF.top_query.parse_string(text, parse_all=True)[:]
         if parse_source is not None:
-            result.parse_source.append(parse_source)
+            [x.parse_source.append(parse_source) for x in result]
         return result
 
 ##-- end interface implementation

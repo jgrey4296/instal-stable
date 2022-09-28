@@ -45,15 +45,15 @@ INITIAL_FACT   = Template((inst_data   / "initial_fact_pattern.lp").read_text())
 ##-- end resources
 
 class InstalSituationCompiler(InstalCompiler_i):
-    def compile(self, facts:IAST.FactTotalityAST, inst:None|IAST.InstitutionDefAST=None, header=False):
-        assert(all(isinstance(x, IAST.InitiallyAST) for x in facts.body))
+    def compile(self, facts:list[IAST.InitiallyAST], inst:None|IAST.InstitutionDefAST=None, header=False):
+        assert(all(isinstance(x, IAST.InitiallyAST) for x in facts))
 
         if header:
             self.insert(HEADER, header="Initial Situation Specification",
-                        sub=facts.sources_str)
+                        sub=facts[0].sources_str)
 
         self.insert("#program base.")
-        for initial in facts.body:
+        for initial in facts:
             for state in initial.body:
                 if inst:
                     inst_head   = CompileUtil.compile_term(inst.head)
@@ -75,4 +75,4 @@ class InstalSituationCompiler(InstalCompiler_i):
                                 inst=inst_term,
                                 rhs=rhs)
 
-        return "\n".join(self._compiled_text)
+        return self.compilation

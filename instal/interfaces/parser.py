@@ -25,9 +25,9 @@ class InstalParser_i(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def parse_institution(self, text:str) -> InASTs.InstalAST: pass
+    def parse_institution(self, text:str) -> list[InASTs.InstalAST]: pass
     @abc.abstractmethod
-    def parse_bridge(self, text:str) -> InASTs.InstalAST: pass
+    def parse_bridge(self, text:str) -> list[InASTs.InstalAST]: pass
     @abc.abstractmethod
     def parse_domain(self, text:str) -> list[InASTs.InstalAST]: pass
     @abc.abstractmethod

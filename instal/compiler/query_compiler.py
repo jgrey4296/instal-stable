@@ -72,21 +72,21 @@ NIF_RULE_PAT   = Template((inst_data   / "nif_rule_pattern.lp").read_text())
 ##-- end resources
 
 class InstalQueryCompiler(InstalCompiler_i):
-    def compile(self, query:IAST.QueryTotalityAST) -> str:
+    def compile(self, query:list[IAST.QueryAST]) -> str:
         """
         Compile sequence of observations into extObserved facts
         # TODO handle specifying time of observation
         """
-        assert(all(isinstance(x, IAST.QueryAST) for x in query.body))
+        assert(all(isinstance(x, IAST.QueryAST) for x in query))
         self.clear()
         self.insert(HEADER, header="Query Specification",
-                    sub=query.sources_str)
+                    sub=query[0].sources_str)
         self.insert("#program base.")
-        for i, q in enumerate(query.body):
+        for i, q in enumerate(query):
             if q.time is not None:
                 i = q.time
             term_str = CompileUtil.compile_term(q.head)
             self.insert(f"extObserved({term_str}, {i}).")
             self.insert(f"_eventSet({i}).")
 
-        return "\n".join(self._compiled_text)
+        return self.compilation

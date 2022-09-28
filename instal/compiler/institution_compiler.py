@@ -24,35 +24,33 @@ except ModuleNotFoundError:
 inst_data   = files(INSTITUTION_DATA_loc)
 bridge_data = files(BRIDGE_DATA_loc)
 
-HEADER         = Template((data_path   / "header_pattern").read_text())
-INST_PRELUDE   = Template((inst_data   / "institution_prelude.lp").read_text())
-BRIDGE_PRELUDE = Template((bridge_data / "bridge_prelude.lp").read_text())
+HEADER             = Template((data_path   / "header_pattern").read_text())
+INST_PRELUDE       = Template((inst_data   / "institution_prelude.lp").read_text())
+BRIDGE_PRELUDE     = Template((bridge_data / "bridge_prelude.lp").read_text())
 
-TYPE_PAT       = Template((inst_data   / "type_def_guard.lp").read_text())
-TYPE_GROUND    = Template((inst_data   / "type_ground_pattern.lp").read_text())
+TYPE_PAT           = Template((inst_data   / "type_def_guard.lp").read_text())
+TYPE_GROUND        = Template((inst_data   / "type_ground_pattern.lp").read_text())
 
-INITIAL_FACT   = Template((inst_data   / "initial_fact_pattern.lp").read_text())
+INITIAL_FACT       = Template((inst_data   / "initial_fact_pattern.lp").read_text())
 
-EXO_EV         = Template((inst_data   / "exogenous_event_pattern.lp").read_text())
-INST_EV        = Template((inst_data   / "inst_event_pattern.lp").read_text())
-VIOLATION_EV   = Template((inst_data   / "violation_event_pattern.lp").read_text())
+EVENT_PATTERN      = Template((inst_data   / "event_pattern.lp").read_text())
 
-IN_FLUENT      = Template((inst_data   / "inertial_fluent_pattern.lp").read_text())
-NONIN_FLUENT   = Template((inst_data   / "noninertial_fluent_pattern.lp").read_text())
-OB_FLUENT      = Template((inst_data   / "obligation_fluent_pattern.lp").read_text())
+INERTIAL_FLUENT    = Template((inst_data   / "inertial_fluent_pattern.lp").read_text())
+TRANSIENT_FLUENT   = Template((inst_data   / "transient_fluent_pattern.lp").read_text())
+OB_FLUENT          = Template((inst_data   / "obligation_fluent_pattern.lp").read_text())
 
-CROSS_FLUENT   = Template((bridge_data / "cross_fluent.lp").read_text())
-GPOW_FLUENT    = Template((bridge_data / "gpow_cross_fluent.lp").read_text())
+CROSS_FLUENT       = Template((bridge_data / "cross_fluent.lp").read_text())
+GPOW_FLUENT        = Template((bridge_data / "gpow_cross_fluent.lp").read_text())
 
-GEN_PAT        = Template((inst_data   / "generate_rule_pattern.lp").read_text())
-INIT_PAT       = Template((inst_data   / "initiate_rule_pattern.lp").read_text())
-TERM_PAT       = Template((inst_data   / "terminate_rule_pattern.lp").read_text())
+GEN_PAT            = Template((inst_data   / "generate_rule_pattern.lp").read_text())
+INIT_PAT           = Template((inst_data   / "initiate_rule_pattern.lp").read_text())
+TERM_PAT           = Template((inst_data   / "terminate_rule_pattern.lp").read_text())
 
-X_GEN_PAT      = Template((bridge_data / "xgenerate_rule_pattern.lp").read_text())
-X_INIT_PAT     = Template((bridge_data / "xinitiate_rule_pattern.lp").read_text())
-X_TERM_PAT     = Template((bridge_data / "xterminate_rule_pattern.lp").read_text())
+X_GEN_PAT          = Template((bridge_data / "xgenerate_rule_pattern.lp").read_text())
+X_INIT_PAT         = Template((bridge_data / "xinitiate_rule_pattern.lp").read_text())
+X_TERM_PAT         = Template((bridge_data / "xterminate_rule_pattern.lp").read_text())
 
-NIF_RULE_PAT   = Template((inst_data   / "nif_rule_pattern.lp").read_text())
+TRANSIENT_RULE_PAT = Template((inst_data   / "transient_rule_pattern.lp").read_text())
 
 ##-- end resources
 
@@ -76,11 +74,19 @@ class InstalInstitutionCompiler(InstalCompiler_i):
         text.append("%% End of Prelude")
 
         return "\n".join(text)
-    def compile(self, ial: IAST.InstitutionDefAST) -> str:
+
+    def compile(self, ials: list[IAST.InstitutionDefAST]) -> str:
+        logging.debug("Compiling %s Institutions", len(ials))
+        self.clear()
+        for ial in ials:
+            self.compile_inst(ial)
+
+        return self.compilation
+
+    def compile_inst(self, ial: IAST.InstitutionDefAST):
         logging.debug("Compiling Institution")
         assert(isinstance(ial, IAST.InstitutionDefAST))
         assert(not isinstance(ial, IAST.BridgeDefAST))
-        self.clear()
         self.insert(INST_PRELUDE,
                     institution=CompileUtil.compile_term(ial.head),
                     source_file=ial.sources_str)
@@ -90,18 +96,16 @@ class InstalInstitutionCompiler(InstalCompiler_i):
         self.compile_fluents(ial)
 
         self.insert(HEADER, header='Part 2: Generation and Consequence', sub="")
-        self.compile_generation(ial)
-        self.compile_nif_rules(ial)
+        self.compile_rules(ial)
 
         self.insert(HEADER, header='Part 3: Initial Situation Specification', sub="")
         situation          = InstalSituationCompiler()
-        compiled_situation = situation.compile(IAST.FactTotalityAST(ial.initial), ial, header=False)
+        compiled_situation = situation.compile(ial.initial, ial, header=False)
         self.insert(compiled_situation)
 
         self.compile_types(ial.types)
         self.insert("%% End of {institution}", institution=CompileUtil.compile_term(ial.head))
 
-        return "\n".join(self._compiled_text)
 
     def compile_types(self, type_list:list[IAST.TypeAST]) -> None:
         logging.debug("Compiling Types")
@@ -119,20 +123,23 @@ class InstalInstitutionCompiler(InstalCompiler_i):
         for event in inst.events:
             rhs   : str = ", ".join(sorted(CompileUtil.wrap_types(inst.types, event.head)))
             pattern = None
+            etype   = None
             match event.annotation:
                 case IAST.EventEnum.exogenous:
-                    pattern = EXO_EV
+                    etype = "ex"
                 case IAST.EventEnum.institutional:
-                    pattern = INST_EV
+                    etype = "inst"
                 case IAST.EventEnum.violation:
-                    pattern = VIOLATION_EV
+                    etype = "viol"
                 case _:
                     raise TypeError("Unknown Event Type: %s", event)
 
             assert(pattern is not None)
-            self.insert(pattern,
+            assert(etype is not None)
+            self.insert(EVENT_PATTERN,
                         event=CompileUtil.compile_term(event.head),
                         inst=CompileUtil.compile_term(inst.head),
+                        etype=etype,
                         rhs=rhs)
 
     def compile_fluents(self, inst):
@@ -140,14 +147,15 @@ class InstalInstitutionCompiler(InstalCompiler_i):
         inst_head : str = CompileUtil.compile_term(inst.head)
         for fluent in inst.fluents:
             rhs : str = ", ".join(sorted(CompileUtil.wrap_types(inst.types, fluent.head)))
+
             match fluent.annotation:
                 case IAST.FluentEnum.inertial:
-                    self.insert(IN_FLUENT,
+                    self.insert(INERTIAL_FLUENT,
                                 fluent=CompileUtil.compile_term(fluent.head),
                                 inst=inst_head,
                                 rhs=rhs)
-                case IAST.FluentEnum.noninertial:
-                    self.insert(NONIN_FLUENT,
+                case IAST.FluentEnum.transient:
+                    self.insert(TRANSIENT_FLUENT,
                                 fluent=CompileUtil.compile_term(fluent.head),
                                 inst=inst_head,
                                 rhs=rhs)
@@ -184,90 +192,80 @@ class InstalInstitutionCompiler(InstalCompiler_i):
 
 
 
-    def compile_generation(self, inst):
+    def compile_rules(self, inst):
         logging.debug("Compiling Rules")
         inst_head = CompileUtil.compile_term(inst.head)
-        for relation in inst.relations:
-            conditions  = CompileUtil.compile_conditions(inst, relation.conditions)
+        for rule in inst.rules:
+            assert(isinstance(rule, IAST.RuleAST))
+            conditions  = CompileUtil.compile_conditions(inst, rule.conditions)
             type_guards = CompileUtil.wrap_types(inst.types,
-                                                 relation.head,
-                                                 *relation.body)
+                                                 rule.head,
+                                                 *rule.body)
 
             rhs = ", ".join(sorted(conditions | type_guards))
-            match relation.annotation:
-                case IAST.RelationalEnum.generates:
+            match rule.annotation:
+                case IAST.RuleEnum.generates:
                     assert(not isinstance(inst, IAST.BridgeDefAST))
-                    delay = "+{relation.delay}" if relation.delay> 0 else ""
-                    for state in relation.body:
+                    delay = "+{rule.delay}" if rule.delay> 0 else ""
+                    for state in rule.body:
                         self.insert(GEN_PAT,
-                                    event=CompileUtil.compile_term(relation.head),
+                                    event=CompileUtil.compile_term(rule.head),
                                     state=CompileUtil.compile_term(state),
                                     inst=inst_head,
                                     delay=delay,
                                     rhs=rhs)
-                case IAST.RelationalEnum.initiates:
+                case IAST.RuleEnum.initiates:
                     assert(not isinstance(inst, IAST.BridgeDefAST))
-                    for state in relation.body:
+                    for state in rule.body:
                         self.insert(INIT_PAT,
-                                    event=CompileUtil.compile_term(relation.head),
+                                    event=CompileUtil.compile_term(rule.head),
                                     state=CompileUtil.compile_term(state),
                                     inst=inst_head,
                                     rhs=rhs)
-                case IAST.RelationalEnum.terminates:
+                case IAST.RuleEnum.terminates:
                     assert(not isinstance(inst, IAST.BridgeDefAST))
-                    for state in relation.body:
+                    for state in rule.body:
                         self.insert(TERM_PAT,
-                                    event=CompileUtil.compile_term(relation.head),
+                                    event=CompileUtil.compile_term(rule.head),
                                     state=CompileUtil.compile_term(state),
                                     inst=inst_head,
                                     rhs=rhs)
-                case IAST.RelationalEnum.xgenerates:
+                case IAST.RuleEnum.xgenerates:
                     assert(isinstance(inst, IAST.BridgeDefAST))
-                    delay = "+{relation.delay}" if relation.delay > 0 else ""
+                    delay = "+{rule.delay}" if rule.delay > 0 else ""
                     self.insert(X_GEN_PAT,
-                                event=CompileUtil.compile_term(relation.head),
-                                response=CompileUtil.compile_term(relation.body[0]),
-                                source=CompileUtil.compile_term(inst.sources [0]),
+                                event=CompileUtil.compile_term(rule.head),
+                                response=CompileUtil.compile_term(rule.body[0]),
+                                source=CompileUtil.compile_term(inst.sources[0]),
                                 sink=CompileUtil.compile_term(inst.sinks[0]),
                                 bridge=inst_head,
                                 delay=delay,
                                 rhs=rhs)
-                case IAST.RelationalEnum.xinitiates:
+                case IAST.RuleEnum.xinitiates:
                     assert(isinstance(inst, IAST.BridgeDefAST))
                     self.insert(X_INIT_PAT,
                                 source=CompileUtil.compile_term(inst.sources[0]),
                                 sink=CompileUtil.compile_term(inst.sinks[0]),
                                 bridge=inst_head,
-                                fluent=CompileUtil.compile_term(relation.head),
-                                response=CompileUtil.compile_term(relation.body[0]),
+                                fluent=CompileUtil.compile_term(rule.head),
+                                response=CompileUtil.compile_term(rule.body[0]),
                                 rhs=rhs
                                 )
-                case IAST.RelationalEnum.xterminates:
+                case IAST.RuleEnum.xterminates:
                     assert(isinstance(inst, IAST.BridgeDefAST))
                     self.insert(X_TERM_PAT,
                                 source=CompileUtil.compile_term(inst.sources[0]),
                                 sink=CompileUtil.compile_term(inst.sinks[0]),
                                 bridge=inst_head,
-                                fluent=CompileUtil.compile_term(relation.head),
-                                response=CompileUtil.compile_term(relation.body[0]),
+                                fluent=CompileUtil.compile_term(rule.head),
+                                response=CompileUtil.compile_term(rule.body[0]),
+                                rhs=rhs)
+
+                case IAST.RuleEnum.transient:
+                    assert(not bool(rule.body))
+                    self.insert(TRANSIENT_RULE_PAT,
+                                state=CompileUtil.compile_term(rule.head),
+                                inst=CompileUtil.compile_term(inst.head),
                                 rhs=rhs)
                 case _:
-                    raise TypeError("Unrecognized Relation Type: %s", relation)
-
-
-    def compile_nif_rules(self, inst):
-        logging.debug("Compiling NIF Rules")
-        for rule in inst.nif_rules:
-            conditions = CompileUtil.compile_conditions(inst, rule.body)
-            types      = CompileUtil.wrap_types(inst.types,
-                                                rule.head)
-
-            rhs = ", ".join(sorted(conditions | types))
-
-            self.insert(NIF_RULE_PAT,
-                        state=CompileUtil.compile_term(rule.head),
-                        inst=CompileUtil.compile_term(inst.head),
-                        rhs=rhs)
-
-
-
+                    raise TypeError("Unrecognized Relation Type: %s", rule)
