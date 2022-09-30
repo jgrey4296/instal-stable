@@ -29,7 +29,7 @@ class TestDomainParser(InstalParserTestCase):
 
     def test_simple_domain_spec(self):
         self.assertParseResultsIsInstance(dsl.top_domain,
-                                          ("Agent: alice", ASTs.DomainTotalityAST),
+                                          ("Agent: alice", ASTs.DomainSpecAST)
                                           )
 
     def test_domain_results(self):
@@ -41,21 +41,22 @@ class TestDomainParser(InstalParserTestCase):
                                                  ):
             match data:
                 case dict():
-                    self.assertEqual(len(result[0]), data['length'])
-                    for spec in result[0].body:
+                    self.assertEqual(len(result), data['length'])
+                    for spec in result:
                         self.assertIsInstance(spec, ASTs.DomainSpecAST)
                         self.assertEqual(spec.head.value, data['type_name'])
                         self.assertAllIn((x.value for x in spec.body), data['values'])
+
                 case text, length, type_names, values if isinstance(type_names, list):
-                    self.assertEqual(len(result[0]), length)
-                    for spec in result[0].body:
+                    self.assertEqual(len(result), length)
+                    for spec in result:
                         self.assertIsInstance(spec, ASTs.DomainSpecAST)
                         self.assertIn(spec.head.value, type_names)
                         self.assertAllIn((x.value for x in spec.body), values)
 
                 case text, length, type_name, values:
-                    self.assertEqual(len(result[0]), length)
-                    for spec in result[0].body:
+                    self.assertEqual(len(result), length)
+                    for spec in result:
                         self.assertIsInstance(spec, ASTs.DomainSpecAST)
                         self.assertEqual(spec.head.value, type_name)
                         self.assertTrue(all(x.value in values for x in spec.body))

@@ -46,7 +46,7 @@ ln.set_name("ln")
 comment = pp.Regex(r"%.+?\n")
 semi    = (lit(";") + pp.line_end).suppress()
 
-event_kws      = pp.MatchFirst(kw(x) for x in ["exogenous", "institutional", "violation", "ex", "inst", "viol"])
+event_kws      = pp.MatchFirst(kw(x) for x in ["exogenous", "institutional", "violation", "exo", "inst", "viol"])
 fluent_kws     = pp.MatchFirst(kw(x) for x in ["cross", "noninertial", "obligation", "x", "transient", "obl"])
 generation_kws = pp.MatchFirst(kw(x) for x in ["generates", "xgenerates"])
 inertial_kws   = pp.MatchFirst(kw(x) for x in ["initiates", "terminates", "xinitiates", "xterminates"])
@@ -66,10 +66,8 @@ def build_institution(string, loc, toks):
                 inst.events.append(elem)
             case ASTs.TypeAST():
                 inst.types.append(elem)
-            case ASTs.RelationalAST():
-                inst.relations.append(elem)
-            case ASTs.TransientFluentRuleAST():
-                inst.transient_rules.append(elem)
+            case ASTs.RuleAST():
+                inst.rules.append(elem)
             case ASTs.InitiallyAST():
                 inst.initial.append(elem)
             case ASTs.SourceAST():
@@ -93,13 +91,11 @@ def build_fluent(string, loc, toks) -> ASTs.FluentAST:
     head     = toks['head']
     anno_str = toks.annotation
     match anno_str:
-        case "cross":
+        case "cross"       | "x":
             annotation = ASTs.FluentEnum.cross
-        case "noninertial":
+        case "noninertial" | "transient":
             annotation = ASTs.FluentEnum.transient
-        case "transient":
-            annotation = ASTs.FluentEnum.transient
-        case "obligation":
+        case "obligation"  | "obl":
             annotation = ASTs.FluentEnum.obligation
             assert(len(head.params) == 4), "Obligation Fluents need a requirement, deadline, violation, and repeat"
         case _:
@@ -112,11 +108,11 @@ def build_event(string, loc, toks) -> ASTs.EventAST:
     head     = toks['head']
     anno_str = toks.annotation
     match anno_str:
-        case "exogenous":
+        case "exogenous"     | "exo":
             annotation = ASTs.EventEnum.exogenous
-        case "inst":
+        case "institutional" | "inst":
             annotation = ASTs.EventEnum.institutional
-        case "violation":
+        case "violation"     | "viol":
             annotation = ASTs.EventEnum.violation
 
     return ASTs.EventAST(head, annotation)
@@ -136,7 +132,7 @@ def build_generate_rule(string, loc, toks) -> ASTs.GenerationRuleAST:
 
     return ASTs.GenerationRuleAST(head,
                                   body,
-                                  conditions
+                                  conditions,
                                   annotation=annotation
                                   )
 

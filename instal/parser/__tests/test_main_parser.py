@@ -65,8 +65,14 @@ class TestInstitutionParser(InstalParserTestCase):
     def test_events(self):
         for result, data in self.yieldParseResults(dsl.top_institution,
                                                    ("institution test;\nexogenous event blah;\nexogenous event other;", ["blah", "other"], {ASTs.EventEnum.exogenous}),
+                                                   ("institution test;\nexo event blah;\nexo event other;", ["blah", "other"], {ASTs.EventEnum.exogenous}),
+
+                                                   ("institution test;\ninstitutional event blah;\ninstitutional event other;\ninstitutional event another;", ["blah", "other", "another"], {ASTs.EventEnum.institutional}),
                                                    ("institution test;\ninst event blah;\ninst event other;\ninst event another;", ["blah", "other", "another"], {ASTs.EventEnum.institutional}),
+
+
                                                    ("institution test;\nviolation event blah;\nviolation event other;\nviolation event another;", ["blah", "other", "another"], {ASTs.EventEnum.violation}),
+                                                   ("institution test;\nviol event blah;\nviol event other;\nviol event another;", ["blah", "other", "another"], {ASTs.EventEnum.violation}),
                                                    ):
             events = result[0].events
             self.assertAllIn((x.head.value for x in events), data[1])
@@ -76,32 +82,40 @@ class TestInstitutionParser(InstalParserTestCase):
     def test_fluents(self):
         for result, data in self.yieldParseResults(dsl.top_institution,
                                                    ("institution test;\nfluent testFluent;\nfluent otherFluent;", ["testFluent", "otherFluent"], {ASTs.FluentEnum.inertial}),
-                                                   ("institution test;\nnoninertial fluent testFluent;\nnoninertial fluent otherFluent;", ["testFluent", "otherFluent"], {ASTs.FluentEnum.noninertial}),
-                                                   ("institution test;\nobligation fluent obFluent(obligation, deadline, violation);", ["obFluent"], {ASTs.FluentEnum.obligation}),
+
+                                                   ("institution test;\nnoninertial fluent testFluent;\nnoninertial fluent otherFluent;", ["testFluent", "otherFluent"], {ASTs.FluentEnum.transient}),
+                                                   ("institution test;\ntransient fluent testFluent;\ntransient fluent otherFluent;", ["testFluent", "otherFluent"], {ASTs.FluentEnum.transient}),
+
+                                                   ("institution test;\nobligation fluent obFluent(obligation, deadline, violation, oneshot);", ["obFluent"], {ASTs.FluentEnum.obligation}),
+                                                   ("institution test;\nobligation fluent obFluent(obligation, deadline, violation, multishot);", ["obFluent"], {ASTs.FluentEnum.obligation}),
+                                                   ("institution test;\nobl fluent obFluent(obligation, deadline, violation, multishot);", ["obFluent"], {ASTs.FluentEnum.obligation}),
+
                                                    ("institution test;\ncross fluent blah;", ["blah"], {ASTs.FluentEnum.cross}),
+                                                   ("institution test;\nx fluent blah;", ["blah"], {ASTs.FluentEnum.cross}),
                                                    ):
+
             fluents = result[0].fluents
             self.assertAllIn((x.head.value for x in fluents), data[1])
             self.assertAllIn((x.annotation for x in fluents), data[2])
 
-    def test_generation(self):
+    def test_generation_rules(self):
         for result, data in self.yieldParseResults(dsl.top_institution,
-                                                   ("institution test;\nsomething initiates else;", ["something"], ["else"], {ASTs.RelationalEnum.initiates}),
-                                                   ("institution test;\nsomething generates else;", ["something"], ["else"], {ASTs.RelationalEnum.generates}),
+                                                   ("institution test;\nsomething initiates else;", ["something"], ["else"], {ASTs.RuleEnum.initiates}),
+                                                   ("institution test;\nsomething generates else;", ["something"], ["else"], {ASTs.RuleEnum.generates}),
                                                    ):
-            relations = result[0].relations
-            self.assertAllIn((x.head.value for x in relations), data[1])
-            self.assertAllIn((y.value for x in relations for y in x.body), data[2])
-            self.assertAllIn((x.annotation for x in relations), data[3])
+            rules = result[0].rules
+            self.assertAllIn((x.head.value for x in rules), data[1])
+            self.assertAllIn((y.value for x in rules for y in x.body), data[2])
+            self.assertAllIn((x.annotation for x in rules), data[3])
 
-    def test_nifs(self):
+    def test_transient_rules(self):
         for result, data in self.yieldParseResults(dsl.top_institution,
                                                    ("institution test;\nsomething when else;", ["something"], ["else"]),
                                                    ("institution test;\nsomething when else;", ["something"], ["else"]),
                                                    ):
-            nifs = result[0].nif_rules
-            self.assertAllIn((x.head.value for x in nifs), data[1])
-            self.assertAllIn((y.value for x in nifs for y in x.body), data[2])
+            transients = result[0].rules
+            self.assertAllIn((x.head.value for x in transients), data[1])
+            self.assertAllIn((y.value for x in transients for y in x.body), data[2])
 
 
     def test_initially(self):
@@ -120,6 +134,7 @@ class TestInstitutionParser(InstalParserTestCase):
         self.assertFilesParse(dsl.top_institution,
                               "test_inst.ial",
                               "test_inst2.ial",
+                              "test_inst3.ial",
                               loc=data_path)
 
 

@@ -28,31 +28,31 @@ with warnings.catch_warnings():
 class TestInstitutionParser(InstalParserTestCase):
     def test_simple_query(self):
         self.assertParseResultsIsInstance(dsl.top_query,
-                                          ("observed person(bob) in greeting", ASTs.QueryTotalityAST),
-                                          ("observed afact in greeting",       ASTs.QueryTotalityAST),
+                                          ("observed person(bob)", ASTs.QueryAST),
+                                          ("observed afact",       ASTs.QueryAST),
 
                                           )
 
     def test_query_results(self):
         for result, data in self.yieldParseResults(dsl.top_query,
-                                                   ("observed person(bob) in greeting", 1, ["bob"]),
-                                                   ("""observed person(bob) in greeting\nobserved person(bill, jill) in greeting""", 2, ["bob", "bill", "jill"])
+                                                   ("observed person(bob)", 1, ["bob"]),
+                                                   ("""observed person(bob)\nobserved person(bill, jill)""", 2, ["bob", "bill", "jill"])
                                                    ):
             match data:
                 case text, length, terms:
-                    self.assertEqual(len(result[0]), length)
-                    for term in result[0].body:
+                    self.assertEqual(len(result), length)
+                    for term in result:
                         self.assertAllIn((x.value for x in term.head.params), terms)
 
     def test_query_at_time(self):
         for result, data in self.yieldParseResults(dsl.top_query,
-                                                   ("observed person(bob) in greeting at 5",   5),
-                                                   ("observed person(bob) in greeting at 2",   2),
-                                                   ("observed person(bob) in greeting at 10",  10),
-                                                   ("observed person(bob) in greeting at 1",   1),
-                                                   ("observed person(bob) in greeting at 100", 100),
+                                                   ("observed person(bob) at 5",   5),
+                                                   ("observed person(bob) at 2",   2),
+                                                   ("observed person(bob) at 10",  10),
+                                                   ("observed person(bob) at 1",   1),
+                                                   ("observed person(bob) at 100", 100),
                                                    ):
-            self.assertEqual(result[0].body[0].time, data[1])
+            self.assertEqual(result[0].time, data[1])
 
 
 if __name__ == '__main__':

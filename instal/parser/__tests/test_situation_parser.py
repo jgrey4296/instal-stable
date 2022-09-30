@@ -29,8 +29,8 @@ class TestSituationParser(InstalParserTestCase):
 
     def test_simple_situation(self):
         self.assertParseResultsIsInstance(dsl.top_fact,
-                                          ("initially basicfact in greeting", ASTs.FactTotalityAST),
-                                          ("initially basic(blah) in greeting", ASTs.FactTotalityAST),
+                                          ("initially basicfact in greeting", ASTs.InitiallyAST),
+                                          ("initially basic(blah) in greeting", ASTs.InitiallyAST),
                                           )
 
     def test_situation_contents(self):
@@ -44,13 +44,13 @@ class TestSituationParser(InstalParserTestCase):
                                                    ):
             match data:
                 case text, inst, length:
-                    self.assertEqual(len(result[0]), length)
-                    self.assertEqual(result[0].body[0].inst.value, inst)
+                    self.assertEqual(len(result), length)
+                    self.assertEqual(result[0].inst.value, inst)
                 case text, inst, length, fact, param:
-                    self.assertEqual(len(result[0]), length)
-                    self.assertEqual(result[0].body[0].inst.value, inst)
-                    self.assertEqual(result[0].body[0].body[0].value, fact)
-                    self.assertEqual(result[0].body[0].body[0].params[0].value, param, "testmsg")
+                    self.assertEqual(len(result), length)
+                    self.assertEqual(result[0].inst.value, inst)
+                    self.assertEqual(result[0].body[0].value, fact)
+                    self.assertEqual(result[0].body[0].params[0].value, param, "testmsg")
 
 
 if __name__ == '__main__':

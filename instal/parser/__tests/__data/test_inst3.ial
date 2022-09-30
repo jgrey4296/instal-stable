@@ -1,0 +1,27 @@
+institution b;
+
+type Person;
+type Book;
+
+
+exogenous event exo;
+inst      event inter;
+violation event testviolation;
+
+fluent testFluent;
+fluent otherFluent;
+
+noninertial fluent testFluent;
+noninertial fluent otherFluent;
+
+cross fluent blah;
+obligation fluent obFluent(obligation, deadline, violation, oneshot);
+
+exo generates blah;
+exo generates inter;
+inter initiates blah;
+
+
+blah when exo;
+
+initially perm(exo), pow(exo), perm(exo);

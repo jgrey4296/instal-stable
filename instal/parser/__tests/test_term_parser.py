@@ -54,9 +54,6 @@ class TestTermParser(InstalParserTestCase):
                                ("basicFail@",         9),
                                ("basic@Fail",         5),
                                ("basic(",             5),
-                               ("underscore_test",    10),
-                               # Fails at the ( after backtracking, not at the _:
-                               ("paramFail(a_b, cd)", 9)
                                )
 
     def test_simple_yield(self):
