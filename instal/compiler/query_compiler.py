@@ -40,35 +40,8 @@ inst_data   = files(INSTITUTION_DATA_loc)
 bridge_data = files(BRIDGE_DATA_loc)
 
 HEADER         = Template((data_path / "header_pattern").read_text())
-INST_PRELUDE   = Template((inst_data   / "institution_prelude.lp").read_text())
-BRIDGE_PRELUDE = Template((bridge_data / "bridge_prelude.lp").read_text())
-
-TYPE_PAT       = Template((inst_data   / "type_def_guard.lp").read_text())
-TYPE_GROUND    = Template((inst_data   / "type_ground_pattern.lp").read_text())
-
-INITIAL_FACT   = Template((inst_data   / "initial_fact_pattern.lp").read_text())
-
-EXO_EV         = Template((inst_data   / "exogenous_event_pattern.lp").read_text())
-INST_EV        = Template((inst_data   / "inst_event_pattern.lp").read_text())
-VIOLATION_EV   = Template((inst_data   / "violation_event_pattern.lp").read_text())
-
-IN_FLUENT      = Template((inst_data   / "inertial_fluent_pattern.lp").read_text())
-NONIN_FLUENT   = Template((inst_data   / "noninertial_fluent_pattern.lp").read_text())
-OB_FLUENT      = Template((inst_data   / "obligation_fluent_pattern.lp").read_text())
-
-CROSS_FLUENT   = Template((bridge_data / "cross_fluent.lp").read_text())
-GPOW_FLUENT    = Template((bridge_data / "gpow_cross_fluent.lp").read_text())
-
-GEN_PAT        = Template((inst_data   / "generate_rule_pattern.lp").read_text())
-INIT_PAT       = Template((inst_data   / "initiate_rule_pattern.lp").read_text())
-TERM_PAT       = Template((inst_data   / "terminate_rule_pattern.lp").read_text())
-
-X_GEN_PAT      = Template((bridge_data / "xgenerate_rule_pattern.lp").read_text())
-X_INIT_PAT     = Template((bridge_data / "xinitiate_rule_pattern.lp").read_text())
-X_TERM_PAT     = Template((bridge_data / "xterminate_rule_pattern.lp").read_text())
-
-NIF_RULE_PAT   = Template((inst_data   / "nif_rule_pattern.lp").read_text())
-
+QUERY_PAT      = Template((inst_data / "query_pattern.lp").read_text())
+PROGRAM_PAT    = Template((inst_data / "program_pattern.lp").read_text())
 ##-- end resources
 
 class InstalQueryCompiler(InstalCompiler_i):
@@ -81,12 +54,13 @@ class InstalQueryCompiler(InstalCompiler_i):
         self.clear()
         self.insert(HEADER, header="Query Specification",
                     sub=query[0].sources_str)
-        self.insert("#program base.")
+        self.insert(PROGRAM_PAT, prog="base")
         for i, q in enumerate(query):
             if q.time is not None:
                 i = q.time
             term_str = CompileUtil.compile_term(q.head)
-            self.insert(f"extObserved({term_str}, {i}).")
-            self.insert(f"_eventSet({i}).")
+            self.insert(QUERY_PAT,
+                        term=term_str,
+                        i=i)
 
         return self.compilation

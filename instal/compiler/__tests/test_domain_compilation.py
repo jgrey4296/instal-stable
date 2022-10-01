@@ -12,7 +12,7 @@ import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from instal.parser.pyparse_institution import InstalPyParser
+from instal.parser.parser import InstalPyParser
 from instal.compiler.domain_compiler import InstalDomainCompiler
 from instal.interfaces import ast as ASTs
 from unittest import mock
@@ -44,23 +44,25 @@ class TestDomainCompiler(unittest.TestCase):
     def test_one_type_domain(self):
         """ initially/iaf -> .lp """
         compiler = InstalDomainCompiler()
-        data     = ASTs.DomainTotalityAST()
-        data.body.append(ASTs.DomainSpecAST(ASTs.TermAST("Person"),
+        data     = []
+        data.append(ASTs.DomainSpecAST(ASTs.TermAST("Person"),
                                             [ASTs.TermAST("bill"),
                                              ASTs.TermAST("jill")]))
 
         result = compiler.compile(data)
         self.assertIsInstance(result, str)
         expected = [
-            " %%",
-            " %-------------------------------",
-            " % Domain Specification",
-            " % ",
-            " %-------------------------------",
-            " %",
+            "%%",
+            "%-------------------------------",
+            "% Domain Specification",
+            "% ",
+            "%-------------------------------",
+            "%%",
+            "",
+            "#program base.",
             "",
             "person(bill).",
-            "person(jill)."
+            "person(jill).",
             ]
         self.assertEqual(len(result.split("\n")), len(expected))
         for x,y in zip(result.split("\n"), expected):
@@ -69,24 +71,26 @@ class TestDomainCompiler(unittest.TestCase):
     def test_two_type_domain(self):
         """ initially/iaf -> .lp """
         compiler = InstalDomainCompiler()
-        data     = ASTs.DomainTotalityAST()
-        data.body.append(ASTs.DomainSpecAST(ASTs.TermAST("Person"),
+        data     = []
+        data.append(ASTs.DomainSpecAST(ASTs.TermAST("Person"),
                                             [ASTs.TermAST("bill"),
                                              ASTs.TermAST("jill")]))
 
-        data.body.append(ASTs.DomainSpecAST(ASTs.TermAST("Book"),
+        data.append(ASTs.DomainSpecAST(ASTs.TermAST("Book"),
                                             [ASTs.TermAST("book1"),
                                              ASTs.TermAST("book2")]))
 
         result = compiler.compile(data)
         self.assertIsInstance(result, str)
         expected = [
-            " %%",
-            " %-------------------------------",
-            " % Domain Specification",
-            " % ",
-            " %-------------------------------",
-            " %",
+            "%%",
+            "%-------------------------------",
+            "% Domain Specification",
+            "% ",
+            "%-------------------------------",
+            "%%",
+            "",
+            "#program base.",
             "",
             "person(bill).",
             "person(jill).",

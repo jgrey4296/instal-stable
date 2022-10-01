@@ -67,6 +67,7 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, 
     parser   = pi.InstalPyParser()
 
     output : list[str] = []
+    prelude_classes    = set()
 
     for target in targets:
         logging.info("Reading %s", str(target))
@@ -101,7 +102,9 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, 
 
         ##-- end match
 
-        if with_prelude:
+        # guard against repeated addition
+        if with_prelude and compiler.__class__ not in prelude_classes:
+            prelude_classes.add(compiler.__class__)
             output.append(compiler.load_prelude())
 
         ast          = parse_fn(text, parse_source=target)

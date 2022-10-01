@@ -1,7 +1,7 @@
 %%-- fluent rules
 % All inertial and transient fluents are fluents
-fluent(F, I) :- inertialfluent(F, I).
-fluent(F, I) :- transientFluent(F, I).
+fluent(F) :- inertialfluent(F, I).
+fluent(F) :- transientFluent(F, I).
 
 % obligational fluents are inertial:
 transientFluent(F, I) :- obligationalFluent(F, I).

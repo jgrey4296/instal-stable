@@ -122,7 +122,6 @@ class InstalInstitutionCompiler(InstalCompiler_i):
         # should be sorted already
         for event in inst.events:
             rhs   : str = ", ".join(sorted(CompileUtil.wrap_types(inst.types, event.head)))
-            pattern = None
             etype   = None
             match event.annotation:
                 case IAST.EventEnum.exogenous:
@@ -134,12 +133,12 @@ class InstalInstitutionCompiler(InstalCompiler_i):
                 case _:
                     raise TypeError("Unknown Event Type: %s", event)
 
-            assert(pattern is not None)
             assert(etype is not None)
             self.insert(EVENT_PATTERN,
                         event=CompileUtil.compile_term(event.head),
                         inst=CompileUtil.compile_term(inst.head),
                         etype=etype,
+                        etype_full=event.annotation,
                         rhs=rhs)
 
     def compile_fluents(self, inst):
@@ -160,7 +159,7 @@ class InstalInstitutionCompiler(InstalCompiler_i):
                                 inst=inst_head,
                                 rhs=rhs)
                 case IAST.FluentEnum.obligation:
-                    obligation, deadline, violation = fluent.head.params
+                    obligation, deadline, violation, repeats = fluent.head.params
                     # TODO handle obligation and deadlines being events or fluents
                     # TODO insert event occured / fluent holdsat into rhs
                     self.insert(OB_FLUENT,
@@ -168,6 +167,7 @@ class InstalInstitutionCompiler(InstalCompiler_i):
                                 obligation=CompileUtil.compile_term(obligation),
                                 deadline=CompileUtil.compile_term(deadline),
                                 violation=CompileUtil.compile_term(violation),
+                                repeats=CompileUtil.compile_term(repeats),
                                 inst=inst_head,
                                 rhs=rhs)
                 case IAST.FluentEnum.cross if fluent.head.value == "gpow":
@@ -262,7 +262,6 @@ class InstalInstitutionCompiler(InstalCompiler_i):
                                 rhs=rhs)
 
                 case IAST.RuleEnum.transient:
-                    assert(not bool(rule.body))
                     self.insert(TRANSIENT_RULE_PAT,
                                 state=CompileUtil.compile_term(rule.head),
                                 inst=CompileUtil.compile_term(inst.head),

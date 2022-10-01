@@ -1,2 +1,2 @@
-% Event: ${event} (type: institutional)
-eventType(${event}, ${inst}, ${etype})  :- ${rhs}.
+% Event: ${event} (type: ${etype_full})
+eventType(${event}, ${inst}, ${etype}) :- ${rhs}.

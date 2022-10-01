@@ -40,7 +40,8 @@ data_path   = files(DATA_loc)
 inst_data   = files(INSTITUTION_DATA_loc)
 bridge_data = files(BRIDGE_DATA_loc)
 
-HEADER         = Template((data_path   / "header_pattern").read_text())
+HEADER      = Template((data_path   / "header_pattern").read_text())
+PROGRAM_PAT = Template((inst_data / "program_pattern.lp").read_text())
 ##-- end resources
 
 class InstalDomainCompiler(InstalCompiler_i):
@@ -52,7 +53,7 @@ class InstalDomainCompiler(InstalCompiler_i):
         self.clear()
         self.insert(HEADER, header="Domain Specification",
                     sub=domain[0].sources_str)
-        self.insert("#program base.")
+        self.insert(PROGRAM_PAT, prog="base")
         for assignment in domain:
             wrapper = assignment.head.value.lower()
             for term in assignment.body:

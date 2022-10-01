@@ -62,8 +62,9 @@ class CompileUtil:
             matcher    = type_matcher.match(param.value)
             assert(matcher is not None), param.value
             type_name  = matcher[1].lower()
-            var_num    = matcher[2] if matcher[2] else ""
-            var_name   = matcher[1] + var_num
+            # var_num    = matcher[2] if matcher[2] else ""
+            # var_name   = matcher[1] + var_num
+            var_name = param.value
             if var_name in found:
                 continue
 

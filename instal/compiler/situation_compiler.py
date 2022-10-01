@@ -41,7 +41,7 @@ bridge_data = files(BRIDGE_DATA_loc)
 
 HEADER         = Template((data_path   / "header_pattern").read_text())
 INITIAL_FACT   = Template((inst_data   / "initial_fact_pattern.lp").read_text())
-
+PROGRAM_PAT    = Template((inst_data / "program_pattern.lp").read_text())
 ##-- end resources
 
 class InstalSituationCompiler(InstalCompiler_i):
@@ -52,7 +52,7 @@ class InstalSituationCompiler(InstalCompiler_i):
             self.insert(HEADER, header="Initial Situation Specification",
                         sub=facts[0].sources_str)
 
-        self.insert("#program base.")
+        self.insert(PROGRAM_PAT, prog="base")
         for initial in facts:
             for state in initial.body:
                 if inst:

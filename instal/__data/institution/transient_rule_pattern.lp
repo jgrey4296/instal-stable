@@ -1,5 +1,5 @@
 %% Translation of ${state} when ${rhs}
 holdsat(${state}, ${inst}, I) :- instant(I),
                                  institution(${inst}),
-                                 transientFluent(${state}),
+                                 transientFluent(${state}, ${inst}),
                                  ${rhs}.

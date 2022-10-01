@@ -44,8 +44,8 @@ class TestQueryCompiler(unittest.TestCase):
     def test_single_query(self):
         """ query/iaq -> lp """
         compiler = InstalQueryCompiler()
-        data = ASTs.QueryTotalityAST()
-        data.body.append(ASTs.QueryAST(ASTs.TermAST("test")))
+        data = []
+        data.append(ASTs.QueryAST(ASTs.TermAST("test")))
 
         result = compiler.compile(data)
 
@@ -57,8 +57,12 @@ class TestQueryCompiler(unittest.TestCase):
                     "%-------------------------------",
                     "%%",
                     "",
+                    "#program base.",
+                    "",
+                    "%% Query of test at 0",
                     "extObserved(test, 0).",
                     "_eventSet(0).",
+                    "",
                     ]
         self.assertEqual(len(result.split("\n")), len(expected))
         for x,y in zip(result.split("\n"), expected):
@@ -67,9 +71,9 @@ class TestQueryCompiler(unittest.TestCase):
     def test_two_query(self):
         """ query/iaq -> lp """
         compiler = InstalQueryCompiler()
-        data = ASTs.QueryTotalityAST()
-        data.body.append(ASTs.QueryAST(ASTs.TermAST("test")))
-        data.body.append(ASTs.QueryAST(ASTs.TermAST("second")))
+        data = []
+        data.append(ASTs.QueryAST(ASTs.TermAST("test")))
+        data.append(ASTs.QueryAST(ASTs.TermAST("second")))
 
         result = compiler.compile(data)
 
@@ -81,10 +85,16 @@ class TestQueryCompiler(unittest.TestCase):
                     "%-------------------------------",
                     "%%",
                     "",
+                    "#program base.",
+                    "",
+                    "%% Query of test at 0",
                     "extObserved(test, 0).",
                     "_eventSet(0).",
+                    "",
+                    "%% Query of second at 1",
                     "extObserved(second, 1).",
                     "_eventSet(1).",
+                    "",
                     ]
         self.assertEqual(len(result.split("\n")), len(expected))
         for x,y in zip(result.split("\n"), expected):
@@ -93,9 +103,9 @@ class TestQueryCompiler(unittest.TestCase):
     def test_explicit_time_query(self):
         """ query/iaq -> lp """
         compiler = InstalQueryCompiler()
-        data = ASTs.QueryTotalityAST()
-        data.body.append(ASTs.QueryAST(ASTs.TermAST("test")))
-        data.body.append(ASTs.QueryAST(ASTs.TermAST("second"), time=3))
+        data = []
+        data.append(ASTs.QueryAST(ASTs.TermAST("test")))
+        data.append(ASTs.QueryAST(ASTs.TermAST("second"), time=3))
 
         result = compiler.compile(data)
 
@@ -107,10 +117,16 @@ class TestQueryCompiler(unittest.TestCase):
                     "%-------------------------------",
                     "%%",
                     "",
+                    "#program base.",
+                    "",
+                    "%% Query of test at 0",
                     "extObserved(test, 0).",
                     "_eventSet(0).",
+                    "",
+                    "%% Query of second at 3",
                     "extObserved(second, 3).",
                     "_eventSet(3).",
+                    ""
                     ]
         self.assertEqual(len(result.split("\n")), len(expected))
         for x,y in zip(result.split("\n"), expected):
@@ -119,8 +135,9 @@ class TestQueryCompiler(unittest.TestCase):
     def test_explicit_source_query(self):
         """ query/iaq -> lp """
         compiler = InstalQueryCompiler()
-        data = ASTs.QueryTotalityAST(parse_source=["custom"])
-        data.body.append(ASTs.QueryAST(ASTs.TermAST("test")))
+        data = []
+        data.append(ASTs.QueryAST(ASTs.TermAST("test"),
+                                       parse_source=["custom"]))
 
         result = compiler.compile(data)
 
@@ -132,8 +149,12 @@ class TestQueryCompiler(unittest.TestCase):
                     "%-------------------------------",
                     "%%",
                     "",
+                    "#program base.",
+                    "",
+                    "%% Query of test at 0",
                     "extObserved(test, 0).",
                     "_eventSet(0).",
+                    ""
                     ]
         self.assertEqual(len(result.split("\n")), len(expected))
         for x,y in zip(result.split("\n"), expected):
