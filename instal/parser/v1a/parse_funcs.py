@@ -45,16 +45,17 @@ ln      = orm(pp.White("\n\r").set_whitespace_chars("\t ")).suppress()
 ln.set_name("ln")
 comment = pp.Regex(r"%.+?\n")
 semi    = (lit(";") + pp.line_end).suppress()
+semi.set_name(";")
 
-event_kws      = pp.MatchFirst(kw(x) for x in ["exogenous", "institutional", "violation", "exo", "inst", "viol"])
-fluent_kws     = pp.MatchFirst(kw(x) for x in ["cross", "noninertial", "obligation", "x", "transient", "obl"])
-generation_kws = pp.MatchFirst(kw(x) for x in ["generates", "xgenerates"])
-inertial_kws   = pp.MatchFirst(kw(x) for x in ["initiates", "terminates", "xinitiates", "xterminates"])
+event_kws      = pp.MatchFirst(kw(x)  for x in ["exogenous", "institutional", "violation", "exo", "inst", "viol"])
+fluent_kws     = pp.MatchFirst(kw(x)  for x in ["cross", "noninertial", "obligation", "x", "transient", "obl"])
+generation_kws = pp.MatchFirst(kw(x)  for x in ["generates", "xgenerates"])
+inertial_kws   = pp.MatchFirst(kw(x)  for x in ["initiates", "terminates", "xinitiates", "xterminates"])
 op_lits        = pp.MatchFirst(lit(x) for x in ["<=", ">=", "<>", "!=", "<", ">", "=", ])
 
 ##-- end util
 
-##-- constructors
+##-- ast constructors
 def build_institution(string, loc, toks):
     inst = toks['head']
     body = toks['body']
@@ -168,21 +169,21 @@ def build_transient_rule(string, loc, toks) -> ASTs.TransientRuleAST:
                                  toks['conditions'],
                                  annotation=ASTs.RuleEnum.transient)
 
-##-- end constructors
+##-- end ast constructors
 
 ##-- term parser
 name = pp.Word(pp.alphas.lower(), pp.alphanums + "_")
 name.set_parse_action(lambda s, l, t: (False, t[0]))
 name.set_name("name")
-# TODO: handle explicit type annotation
-# TODO: handle numbers
 var       = pp.Word(pp.alphas.upper(), pp.alphanums)
 var.set_parse_action(lambda s, l, t: (True, t[0]))
 var.set_name("var")
 
 # The core Term parser:
 TERM      = pp.Forward()
+TERM.set_name("term")
 term_list = pp.delimited_list(op(ln) + TERM)
+term_list.set_name("Term Parameters")
 
 TERM  <<= (var | name)("value") + op(lit("(") + term_list("params") + lit(")"))
 TERM.set_parse_action(build_term)
@@ -198,9 +199,10 @@ CONDITION.set_name("condition")
 
 COMPARISON  = TERM("lhs") + op_lits("op") + TERM("rhs")
 COMPARISON.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['lhs'], False, operator=t['op'], rhs=t['rhs']))
+COMPARISON.set_name("comparison")
 
-# TODO handle 'in {time}'
 CONDITIONS  = pp.delimited_list(op(ln) + (COMPARISON | CONDITION))
+CONDITIONS.set_name("Condition list")
 
 GEN_RULE       = (TERM("head")
                + generation_kws("annotation")
@@ -244,7 +246,7 @@ INITIALLY.set_name("initially")
 ##-- institution
 INSTITUTION = s_kw("institution") + TERM("head") + semi
 INSTITUTION.set_parse_action(lambda s, l, t: ASTs.InstitutionDefAST(t['head'][0]))
-INSTITUTION.set_name("institution")
+INSTITUTION.set_name("institution head")
 ##-- end institution
 
 ##-- bridge specific
@@ -264,15 +266,14 @@ DOMAIN_SPEC.set_parse_action(lambda s, l, t: ASTs.DomainSpecAST(t['head'], t['bo
 ##-- end idc domain
 
 ##-- iaf facts / situation
-cond_list     = op(s_kw("if") + CONDITIONS)("conditions")
-IAF_INITIALLY = s_kw("initially") + TERM("body") + in_inst + cond_list + pp.line_end
-IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body']], t.conditions[:], inst=t['inst']))
+IAF_INITIALLY = TERM("body") + pp.line_end
+IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body'].params[1]], inst=t['body'].params[0]))
 ##-- end iaf facts / situation
 
 ##-- iaq query specification
-OBSERVED = s_kw('observed') + TERM('fact') + op(s_kw('at') + pp.common.integer('time')) + pp.line_end
+OBSERVED = s_kw('observed') + lit('(') + term_list('fact') + lit(')') + pp.line_end
 # OBSERVED.set_parse_action(lambda s, l, t: breakpoint())
-OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'], time=t.time if t.time != '' else None))
+OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'][0]))
 ##-- end iaq query specification
 
 ##-- top level parser entry points
@@ -282,11 +283,13 @@ institution_structure = (INSTITUTION('head')
                                | EVENT
                                | FLUENT
                                | RULE
-                               | INITIALLY) ('body'))
+                               | INITIALLY)('body'))
 institution_structure.set_parse_action(build_institution)
+institution_structure.set_name("Institution Structure")
 
 top_institution = orm(institution_structure)
 top_institution.ignore(comment)
+top_institution.set_name("Institutions")
 
 bridge_structure = (BRIDGE('head')
                     + zrm(SOURCE
@@ -298,16 +301,21 @@ bridge_structure = (BRIDGE('head')
                           | INITIALLY)('body'))
 
 bridge_structure.set_parse_action(build_institution)
+bridge_structure.set_name("Bridge Structure")
 
 top_bridge = orm(bridge_structure)
 top_bridge.ignore(comment)
+top_bridge.set_name("Bridges")
 
 top_fact = orm(IAF_INITIALLY)
 top_fact.ignore(comment)
+top_fact.set_name("Initial Facts")
 
 top_query = orm(OBSERVED)
 top_query.ignore(comment)
+top_query.set_name("Queries")
 
 top_domain = orm(DOMAIN_SPEC)
 top_domain.ignore(comment)
+top_domain.set_name("Domain Specifications")
 ##-- end top level parser entry points
