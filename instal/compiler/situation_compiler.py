@@ -35,13 +35,11 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 ##-- resources
-data_path   = files(DATA_loc)
-inst_data   = files(INSTITUTION_DATA_loc)
-bridge_data = files(BRIDGE_DATA_loc)
+data_path   = files(COMP_DATA_loc)
 
-HEADER         = Template((data_path   / "header_pattern").read_text())
-INITIAL_FACT   = Template((inst_data   / "initial_fact_pattern.lp").read_text())
-PROGRAM_PAT    = Template((inst_data / "program_pattern.lp").read_text())
+HEADER         = Template((data_path / "header_pattern").read_text())
+INITIAL_FACT   = Template((data_path / "initial_fact_pattern.lp").read_text())
+PROGRAM_PAT    = Template((data_path / "program_pattern.lp").read_text())
 ##-- end resources
 
 class InstalSituationCompiler(InstalCompiler_i):

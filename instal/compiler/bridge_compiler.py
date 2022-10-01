@@ -12,44 +12,15 @@ from instal.interfaces import ast as IAST
 from instal.compiler.util import CompileUtil
 from instal.compiler.institution_compiler import InstalInstitutionCompiler
 from instal.compiler.situation_compiler import InstalSituationCompiler
-from instal.defaults import INSTITUTION_DATA_loc, BRIDGE_DATA_loc, DATA_loc
+from instal.defaults import COMP_DATA_loc
 
 ##-- end imports
 
 ##-- resources
-data_path   = files(DATA_loc)
-inst_data   = files(INSTITUTION_DATA_loc)
-bridge_data = files(BRIDGE_DATA_loc)
+data_path      = files(DATA_loc)
 
-HEADER         = Template((data_path   / "header_pattern").read_text())
-INST_PRELUDE   = Template((inst_data   / "institution_prelude.lp").read_text())
-BRIDGE_PRELUDE = Template((bridge_data / "bridge_prelude.lp").read_text())
-
-TYPE_PAT       = Template((inst_data   / "type_def_guard.lp").read_text())
-TYPE_GROUND    = Template((inst_data   / "type_ground_pattern.lp").read_text())
-
-INITIAL_FACT   = Template((inst_data   / "initial_fact_pattern.lp").read_text())
-
-EXO_EV         = Template((inst_data   / "exogenous_event_pattern.lp").read_text())
-INST_EV        = Template((inst_data   / "inst_event_pattern.lp").read_text())
-VIOLATION_EV   = Template((inst_data   / "violation_event_pattern.lp").read_text())
-
-IN_FLUENT      = Template((inst_data   / "inertial_fluent_pattern.lp").read_text())
-NONIN_FLUENT   = Template((inst_data   / "noninertial_fluent_pattern.lp").read_text())
-OB_FLUENT      = Template((inst_data   / "obligation_fluent_pattern.lp").read_text())
-
-CROSS_FLUENT   = Template((bridge_data / "cross_fluent.lp").read_text())
-GPOW_FLUENT    = Template((bridge_data / "gpow_cross_fluent.lp").read_text())
-
-GEN_PAT        = Template((inst_data   / "generate_rule_pattern.lp").read_text())
-INIT_PAT       = Template((inst_data   / "initiate_rule_pattern.lp").read_text())
-TERM_PAT       = Template((inst_data   / "terminate_rule_pattern.lp").read_text())
-
-X_GEN_PAT      = Template((bridge_data / "xgenerate_rule_pattern.lp").read_text())
-X_INIT_PAT     = Template((bridge_data / "xinitiate_rule_pattern.lp").read_text())
-X_TERM_PAT     = Template((bridge_data / "xterminate_rule_pattern.lp").read_text())
-
-NIF_RULE_PAT   = Template((inst_data   / "nif_rule_pattern.lp").read_text())
+HEADER         = Template((data_path / "header_pattern").read_text())
+BRIDGE_PRELUDE = Template((data_path / "bridge_prelude.lp").read_text())
 
 ##-- end resources
 

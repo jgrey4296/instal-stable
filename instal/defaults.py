@@ -20,11 +20,12 @@ QUERY_EXT     = ".iaq"
 FACT_EXT      = ".iaf"
 SITUATION_EXT = ".iaf"
 
+# Parser import string:
+PARSER = "instal.parser.v1.parser.InstalPyParser"
+
 # Data:
-DATA_loc             = "instal.__data"
-STANDARD_PRELUDE_loc = "instal.__data.standard_prelude"
-INSTITUTION_DATA_loc = "instal.__data.institution"
-BRIDGE_DATA_loc      = "instal.__data.bridge"
+COMP_DATA_loc        = "instal.__data.compilation_templates.v1"
+STANDARD_PRELUDE_loc = "instal.__data.standard_prelude.v1"
 
 TEX_loc              = "instal.__data.tex"
 
