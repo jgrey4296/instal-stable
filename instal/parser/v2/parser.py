@@ -20,7 +20,7 @@ from weakref import ref
 import pyparsing as pp
 from instal.interfaces.parser import InstalParser_i
 import instal.interfaces.ast as ASTs
-import instal.parser.parse_funcs as PF
+import instal.parser.v2.parse_funcs as PF
 
 if TYPE_CHECKING:
     # tc only imports

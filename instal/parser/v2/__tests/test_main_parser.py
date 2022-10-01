@@ -16,7 +16,7 @@ from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
 from unittest import mock
 
 import instal.interfaces.ast as ASTs
-import instal.parser.parse_funcs as dsl
+import instal.parser.v2.parse_funcs as dsl
 from instal.interfaces.parser import InstalParserTestCase
 ##-- end imports
 

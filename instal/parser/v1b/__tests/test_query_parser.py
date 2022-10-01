@@ -14,7 +14,7 @@ from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     TypeVar, cast)
 from unittest import mock
 
-import instal.parser.parse_funcs as dsl
+import instal.parser.v1b.parse_funcs as dsl
 import instal.interfaces.ast as ASTs
 from instal.interfaces.parser import InstalParserTestCase
 ##-- end imports
@@ -28,31 +28,21 @@ with warnings.catch_warnings():
 class TestInstitutionParser(InstalParserTestCase):
     def test_simple_query(self):
         self.assertParseResultsIsInstance(dsl.top_query,
-                                          ("observed person(bob)", ASTs.QueryAST),
-                                          ("observed afact",       ASTs.QueryAST),
+                                          ("observed(person(bob), inst)", ASTs.QueryAST),
+                                          ("observed(afact)",       ASTs.QueryAST),
 
                                           )
 
     def test_query_results(self):
         for result, data in self.yieldParseResults(dsl.top_query,
-                                                   ("observed person(bob)", 1, ["bob"]),
-                                                   ("""observed person(bob)\nobserved person(bill, jill)""", 2, ["bob", "bill", "jill"])
+                                                   ("observed(person(bob))", 1, ["bob"]),
+                                                   ("""observed(person(bob))\nobserved(person(bill, jill))""", 2, ["bob", "bill", "jill"])
                                                    ):
             match data:
                 case text, length, terms:
                     self.assertEqual(len(result), length)
                     for term in result:
                         self.assertAllIn((x.value for x in term.head.params), terms)
-
-    def test_query_at_time(self):
-        for result, data in self.yieldParseResults(dsl.top_query,
-                                                   ("observed person(bob) at 5",   5),
-                                                   ("observed person(bob) at 2",   2),
-                                                   ("observed person(bob) at 10",  10),
-                                                   ("observed person(bob) at 1",   1),
-                                                   ("observed person(bob) at 100", 100),
-                                                   ):
-            self.assertEqual(result[0].time, data[1])
 
 
 if __name__ == '__main__':

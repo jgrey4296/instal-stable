@@ -47,8 +47,8 @@ comment = pp.Regex(r"%.+?\n")
 semi    = (lit(";") + pp.line_end).suppress()
 semi.set_name(";")
 
-event_kws      = pp.MatchFirst(kw(x)  for x in ["exogenous", "institutional", "violation", "exo", "inst", "viol"])
-fluent_kws     = pp.MatchFirst(kw(x)  for x in ["cross", "noninertial", "obligation", "x", "transient", "obl"])
+event_kws      = pp.MatchFirst(kw(x)  for x in ["exogenous", "violation", "inst"])
+fluent_kws     = pp.MatchFirst(kw(x)  for x in ["cross", "noninertial", "obligation"])
 generation_kws = pp.MatchFirst(kw(x)  for x in ["generates", "xgenerates"])
 inertial_kws   = pp.MatchFirst(kw(x)  for x in ["initiates", "terminates", "xinitiates", "xterminates"])
 op_lits        = pp.MatchFirst(lit(x) for x in ["<=", ">=", "<>", "!=", "<", ">", "=", ])
@@ -92,11 +92,11 @@ def build_fluent(string, loc, toks) -> ASTs.FluentAST:
     head     = toks['head']
     anno_str = toks.annotation
     match anno_str:
-        case "cross"       | "x":
+        case "cross":
             annotation = ASTs.FluentEnum.cross
-        case "noninertial" | "transient":
+        case "noninertial":
             annotation = ASTs.FluentEnum.transient
-        case "obligation"  | "obl":
+        case "obligation":
             annotation = ASTs.FluentEnum.obligation
             assert(len(head.params) == 4), "Obligation Fluents need a requirement, deadline, violation, and repeat"
         case _:
@@ -109,11 +109,11 @@ def build_event(string, loc, toks) -> ASTs.EventAST:
     head     = toks['head']
     anno_str = toks.annotation
     match anno_str:
-        case "exogenous"     | "exo":
+        case "exogenous":
             annotation = ASTs.EventEnum.exogenous
-        case "institutional" | "inst":
+        case "inst":
             annotation = ASTs.EventEnum.institutional
-        case "violation"     | "viol":
+        case "violation":
             annotation = ASTs.EventEnum.violation
 
     return ASTs.EventAST(head, annotation)
