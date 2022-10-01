@@ -1,3 +1,4 @@
+##-- variables
 SHELL		:= /usr/local/bin/bash
 LOGLEVEL	:= WARNING
 
@@ -32,10 +33,12 @@ ifneq (${fpat}, )
 endif
 
 
+##-- end variables
+
 .PHONY: help Makefile all pylint clean browse long test dtest faily repl vrepl repld check
 
-# Documentation ###############################################################
-# Put it first so that "make" without argument is like "make help".
+##-- documentation targets
+# Put this first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(DOCSOURCEDIR)" "$(DOCBUILDDIR)" $(SPHINXOPTS) $(O)
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
@@ -47,19 +50,30 @@ sphinx: Makefile
 browse:
 	open "$(DOCBUILDDIR)/html/index.html"
 
+## build railroad diagrams for parser
+railroad:
+	python "$(PY_TOP)/util/build_railroad.py" --parser instal.parser.v1 --out "$(DOCBUILDDIR)"
+
+
 docs: sphinx browse
 
+##-- end documentation targets
 
-# Rest ########################################################################
 all: verbose long
 
-# Building ####################################################################
+tags:
+	gtags -q
+
+
+##-- local library build
 nodep:
 	pip install --no-deps -e .
 
 editlib:
 	pip install -e .
+##-- end local library build
 
+##-- building
 install:
 	pip install --use-feature=in-tree-build --src ${BUILD}/pip_temp -U .
 
@@ -69,9 +83,6 @@ wheel:
 srcbuild:
 	pip install --use-feature=in-tree-build -t ${BUILD}/pip_src --src ${BUILD}/pip_temp -U .
 
-uninstall:
-	pip uninstall -y instal
-
 requirements:
 	pip freeze --all --exclude-editable -r requirements.txt > requirements.txt
 
@@ -79,7 +90,11 @@ freeze:
 	bash -ic "conda list --export > ./conda_env.txt"
 	pip list --format=freeze > ./requirements.txt
 
-# Testing #####################################################################
+uninstall:
+	pip uninstall -y instal
+##-- end building
+
+##-- testing
 long:
 	python -m unittest discover -s ${TEST_TARGET} -p "*_tests.py"
 
@@ -100,28 +115,9 @@ faily:
 	@echo "Testing with early fail"
 	python -m unittest discover -v -f -s ${TEST_TARGET} ${TEST_PAT} -t ${PY_TOP} -p ${TEST_FILE_PAT}
 
+##-- end testing
 
-# Reports #####################################################################
-check:
-	@echo "Shell	= " ${SHELL}
-	@echo "Top		= " ${PY_TOP}
-	@echo "Search	= " ${TEST_TARGET}
-	@echo "Pattern	= " ${TEST_PAT}
-
-
-line_report:
-	@echo "Counting Lines into linecounts.stats"
-	find ${PY_TOP} -name "*.py" -not -name "test_*.py" -not -name "*__init__.py" -print0 | xargs -0 wc -l | sort > linecounts.report
-
-class_report:
-	@echo "Getting Class Relations"
-	find ${PY_TOP} -name "*.py" -not -name "flycheck*" | xargs awk '/^class/ {print $0}' > class.report
-
-
-export_env:
-	conda env export --from-history > instal.yaml
-
-# Linting #####################################################################
+##-- linting
 pylint:
 	@echo "Linting"
 	pylint --rcfile=./.pylintrc ${PY_TOP} --ignore=${ig} --ignore-patterns=${igpat}
@@ -130,7 +126,9 @@ elint:
 	@echo "Linting -E"
 	pylint --rcfile=./.pylintrc ${PY_TOP} --ignore=${ig} --ignore-patterns=${igpat} -E
 
-# Cleaning ####################################################################
+##-- end linting
+
+##-- cleaning
 init:
 	@echo "Auto-creating empty __init__.py's"
 	find ${PY_TOP} -type d -print0 | xargs -0 -I {} touch "{}/__init__.py"
@@ -149,3 +147,5 @@ else
 	-rm -r ${CACHES}
 endif
 	-rm -rf ${BUILD}
+
+##-- end cleaning
