@@ -2,18 +2,21 @@ institution basic;
 
 type Alpha;
 
-exogenous event ex_red(Alpha);
-inst event in_red(Alpha);
 exogenous event ex_blue(Alpha);
-inst event in_blue(Alpha);
 exogenous event ex_green(Alpha);
+exogenous event ex_red(Alpha);
+
+inst event in_blue(Alpha);
 inst event in_green(Alpha);
+inst event in_red(Alpha);
 
 fluent in_fact(Alpha);
 fluent in_fact_a(Alpha);
 fluent in_fact_b(Alpha);
+
 obligation fluent obl(ex_red(Alpha),ex_blue(Alpha),ex_green(Alpha));
 obligation fluent obl(in_fact_a(Alpha),in_fact_b(Alpha),ex_green(Alpha));
+
 noninertial fluent ni_fact(Alpha);
 
 ni_fact(Alpha) when in_fact(Alpha);
