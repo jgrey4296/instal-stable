@@ -16,12 +16,14 @@ from __future__ import annotations
 import argparse
 import logging as logmod
 import pathlib
+import importlib
 from importlib.resources import files
 from io import StringIO
 from sys import stderr, stdout
 from typing import IO, List, Optional
 
 from instal import defaults
+from instal.interfaces.parser.InstalParser_i
 from instal.compiler.bridge_compiler import InstalBridgeCompiler
 from instal.compiler.domain_compiler import InstalDomainCompiler
 from instal.compiler.institution_compiler import InstalInstitutionCompiler
@@ -47,7 +49,7 @@ argparser.add_argument('--noprint', action="store_true")
 
 ##-- end argparse
 
-def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, check=False) -> list[str]:
+def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, check=False, parser_import:str=None) -> list[str]:
     """
     Compile targets (an explicit list, will not search or handle directories)
     using the default pyparsing parser.
@@ -59,19 +61,29 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, 
     Returns a list of strings of each separate compiled file addition.
     """
     logging.info("Compiling %s target files", len(targets))
+
     if debug:
+        # Load pyparsing debug functions *before* loading a parser,
+        # so all constructed objects have the functions set.
         import instal.parser.debug_functions as dbf
         dbf.debug_pyparsing()
 
-    import instal.parser.parser as pi
-    parser   = pi.InstalPyParser()
+    # Now import and build the parser
+    parser_import     = parser_import or defaults.PARSER
+    parser_module_str = ".".join(parser_import.split(".")[:-1])
+    parser_class_str  = parser_import.split(".")[-1]
+    parser_module     = importlib.import_module(parser_module_str)
+    parser            = getattr(parser_module, parser_class_str)()
+
+    assert(isinstance(parser, InstalParser_i))
 
     output : list[str] = []
     prelude_classes    = set()
 
+    # Read each target, matching its suffix to choose
+    # how to parse, check, and compile it
     for target in targets:
         logging.info("Reading %s", str(target))
-        # read the target
         compiler = None
         parse_fn = None
         checker  = None
@@ -102,12 +114,12 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, 
 
         ##-- end match
 
-        # guard against repeated addition
+        # guard against repeated addition of preludes
         if with_prelude and compiler.__class__ not in prelude_classes:
             prelude_classes.add(compiler.__class__)
             output.append(compiler.load_prelude())
 
-        ast          = parse_fn(text, parse_source=target)
+        ast = parse_fn(text, parse_source=target)
         if check and checker:
             checker.check(ast)
 
