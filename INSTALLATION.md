@@ -4,7 +4,7 @@ InstAL Installation Instructions
 Requirements
 ------------
 
-Python (3.X - 3.4 advised.)
+Python 3.10+
 
 Python-pip
 

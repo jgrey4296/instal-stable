@@ -94,6 +94,8 @@ class InstalClingoState(State_i):
                  "metadata" : self.metadata }
 
 
+    def __contains__(self) -> bool:
+        pass
     def check(self, conditions) -> bool:
         return False
     def insert(self, term:str|Symbol|iAST.TermAST):

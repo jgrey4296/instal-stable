@@ -35,6 +35,8 @@ logging = logmod.getLogger(__name__)
 class State_i:
     """
     Description of a single moment in a model's trace.
+    Depending on implementation, could hold TermAST's
+    or Clingo Symbols
     """
 
     timestep : int            = field(default=0)

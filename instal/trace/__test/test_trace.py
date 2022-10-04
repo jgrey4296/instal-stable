@@ -116,5 +116,12 @@ class TestTrace(unittest.TestCase):
             with self.subTest(loaded):
                 self.assertEqual(orig, loaded)
 
+
+    def test_filter(self):
+        pass
+
+    def test_fluent_intervals(self):
+        pass
+
 if __name__ == '__main__':
     unittest.main()
