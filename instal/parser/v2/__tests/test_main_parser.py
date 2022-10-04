@@ -21,7 +21,7 @@ from instal.interfaces.parser import InstalParserTestCase
 ##-- end imports
 
 ##-- data
-data_path = files("instal.parser.__tests.__data")
+data_path = files("instal.parser.v2.__tests.__data")
 ##-- end data
 
 ##-- warnings
@@ -83,7 +83,6 @@ class TestInstitutionParser(InstalParserTestCase):
         for result, data in self.yieldParseResults(dsl.top_institution,
                                                    ("institution test;\nfluent testFluent;\nfluent otherFluent;", ["testFluent", "otherFluent"], {ASTs.FluentEnum.inertial}),
 
-                                                   ("institution test;\nnoninertial fluent testFluent;\nnoninertial fluent otherFluent;", ["testFluent", "otherFluent"], {ASTs.FluentEnum.transient}),
                                                    ("institution test;\ntransient fluent testFluent;\ntransient fluent otherFluent;", ["testFluent", "otherFluent"], {ASTs.FluentEnum.transient}),
 
                                                    ("institution test;\nobligation fluent obFluent(obligation, deadline, violation, oneshot);", ["obFluent"], {ASTs.FluentEnum.obligation}),

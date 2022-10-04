@@ -98,7 +98,7 @@ def build_fluent(string, loc, toks) -> ASTs.FluentAST:
             annotation = ASTs.FluentEnum.transient
         case "obligation":
             annotation = ASTs.FluentEnum.obligation
-            assert(len(head.params) == 4), "Obligation Fluents need a requirement, deadline, violation, and repeat"
+            assert(len(head.params) == 3), "Obligation Fluents need a requirement, deadline, violation, and repeat"
         case _:
             annotation = ASTs.FluentEnum.inertial
 

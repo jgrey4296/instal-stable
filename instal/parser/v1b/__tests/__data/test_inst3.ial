@@ -15,7 +15,7 @@ noninertial fluent testFluent;
 noninertial fluent otherFluent;
 
 cross fluent blah;
-obligation fluent obFluent(obligation, deadline, violation, oneshot);
+obligation fluent obFluent(obligation, deadline, violation);
 
 exo generates blah;
 exo generates inter;

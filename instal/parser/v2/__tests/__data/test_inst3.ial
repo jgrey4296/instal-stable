@@ -11,8 +11,8 @@ violation event testviolation;
 fluent testFluent;
 fluent otherFluent;
 
-noninertial fluent testFluent;
-noninertial fluent otherFluent;
+transient fluent testFluent;
+transient fluent otherFluent;
 
 cross fluent blah;
 obligation fluent obFluent(obligation, deadline, violation, oneshot);

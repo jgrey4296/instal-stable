@@ -28,8 +28,8 @@ with warnings.catch_warnings():
 class TestInstitutionParser(InstalParserTestCase):
     def test_simple_query(self):
         self.assertParseResultsIsInstance(dsl.top_query,
-                                          ("observed person(bob)", ASTs.QueryAST),
-                                          ("observed afact",       ASTs.QueryAST),
+                                          ("observed(person(bob))", ASTs.QueryAST),
+                                          ("observed(afact)",       ASTs.QueryAST),
 
                                           )
 

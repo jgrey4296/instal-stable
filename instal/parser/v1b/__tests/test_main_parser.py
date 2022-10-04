@@ -21,7 +21,7 @@ from instal.interfaces.parser import InstalParserTestCase
 ##-- end imports
 
 ##-- data
-data_path = files("instal.parser.__tests.__data")
+data_path = files("instal.parser.v1b.__tests.__data")
 ##-- end data
 
 ##-- warnings
@@ -66,7 +66,7 @@ class TestInstitutionParser(InstalParserTestCase):
         for result, data in self.yieldParseResults(dsl.top_institution,
                                                    ("institution test;\nexogenous event blah;\nexogenous event other;", ["blah", "other"], {ASTs.EventEnum.exogenous}),
 
-                                                   ("institution test;\ninstitutional event blah;\ninstitutional event other;\ninstitutional event another;", ["blah", "other", "another"], {ASTs.EventEnum.institutional}),
+                                                   ("institution test;\ninst event blah;\ninst event other;\ninst event another;", ["blah", "other", "another"], {ASTs.EventEnum.institutional}),
 
                                                    ("institution test;\nviolation event blah;\nviolation event other;\nviolation event another;", ["blah", "other", "another"], {ASTs.EventEnum.violation}),
                                                    ):
