@@ -10,7 +10,6 @@ from dataclasses import InitVar, dataclass, field
 from pathlib import Path
 
 from instal.interfaces import ast as ASTs
-from instal.defaults import STANDARD_PRELUDE_loc, DATA_loc
 
 ##-- end imports
 

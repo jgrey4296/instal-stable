@@ -12,7 +12,7 @@ import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from instal.parser.parser import InstalPyParser
+from instal.parser.v2.parser import InstalPyParser
 from instal.interfaces import ast as ASTs
 from unittest import mock
 from instal.compiler.situation_compiler import InstalSituationCompiler

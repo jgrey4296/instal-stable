@@ -29,7 +29,7 @@ with warnings.catch_warnings():
 ##-- end warnings
 
 ##-- data
-data_path = files("instal.trace.__test")
+data_path = files("instal.trace.__test.__data")
 data_file = data_path / "trace_0.json"
 data_text = data_file.read_text()
 ##-- end data
@@ -67,10 +67,11 @@ class TestTrace(unittest.TestCase):
                                   number=1,
                                   optimal=False,
                                   type="test")
-
         trace = InstalTrace.from_model(model, steps=3)
         self.assertEqual(len(trace), 4)
-        for state in trace.states[1:]:
+        for state in trace:
+            if state.timestep == 0:
+                continue
             self.assertTrue(state.occurred)
 
     def test_build_from_model_holdsat(self):
@@ -85,7 +86,7 @@ class TestTrace(unittest.TestCase):
 
         trace = InstalTrace.from_model(model, steps=1)
         self.assertEqual(len(trace), 2)
-        self.assertEqual(len(trace.states[0].holdsat['perm']), 3)
+        self.assertEqual(len(trace[0].holdsat['perm']), 3)
 
 
     def test_build_from_model_holdsat(self):
@@ -100,15 +101,15 @@ class TestTrace(unittest.TestCase):
 
         trace = InstalTrace.from_model(model, steps=2)
         self.assertEqual(len(trace), 3)
-        self.assertEqual(len(trace.states[1].observed), 2)
-        self.assertEqual(len(trace.states[2].observed), 1)
+        self.assertEqual(len(trace[1].observed), 2)
+        self.assertEqual(len(trace[2].observed), 1)
 
 
 
     def test_equivalence(self):
         """ Check a trace loads and saves without changing anything """
         trace = InstalTrace.from_json(json.loads(data_text))
-        as_json = json.dumps(trace.to_json(), sort_keys=True, indent=4)
+        as_json = trace.to_json_str()
 
         reconstructed = as_json.split("\n")
         for orig, loaded in zip(data_text.split("\n"), reconstructed):

@@ -24,10 +24,10 @@ SITUATION_EXT = ".iaf"
 PARSER = "instal.parser.v1.parser.InstalPyParser"
 
 # Data:
-COMP_DATA_loc        = "instal.__data.compilation_templates.v1"
-STANDARD_PRELUDE_loc = "instal.__data.standard_prelude.v1"
+COMP_DATA_loc        = "instal.__data.compilation_templates.v2"
+STANDARD_PRELUDE_loc = "instal.__data.standard_prelude.v2"
 
 TEX_loc              = "instal.__data.tex"
 
 # Default groupings of holdsat in instal.interfaces.trace.State_i
-STATE_HOLDSAT_GROUPS = ["perm", "pow", "tpow", "ipow", "gpow", "obl", "fluent", "other"]
+STATE_HOLDSAT_GROUPS = ["fluent", "gpow", "ipow", "obl", "other", "perm", "pow", "tpow"]

@@ -17,7 +17,7 @@ from instal.defaults import COMP_DATA_loc
 ##-- end imports
 
 ##-- resources
-data_path      = files(DATA_loc)
+data_path      = files(COMP_DATA_loc)
 
 HEADER         = Template((data_path / "header_pattern").read_text())
 BRIDGE_PRELUDE = Template((data_path / "bridge_prelude.lp").read_text())
@@ -33,7 +33,7 @@ class InstalBridgeCompiler(InstalInstitutionCompiler, InstalCompiler_i):
     """
 
     def compile(self, iabs: list[IAST.BridgeDefAST]) -> str:
-        logging.debug("Compiling %s Bridges", len(ials))
+        logging.debug("Compiling %s Bridges", len(iabs))
         self.clear()
         for iab in iabs:
             self.compile_bridge(iab)

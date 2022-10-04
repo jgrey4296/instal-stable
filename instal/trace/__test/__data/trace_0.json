@@ -34,6 +34,9 @@
                 "gpow": [],
                 "ipow": [],
                 "obl": [],
+                "other": [
+                    "holdsat(live(basic), basic, 0)"
+                ],
                 "perm": [
                     "holdsat(perm(ex_blue(foo)), basic, 0)",
                     "holdsat(perm(ex_red(foo)), basic, 0)",
@@ -52,9 +55,7 @@
             "occurred": [
                 "occurred(_unempoweredEvent(ex_red(foo)), basic, 0)"
             ],
-            "rest": [
-                "holdsat(live(basic), basic, 0)"
-            ],
+            "rest": [],
             "timestep": 0
         },
         {
@@ -63,6 +64,9 @@
                 "gpow": [],
                 "ipow": [],
                 "obl": [],
+                "other": [
+                    "holdsat(live(basic), basic, 1)"
+                ],
                 "perm": [
                     "holdsat(perm(null), basic, 1)",
                     "holdsat(perm(in_red(foo)), basic, 1)",
@@ -80,9 +84,7 @@
             "occurred": [
                 "occurred(_unempoweredEvent(ex_blue(foo)), basic, 1)"
             ],
-            "rest": [
-                "holdsat(live(basic), basic, 1)"
-            ],
+            "rest": [],
             "timestep": 1
         },
         {
@@ -91,6 +93,9 @@
                 "gpow": [],
                 "ipow": [],
                 "obl": [],
+                "other": [
+                    "holdsat(live(basic), basic, 2)"
+                ],
                 "perm": [
                     "holdsat(perm(ex_blue(foo)), basic, 2)",
                     "holdsat(perm(ex_red(foo)), basic, 2)",
@@ -108,9 +113,7 @@
             "occurred": [
                 "occurred(_unempoweredEvent(ex_green(foo)), basic, 2)"
             ],
-            "rest": [
-                "holdsat(live(basic), basic, 2)"
-            ],
+            "rest": [],
             "timestep": 2
         },
         {
@@ -119,6 +122,9 @@
                 "gpow": [],
                 "ipow": [],
                 "obl": [],
+                "other": [
+                    "holdsat(live(basic), basic, 3)"
+                ],
                 "perm": [
                     "holdsat(perm(null), basic, 3)",
                     "holdsat(perm(in_red(foo)), basic, 3)",
@@ -132,9 +138,7 @@
             },
             "observed": [],
             "occurred": [],
-            "rest": [
-                "holdsat(live(basic), basic, 3)"
-            ],
+            "rest": [],
             "timestep": 3
         }
     ]

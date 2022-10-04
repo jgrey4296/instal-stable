@@ -21,6 +21,8 @@ with warnings.catch_warnings():
     pass
 ##-- end warnings
 
+logging = logmod.root
+
 class TestInstalTextReporter(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -30,7 +32,6 @@ class TestInstalTextReporter(unittest.TestCase):
         cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
         cls.file_h.setLevel(LOGLEVEL)
 
-        logging = logmod.root
         logging.setLevel(logmod.NOTSET)
         logging.addHandler(cls.file_h)
 

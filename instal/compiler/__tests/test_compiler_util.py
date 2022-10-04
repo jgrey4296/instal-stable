@@ -16,7 +16,7 @@ from unittest import mock
 
 from instal.compiler.util import CompileUtil
 from instal.interfaces import ast as ASTs
-from instal.parser.parser import InstalPyParser
+from instal.parser.v2.parser import InstalPyParser
 
 ##-- end imports
 

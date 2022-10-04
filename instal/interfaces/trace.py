@@ -140,7 +140,7 @@ class Trace_i(Sequence):
     @abc.abstractmethod
     def check(self, conditions:list) -> bool: pass
     @abc.abstractmethod
-    def to_json(self, filename=None) -> str: pass
+    def to_json_str(self, filename=None) -> str: pass
 
     @abc.abstractmethod
     def filter(self, allow:list[str], reject:list[str], start:None|int=None, end:None|int=None) -> Trace_i: pass

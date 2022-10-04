@@ -92,6 +92,8 @@ class InstalTrace(Trace_i):
                     state = states[x]
                 case Symbol() as x if x.type == SymbolType.Number and x.number < len(states):
                     state = states[x.number]
+                case str() as x if int(x) < len(state):
+                    state = states[int(x)]
                 case _:
                     raise Exception("Unexpected Term in Trace", term)
 
@@ -120,7 +122,7 @@ class InstalTrace(Trace_i):
         # Used for test cases.
         pass
 
-    def to_json(self, filename=None) -> List[Dict]:
+    def to_json_str(self, filename=None) -> str:
         trace_obj = {
             "metadata" : self.metadata,
             "states"   : [s.to_json() for s in self]

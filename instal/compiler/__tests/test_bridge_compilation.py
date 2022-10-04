@@ -12,7 +12,7 @@ import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from instal.parser.parser import InstalPyParser
+from instal.parser.v2.parser import InstalPyParser
 from instal.compiler.bridge_compiler import InstalBridgeCompiler
 from instal.interfaces import ast as ASTs
 from unittest import mock
@@ -47,80 +47,52 @@ class TestBridgeCompiler(unittest.TestCase):
         inst.sources.append(ASTs.TermAST("sourceTest"))
         inst.sinks.append(ASTs.TermAST("sinkTest"))
 
-        result = compiler.compile(inst)
+        result = compiler.compile([inst])
         self.assertIsInstance(result, str)
         expected = [
             "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
             "%% Compiled Bridge",
             "%% simple",
-            "%% From : None",
+            "%% From : ",
             "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
+            "#program base.",
             "",
             "% bridge/3 (in standard prelude) is built from these:",
-            "inst(simple).",
+            "institution(simple).",
             "source(sourceTest, simple).",
             "sink(sinkTest, simple).",
             "",
-            "%% Rules for Bridge simple %",
-            "ifluent(live(simple), simple).",
-            "fluent(live(simple), simple).",
-            "sink(sinkTest, simple).",
-            "source(sourceTest, simple).",
             ":- not _preludeLoaded.",
             "",
-            "% no creation event",
-            "holdsat(live(simple), simple, I) :- start(I), bridge(simple).",
-            "holdsat(perm(null), simple, I)      :- start(I), bridge(simple).",
+            "%%",
+            "%-------------------------------",
+            "% Part 1: Events and Fluents",
+            "% ",
+            "%-------------------------------",
+            "%%",
             "",
-            " %%",
-            " %-------------------------------",
-            " % Part 1: Events and Fluents",
-            " % ",
-            " %-------------------------------",
-            " %",
+            "%%",
+            "%-------------------------------",
+            "% Part 2: Generation and Consequence",
+            "% ",
+            "%-------------------------------",
+            "%%",
             "",
-            "%% null event for unknown events",
-            "% Event: null (type: ex)",
-            "event(null).",
-            "event(viol(null)).",
+            "%%",
+            "%-------------------------------",
+            "% Part 3: Initial Situation Specification",
+            "% ",
+            "%-------------------------------",
+            "%%",
             "",
-            "eventType(null, simple, ex).",
-            "eventType(viol(null), simple, viol).",
+            "#program base.",
             "",
-            "eventInst(null, simple).",
-            "eventInst(viol(null), simple).",
-            "",
-            "ifluent(pow(null), simple).",
-            "ifluent(perm(null), simple).",
-            "fluent(pow(null), simple).",
-            "fluent(perm(null), simple).",
-            "",
-            "% no creation event",
-            "holdsat(live(simple), simple, I) :- start(I), inst(simple).",
-            "holdsat(perm(null), simple, I)    :- start(I), inst(simple).",
-            "holdsat(pow(null), simple, I)     :- start(I), inst(simple).",
-            "",
-            " %%",
-            " %-------------------------------",
-            " % Part 2: Generation and Consequence",
-            " % ",
-            " %-------------------------------",
-            " %",
-            "",
-            " %%",
-            " %-------------------------------",
-            " % Part 3: Initial Situation Specification",
-            " % ",
-            " %-------------------------------",
-            " %",
-            "",
-            "",
-            " %%",
-            " %-------------------------------",
-            " % Type Grounding and declaration",
-            " % ",
-            " %-------------------------------",
-            " %",
+            "%%",
+            "%-------------------------------",
+            "% Type Grounding and declaration",
+            "% ",
+            "%-------------------------------",
+            "%%",
             "",
             "%% End of simple",
             ]
@@ -147,7 +119,6 @@ class TestBridgeCompiler(unittest.TestCase):
         compiler.compile_fluents(inst)
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
-            "fluent(ipow(first, second, third), simple)  :- bridge(simple, first, third), true.",
             "ifluent(ipow(first, second, third), simple) :- bridge(simple, first, third), true.",
             ""
             ]
@@ -161,26 +132,25 @@ class TestBridgeCompiler(unittest.TestCase):
         inst.sources.append(ASTs.TermAST("sourceTest"))
         inst.sinks.append(ASTs.TermAST("sinkTest"))
 
-        inst.relations.append(ASTs.RelationalAST(ASTs.TermAST("test"),
-                                                 ASTs.RelationalEnum.xgenerates,
-                                                 [ASTs.TermAST("testResult")]))
+        inst.rules.append(ASTs.GenerationRuleAST(ASTs.TermAST("test"),
+                                                 [ASTs.TermAST("testResult")],
+                                                 annotation=ASTs.RuleEnum.xgenerates))
 
 
-        compiler.compile_generation(inst)
+        compiler.compile_rules(inst)
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
-            "% Translation of test of sourceTest xgenerates testResult of sinkTest if [condition] in ",
-            "occurred(testResult, sinkTest, I) :-",
-            "  occurred(test, sourceTest, I),",
-            "  holdsat(gpow(sourceTest, testResult, sinkTest), simple, I),",
-            "  bridge(simple,  sourceTest,  sinkTest)",
-            "  instant(I),",
-            "  true.",
+            "% Translation of test of sourceTest xgenerates testResult of sinkTest if [condition] in",
+            "occurred(testResult, sinkTest, I) :- instant(I),",
+            "bridge(simple,  sourceTest,  sinkTest)",
+            "holdsat(gpow(sourceTest, testResult, sinkTest), simple, I),",
+            "occurred(test, sourceTest, I),",
+            "true.",
             ""
             ]
         # self.assertEqual(len(result.split("\n")), len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x,y)
+            self.assertEqual(x.strip(),y.strip())
 
     def test_cross_initiates(self):
         compiler = InstalBridgeCompiler()
@@ -188,27 +158,26 @@ class TestBridgeCompiler(unittest.TestCase):
         inst.sources.append(ASTs.TermAST("sourceTest"))
         inst.sinks.append(ASTs.TermAST("sinkTest"))
 
-        inst.relations.append(ASTs.RelationalAST(ASTs.TermAST("test"),
-                                                 ASTs.RelationalEnum.xinitiates,
-                                                 [ASTs.TermAST("testResult")]))
+        inst.rules.append(ASTs.InertialRuleAST(ASTs.TermAST("test"),
+                                               [ASTs.TermAST("testResult")],
+                                               annotation=ASTs.RuleEnum.xinitiates))
 
 
-        compiler.compile_generation(inst)
+        compiler.compile_rules(inst)
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
             "%% Translation of test of sourceTest xinitiates testResult of sinkTest if [condition]",
-            "xinitiated(sourceTest, testResult, sinkTest, I) :-",
-            "    occurred(test, sourceTest, I),",
-            "    holdsat(ipow(sourceTest, testResult, sinkTest), simple, I),",
-            "    holdsat(live(simple), simple, I),",
-            "    bridge(simple, sourceTest, sinkTest),",
-            "    instant(I),",
-            "    true.",
+            "xinitiated(sourceTest, testResult, sinkTest, I) :- instant(I),",
+            "bridge(simple, sourceTest, sinkTest),",
+            "holdsat(ipow(sourceTest, testResult, sinkTest), simple, I),",
+            "holdsat(live(simple), simple, I),",
+            "occurred(test, sourceTest, I),",
+            "true.",
             ""
             ]
         # self.assertEqual(len(result.split("\n")), len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x,y)
+            self.assertEqual(x.strip(),y.strip())
 
 
     def test_cross_terminates(self):
@@ -217,27 +186,26 @@ class TestBridgeCompiler(unittest.TestCase):
         inst.sources.append(ASTs.TermAST("sourceTest"))
         inst.sinks.append(ASTs.TermAST("sinkTest"))
 
-        inst.relations.append(ASTs.RelationalAST(ASTs.TermAST("test"),
-                                                 ASTs.RelationalEnum.xterminates,
-                                                 [ASTs.TermAST("testResult")]))
+        inst.rules.append(ASTs.InertialRuleAST(ASTs.TermAST("test"),
+                                               [ASTs.TermAST("testResult")],
+                                               annotation=ASTs.RuleEnum.xterminates))
 
 
-        compiler.compile_generation(inst)
+        compiler.compile_rules(inst)
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
             "%% Translation of test of sourceTest xterminates testResult of sinkTest if [condition]",
-            "xterminated(sourceTest, testResult, sinkTest, I) :-",
-            "     occurred(test, sourceTest, I),",
-            "     holdsat(tpow(sourceTest, testResult, sinkTest), simple, I),",
-            "     holdsat(live(simple), simple, I),",
-            "     bridge(simple, sourceTest, sinkTest),",
-            "     instant(I),",
-            "     true.",
+            "xterminated(sourceTest, testResult, sinkTest, I) :- instant(I),",
+            "bridge(simple, sourceTest, sinkTest),",
+            "holdsat(tpow(sourceTest, testResult, sinkTest), simple, I),",
+            "holdsat(live(simple), simple, I),",
+            "occurred(test, sourceTest, I),",
+            "true.",
             ""
             ]
         # self.assertEqual(len(result.split("\n")), len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x,y)
+            self.assertEqual(x.strip(),y.strip())
 
 if __name__ == '__main__':
     unittest.main()

@@ -96,7 +96,7 @@ class TestASTState(unittest.TestCase):
         state.insert(term1)
         self.assertTrue(bool(state.rest))
 
-    def test_state_contains(self):
+    def test_state_contains_int_timesteps(self):
         term_par1 = iast.TermAST("test")
         term_par2 = iast.TermAST("test")
 
@@ -146,9 +146,10 @@ class TestASTState(unittest.TestCase):
 
         term1 = iast.TermAST("blah", [term_par1, iast.TermAST(0)])
         term2 = iast.TermAST("blah", [term_par2, iast.TermAST(1)])
+        term1_clone  = iast.TermAST(term2.value, term2.params[:-1] + [iast.TermAST(0)])
 
+        self.assertEqual(term1, term1_clone)
         state = InstalASTState()
-
         self.assertNotIn(term2, state)
         state.insert(term1)
         self.assertIn(term2, state)

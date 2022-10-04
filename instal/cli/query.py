@@ -159,7 +159,7 @@ def main():
             case False:
                 trace_s = repr(trace)
             case True:
-                trace_s = trace.to_json(current_filename)
+                trace_s = trace.to_json_str(current_filename)
 
         with open(args.output / current_filename, 'w') as f:
             f.write(trace_s)

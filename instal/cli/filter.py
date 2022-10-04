@@ -112,7 +112,7 @@ def filter_loop(trace):
                     input()
                 case "s":
                     save_path     = pathlib.Path(last_command[1:].strip())
-                    trace_s : str = current.to_json(save_path.name)
+                    trace_s : str = current.to_json_str(save_path.name)
                     with open(save_path, 'w') as f:
                         f.write(trace_s)
 
@@ -179,7 +179,7 @@ def main():
 
     if args.output:
         out_path      = pathlib.Path(args.output)
-        as_json : str = filtered.to_json(out_path.name)
+        as_json : str = filtered.to_json_str(out_path.name)
 
         with open(out_path, 'w') as f:
             f.write(trace_s)

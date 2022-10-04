@@ -23,7 +23,7 @@ from instal.compiler.util import CompileUtil
 from instal.errors import InstalCompileError
 from instal.interfaces import ast as IAST
 from instal.interfaces.compiler import InstalCompiler_i
-from instal.defaults import INSTITUTION_DATA_loc, BRIDGE_DATA_loc, DATA_loc
+from instal.defaults import COMP_DATA_loc
 
 if TYPE_CHECKING:
     # tc only imports
