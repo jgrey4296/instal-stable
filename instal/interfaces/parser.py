@@ -170,8 +170,9 @@ class InstalParserTestCase(TestCase):
                     dsl.parse_string(test[0], parse_all=True)
 
                 exc = cm.exception
-                self.assertEqual(exc.loc, fail_loc,
-                                 "\n"+exc.explain(0))
+                if hasattr(exc, "loc"):
+                    self.assertEqual(exc.loc, fail_loc,
+                                     "\n"+exc.explain(0))
 
 
     def assertAllIn(self, values, container):

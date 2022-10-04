@@ -176,7 +176,6 @@ name = pp.Word(pp.alphas.lower() + "_", pp.alphanums + "_")
 name.set_parse_action(lambda s, l, t: (False, t[0]))
 name.set_name("name")
 # TODO: handle explicit type annotation
-# TODO: handle numbers
 var       = pp.Word(pp.alphas.upper(), pp.alphanums)
 var.set_parse_action(lambda s, l, t: (True, t[0]))
 var.set_name("var")

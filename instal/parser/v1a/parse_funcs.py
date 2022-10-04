@@ -180,13 +180,19 @@ var       = pp.Word(pp.alphas.upper(), pp.alphanums)
 var.set_parse_action(lambda s, l, t: (True, t[0]))
 var.set_name("var")
 
+num = pp.common.signed_integer.copy()
+num.add_parse_action(lambda s, l, t: (False, t[0]))
+
 # The core Term parser:
 TERM      = pp.Forward()
 TERM.set_name("term")
 term_list = pp.delimited_list(op(ln) + TERM)
 term_list.set_name("Term Parameters")
 
-TERM  <<= (var | name)("value") + op(lit("(") + term_list("params") + lit(")"))
+
+# Number's can't actually be the value, only params,
+# but we'll ensure that in a check heuristic
+TERM  <<= (var | name | num)("value") + op(lit("(") + term_list("params") + lit(")"))
 TERM.set_parse_action(build_term)
 TERM.set_name("term")
 

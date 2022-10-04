@@ -56,6 +56,12 @@ class TestTermParser(InstalParserTestCase):
                                ("basic(",             5),
                                )
 
+    def test_fail_var_term_with_params(self):
+        self.assertParserFails(TERM,
+                               ("BasicVar(value, val2)", -1, AssertionError),
+                               ("AnotherVar()", 10)
+                               )
+
     def test_simple_yield(self):
         for result, vals in self.yieldParseResults(TERM,
                                                    ("basic", "basic"),
@@ -63,6 +69,14 @@ class TestTermParser(InstalParserTestCase):
                                                    ):
             self.assertIsInstance(result[0], ASTs.TermAST)
             self.assertEqual(result[0].value, vals[1])
+
+    def test_numbers_in_term(self):
+        self.assertParseResults(TERM,
+                                ("2", ASTs.TermAST(2)),
+                                ("blah(2)", ASTs.TermAST("blah", [ASTs.TermAST(2)])),
+                                ("blah(aweg(-2), other)", ASTs.TermAST("blah", [ASTs.TermAST("aweg", [ASTs.TermAST(-2)]),
+                                                                                ASTs.TermAST("other")]))
+                                )
 
 if __name__ == '__main__':
     unittest.main()

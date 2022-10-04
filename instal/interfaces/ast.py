@@ -70,6 +70,9 @@ class TermAST(InstalAST):
     params : list[InstalAST] = field(default_factory=list)
     is_var : bool            = field(default=False)
 
+    def __post_init__(self):
+        assert(not (self.is_var and bool(self.params)))
+
     def __str__(self):
         if bool(self.params):
             param_str = ", ".join(str(x) for x in self.params)
