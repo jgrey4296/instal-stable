@@ -120,14 +120,16 @@ class DomainSpecAST(InstalAST):
 
 @dataclass(frozen=True)
 class QueryAST(InstalAST):
-    head : TermAST      = field()
-    time : None|int     = field(default=None)
+    head    : TermAST  = field()
+    time    : None|int = field(default=None)
+    negated : bool     = field(default=False)
 
 @dataclass(frozen=True)
 class InitiallyAST(InstalAST):
     body       : list[TermAST]      = field(default_factory=list)
     conditions : list[ConditionAST] = field(default_factory=list)
     inst       : None|TermAST       = field(default=None)
+    negated    : bool               = field(default=False)
 ##-- end domain, query, facts
 
 ##-- specialised asts

@@ -54,6 +54,8 @@ generation_kws = pp.MatchFirst(kw(x) for x in ["generates", "xgenerates"])
 inertial_kws   = pp.MatchFirst(kw(x) for x in ["initiates", "terminates", "xinitiates", "xterminates"])
 op_lits        = pp.MatchFirst(lit(x) for x in ["<=", ">=", "<>", "!=", "<", ">", "=", ])
 
+not_kw         = kw("not")
+
 ##-- end util
 
 ##-- term parser
@@ -159,14 +161,14 @@ DOMAIN_SPEC.set_parse_action(lambda s, l, t: ASTs.DomainSpecAST(t['head'], t['bo
 
 ##-- iaf facts / situation
 cond_list     = op(s_kw("if") + CONDITIONS)("conditions")
-IAF_INITIALLY = s_kw("initially") + TERM("body") + in_inst + cond_list + pp.line_end
-IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body']], t.conditions[:], inst=t['inst']))
+IAF_INITIALLY = op(not_kw("not")) + s_kw("initially") + TERM("body") + in_inst + cond_list + pp.line_end
+IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body']], t.conditions[:], inst=t['inst'], negated=True if 'not' in t else False))
 ##-- end iaf facts / situation
 
 ##-- iaq query specification
-OBSERVED = s_kw('observed') + TERM('fact') + op(s_kw('at') + pp.common.integer('time')) + pp.line_end
+OBSERVED = op(not_kw("not")) + s_kw('observed') + TERM('fact') + op(s_kw('at') + pp.common.integer('time')) + pp.line_end
 # OBSERVED.set_parse_action(lambda s, l, t: breakpoint())
-OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'], time=t.time if t.time != '' else None))
+OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'], time=t.time if t.time != '' else None, negated=True if 'not' in t else False))
 ##-- end iaq query specification
 
 ##-- top level parser entry points

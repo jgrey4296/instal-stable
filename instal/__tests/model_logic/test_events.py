@@ -18,13 +18,12 @@ from unittest import mock
 
 from instal.cli.compiler import compile_target
 from instal.defaults import STANDARD_PRELUDE_loc
-from instal.parser.parser import InstalPyParser
+from instal.parser.v2.parser import InstalPyParser
 from instal.solve.clingo_solver import ClingoSolver
 
 ##-- end imports
 
 ##-- data
-inst_prelude    = files(STANDARD_PRELUDE_loc)
 test_files      = files("instal.__data.test_files.minimal")
 ##-- end data
 
@@ -73,7 +72,7 @@ class TestInstalEvents(unittest.TestCase):
         solver.solve(query)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("inst(minimalEx)", result)
+        self.assertIn("institution(minimalEx)", result)
         self.assertIn("observed(basicExEvent,0)", result)
         self.assertNotIn("observed(null,0)", result)
 
@@ -92,7 +91,7 @@ class TestInstalEvents(unittest.TestCase):
         solver.solve(query)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("inst(minimalEx)", result)
+        self.assertIn("institution(minimalEx)", result)
         self.assertIn("observed(basicExEvent,1)", result)
         self.assertNotIn("observed(null,1)", result)
 
@@ -112,7 +111,7 @@ class TestInstalEvents(unittest.TestCase):
 
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("inst(minimalEx)", result)
+        self.assertIn("institution(minimalEx)", result)
         self.assertIn("observed(basicExEvent,0)", result)
         self.assertIn("observed(basicExEvent,1)", result)
 
@@ -128,7 +127,7 @@ class TestInstalEvents(unittest.TestCase):
 
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("inst(minimalNoEv)", result)
+        self.assertIn("institution(minimalNoEv)", result)
         self.assertIn("observed(null,0)", result)
         self.assertIn("observed(null,1)", result)
         self.assertIn("occurred(null,minimalNoEv,0)", result)
@@ -153,7 +152,7 @@ class TestInstalEvents(unittest.TestCase):
 
         self.assertEqual(len(solver.results), 1)
         result : str = str(solver.results[0].shown)
-        self.assertIn("inst(minimalEx)", result)
+        self.assertIn("institution(minimalEx)", result)
         # Event is not observed
         self.assertNotIn("observed(basicExEvent,10)", result)
 
@@ -174,7 +173,7 @@ class TestInstalEvents(unittest.TestCase):
 
         self.assertEqual(len(solver.results), 1)
         result : str = str(solver.results[0].shown)
-        self.assertIn("inst(twoEvents)", result)
+        self.assertIn("institution(twoEvents)", result)
         self.assertIn("observed(firstEvent,0)", result)
         self.assertIn("observed(secondEvent,1)", result)
 
@@ -215,8 +214,9 @@ class TestInstalEvents(unittest.TestCase):
         solver.solve(query)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("inst(minimalEx)", result)
+        self.assertIn("institution(minimalEx)", result)
         self.assertIn("observed(_unrecognisedEvent,0)", result)
+
     def test_event_recognition_unpermitted(self):
         # Compile a harness
         compiled = compile_target([test_files / "minimal_inst_event.ial"], with_prelude=True)
@@ -234,7 +234,7 @@ class TestInstalEvents(unittest.TestCase):
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
 
-        self.assertIn("inst(minimalInstEv)", result)
+        self.assertIn("institution(minimalInstEv)", result)
         self.assertIn("observed(basicExEvent,0)", result)
         self.assertIn("occurred(_unpermittedEvent(basicEvent_i),minimalInstEv,0)", result)
 
@@ -253,11 +253,9 @@ class TestInstalEvents(unittest.TestCase):
         solver.solve(query, situation)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("inst(minimalInstEv)", result)
+        self.assertIn("institution(minimalInstEv)", result)
         self.assertIn("observed(basicExEvent,0)", result)
         self.assertIn("occurred(basicEvent_i,minimalInstEv,0)", result)
-
-
 
 
     def test_event_recognition_unempowered(self):
@@ -276,7 +274,7 @@ class TestInstalEvents(unittest.TestCase):
         solver.solve(query, situation)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("inst(minimalInstEvNoGen", result)
+        self.assertIn("institution(minimalInstEvNoGen", result)
         self.assertIn("observed(basicExEvent,0)", result)
         self.assertIn("occurred(null,minimalInstEvNoGen,0)", result)
         self.assertIn("occurred(_unempoweredEvent(basicExEvent),minimalInstEvNoGen,0)", result)

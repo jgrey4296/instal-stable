@@ -14,7 +14,7 @@ inertialFluentChange(P, In, I, initiated)    :- instant(I),
 
 inertialFluentChange(P, Sink, I, initiated)  :- instant(I),
                                                 institution(Source),
-                                                institution(Sink).
+                                                institution(Sink),
                                                 inertialFluent(P, Sink),
                                                 xInitiated(Source, P, Sink, I).
 

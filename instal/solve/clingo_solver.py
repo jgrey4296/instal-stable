@@ -107,8 +107,8 @@ class ClingoSolver(SolverWrapper_i):
             logging.debug("assigning: %s", x)
             match x:
                 case InstalAST():
-                    for sym in self.ast_to_clingo(x):
-                        self.ctl.assign_external(sym, True)
+                    for val, sym in self.ast_to_clingo(x):
+                        self.ctl.assign_external(sym, val)
                 case Symbol():
                     self.ctl.assign_external(x, True)
                 case str():
@@ -140,7 +140,7 @@ class ClingoSolver(SolverWrapper_i):
         }
 
 
-    def ast_to_clingo(self, *asts:TermAST) -> list[Symbol]:
+    def ast_to_clingo(self, *asts:TermAST) -> list[tuple[bool, Symbol]]:
         logging.debug("Converting to Clingo Symbols: %s", asts)
         results = []
         for ast in asts:
@@ -148,23 +148,24 @@ class ClingoSolver(SolverWrapper_i):
                 case InitiallyAST():
                     assert(not bool(ast.conditions))
                     for fact in ast.body:
-                        results.append(Function("extHoldsat",
-                                                [parse_term(str(fact)),
-                                                 parse_term(str(ast.inst))]))
+                        results.append((not ast.negated,
+                                        Function("extHoldsat",
+                                                 [parse_term(str(fact)),
+                                                  parse_term(str(ast.inst))])))
                 case QueryAST():
-                    time = ast.time if ast.time else 0
+                    time  = ast.time if ast.time else 0
                     event = parse_term(str(ast.head))
-                    results.append(Function("extObserved", [event, Number(time)]))
-                    results.append(Function("_eventSet", [Number(time)]))
+                    results.append((True, Function("extObserved", [event, Number(time)])))
+                    results.append((True, Function("_eventSet", [Number(time)])))
 
                 case DomainSpecAST():
                     for fact in ast.body:
                         assert(not bool(ast.head.params))
-                        results.append(Function(str(ast.head.value),
-                                                [parse_term(str(x) for x in ast.body)]))
+                        results.append((True,
+                                        Function(str(ast.head.value), [parse_term(str(x) for x in ast.body)])))
 
                 case TermAST():
-                    results.append(parse_term(str(ast)))
+                    results.append((True, parse_term(str(ast))))
                 case _:
                     raise Exception("Unrecognised AST sent to solver: ", ast)
 
