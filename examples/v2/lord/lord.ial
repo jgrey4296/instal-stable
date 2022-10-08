@@ -33,7 +33,7 @@ fluent ageOlder(Person, Age);
 fluent gender(Person, Gender);
 fluent attacked(Castle);
 
-obligation fluent obl(serveInArmy(Person), deadline, illegal(Person));
+obligation fluent obl(serveInArmy(Person), deadline, illegal(Person), oneshot);
 
 register(Person)          generates intRegister(Person);
 demandToFight(Castle)     generates intDemandToFight(Castle);
