@@ -21,7 +21,7 @@ FACT_EXT      = ".iaf"
 SITUATION_EXT = ".iaf"
 
 # Parser import string:
-PARSER = "instal.parser.v1.parser.InstalPyParser"
+PARSER = "instal.parser.v2.parser.InstalPyParser"
 
 # Data:
 COMP_DATA_loc        = "instal.__data.compilation_templates.v2"

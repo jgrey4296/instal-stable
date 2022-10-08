@@ -14,23 +14,24 @@ Activate debugging to see the parser at work to identify parse problems.
 from __future__ import annotations
 
 import argparse
-import logging as logmod
-import pathlib
 import importlib
+import logging as logmod
+import pyparsing as pp
+import pathlib
 from importlib.resources import files
 from io import StringIO
 from sys import stderr, stdout
 from typing import IO, List, Optional
 
 from instal import defaults
-from instal.interfaces.parser.InstalParser_i
+
+from instal.interfaces.parser import InstalParser_i
+from instal.checkers.institution_checker import InstitutionChecker
 from instal.compiler.bridge_compiler import InstalBridgeCompiler
 from instal.compiler.domain_compiler import InstalDomainCompiler
 from instal.compiler.institution_compiler import InstalInstitutionCompiler
 from instal.compiler.query_compiler import InstalQueryCompiler
 from instal.compiler.situation_compiler import InstalSituationCompiler
-
-from instal.checkers.institution_checker import InstitutionChecker
 
 ##-- end imports
 
@@ -45,11 +46,12 @@ argparser.add_argument('-o', '--output')
 argparser.add_argument("-v", "--verbose", action='count', help="increase verbosity of logging (repeatable)")
 argparser.add_argument('-d', '--debug', action="store_true")
 argparser.add_argument('-c', '--check', action="store_true")
+argparser.add_argument('-p', '--parser', default=defaults.PARSER, help="The import path for the parser class")
 argparser.add_argument('--noprint', action="store_true")
 
 ##-- end argparse
 
-def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, check=False, parser_import:str=None) -> list[str]:
+def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, check=False, parser_import:str=defaults.PARSER) -> list[str]:
     """
     Compile targets (an explicit list, will not search or handle directories)
     using the default pyparsing parser.
@@ -63,16 +65,18 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, 
     logging.info("Compiling %s target files", len(targets))
 
     if debug:
+        logging.warning("Activating Parser Debug Functions")
         # Load pyparsing debug functions *before* loading a parser,
         # so all constructed objects have the functions set.
         import instal.parser.debug_functions as dbf
         dbf.debug_pyparsing()
 
     # Now import and build the parser
-    parser_import     = parser_import or defaults.PARSER
     parser_module_str = ".".join(parser_import.split(".")[:-1])
     parser_class_str  = parser_import.split(".")[-1]
+    logging.info("Loading Parser Module : %s", parser_module_str)
     parser_module     = importlib.import_module(parser_module_str)
+    logging.info("Loading Parser Class  : %s", parser_class_str)
     parser            = getattr(parser_module, parser_class_str)()
 
     assert(isinstance(parser, InstalParser_i))
@@ -82,6 +86,7 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, 
 
     # Read each target, matching its suffix to choose
     # how to parse, check, and compile it
+    compilation_errored = False
     for target in targets:
         logging.info("Reading %s", str(target))
         compiler = None
@@ -119,12 +124,32 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, 
             prelude_classes.add(compiler.__class__)
             output.append(compiler.load_prelude())
 
-        ast = parse_fn(text, parse_source=target)
-        if check and checker:
-            checker.check(ast)
+        try:
+            ast = parse_fn(text, parse_source=target)
+            if check and checker:
+                checker.check(ast)
 
-        compiled     = compiler.compile(ast)
-        output.append(compiled)
+            compiled     = compiler.compile(ast)
+            output.append(compiled)
+        except pp.ParseException as exp:
+            compilation_errored = True
+            logging.error(f"File: %s : (line %s column %s) : %s : %s",
+                            target.name, exp.lineno, exp.col, exp.msg, exp.markInputline())
+        except pp.ParseFatalException as exp:
+            compilation_errored = True
+            logging.error(f"File: %s : (line %s column %s) : %s : %s",
+                            target.name, exp.lineno, exp.col, exp.msg, exp.markInputline())
+        except AssertionError as err:
+            compilation_errored = True
+            logging.error("File: %s : %s", target.name, str(err))
+        except Exception as err:
+            compilation_errored = True
+            logging.error("File: %s : %s", target.name, str(err))
+
+
+    if compilation_errored:
+        logging.error("Compilation Errored Out")
+        return []
 
     logging.info("Parse and Compilation Finished")
     return output
@@ -163,7 +188,7 @@ def main():
     else:
         targets = list(args.target.iterdir())
 
-    result = compile_target(targets, args.debug, with_prelude=True, check=args.check)
+    result = compile_target(targets, args.debug, with_prelude=True, check=args.check, parser_import=args.parser)
 
     if args.output:
         logging.info("Writing to Output: %s", args.output)

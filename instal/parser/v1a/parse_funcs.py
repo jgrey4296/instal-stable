@@ -19,6 +19,7 @@ from weakref import ref
 
 import pyparsing as pp
 import instal.interfaces.ast as ASTs
+import instal.parser.v1a.constructors as construct
 
 if TYPE_CHECKING:
     # tc only imports
@@ -55,122 +56,6 @@ op_lits        = pp.MatchFirst(lit(x) for x in ["<=", ">=", "<>", "!=", "<", ">"
 
 ##-- end util
 
-##-- ast constructors
-def build_institution(string, loc, toks):
-    inst = toks['head']
-    body = toks['body']
-    for elem in body:
-        match elem:
-            case ASTs.FluentAST():
-                inst.fluents.append(elem)
-            case ASTs.EventAST():
-                inst.events.append(elem)
-            case ASTs.TypeAST():
-                inst.types.append(elem)
-            case ASTs.RuleAST():
-                inst.rules.append(elem)
-            case ASTs.InitiallyAST():
-                inst.initial.append(elem)
-            case ASTs.SourceAST():
-                inst.sources.append(elem.head)
-            case ASTs.SinkAST():
-                inst.sinks.append(elem.head)
-
-    return inst
-
-
-
-
-def build_term(string, loc, toks) -> ASTs.TermAST:
-    is_var, value = toks['value']
-    return ASTs.TermAST(value,
-                        params=toks['params'][:] if 'params' in toks else [],
-                        is_var=is_var)
-
-
-def build_fluent(string, loc, toks) -> ASTs.FluentAST:
-    head     = toks['head']
-    anno_str = toks.annotation
-    match anno_str:
-        case "cross":
-            annotation = ASTs.FluentEnum.cross
-        case "noninertial":
-            annotation = ASTs.FluentEnum.transient
-        case "obligation":
-            annotation = ASTs.FluentEnum.obligation
-            assert(len(head.params) == 3), "Obligation Fluents need a requirement, deadline, violation"
-            head.params.append(ASTs.TermAST("oneshot"))
-        case _:
-            annotation = ASTs.FluentEnum.inertial
-
-    return ASTs.FluentAST(head, annotation)
-
-
-def build_event(string, loc, toks) -> ASTs.EventAST:
-    head     = toks['head']
-    anno_str = toks.annotation
-    match anno_str:
-        case "exogenous":
-            annotation = ASTs.EventEnum.exogenous
-        case "inst":
-            annotation = ASTs.EventEnum.institutional
-        case "violation":
-            annotation = ASTs.EventEnum.violation
-
-    return ASTs.EventAST(head, annotation)
-
-def build_generate_rule(string, loc, toks) -> ASTs.GenerationRuleAST:
-    head       = toks['head']
-    body       = toks['body'][:]
-    conditions = toks['conditions'] if 'conditions' in toks else []
-
-    match toks['annotation']:
-        case "xgenerates":
-            annotation = ASTs.RuleEnum.xgenerates
-        case "generates":
-            annotation = ASTs.RuleEnum.generates
-        case _:
-            raise Exception("Not Recognised consequence relation: %s", toks['annotation'])
-
-    return ASTs.GenerationRuleAST(head,
-                                  body,
-                                  conditions,
-                                  annotation=annotation
-                                  )
-
-
-    pass
-def build_inertial_rule(string, loc, toks) -> ASTs.InertialRuleAST:
-    head       = toks['head']
-    body       = toks['body'][:]
-    conditions = toks['conditions'] if 'conditions' in toks else []
-
-    match toks['annotation']:
-        case "xinitiates":
-            annotation = ASTs.RuleEnum.xinitiates
-        case "initiates":
-            annotation = ASTs.RuleEnum.initiates
-        case "xterminates":
-            annotation = ASTs.RuleEnum.xterminates
-        case "terminates":
-            annotation = ASTs.RuleEnum.terminates
-        case _:
-            raise Exception("Not Recognised consequence relation: %s", toks['annotation'])
-
-    return ASTs.InertialRuleAST(head,
-                                body,
-                                conditions,
-                                annotation=annotation
-                                )
-
-
-def build_transient_rule(string, loc, toks) -> ASTs.TransientRuleAST:
-    return ASTs.TransientRuleAST(toks['head'],
-                                 [],
-                                 toks['conditions'],
-                                 annotation=ASTs.RuleEnum.transient)
-
-##-- end ast constructors
 
 ##-- term parser
 name = pp.Word(pp.alphas.lower(), pp.alphanums + "_")
@@ -193,7 +78,7 @@ term_list.set_name("Term Parameters")
 # Number's can't actually be the value, only params,
 # but we'll ensure that in a check heuristic
 TERM  <<= (var | name | num)("value") + op(lit("(") + term_list("params") + lit(")"))
-TERM.set_parse_action(build_term)
+TERM.set_parse_action(construct.term)
 TERM.set_name("term")
 
 in_inst       = s_kw('in') + TERM('inst')
@@ -214,17 +99,17 @@ CONDITIONS.set_name("Condition list")
 GEN_RULE       = (TERM("head")
                + generation_kws("annotation")
                + term_list("body") + op(op(ln) + s_kw("if") + CONDITIONS)("conditions") + semi)
-GEN_RULE.set_parse_action(build_generate_rule)
+GEN_RULE.set_parse_action(construct.generate_rule)
 GEN_RULE.set_name("event generation rule")
 
 INERTIAL_RULE  = (TERM("head")
                + inertial_kws("annotation")
                + term_list("body") + op(op(ln) + s_kw("if") + CONDITIONS)("conditions") + semi)
-INERTIAL_RULE.set_parse_action(build_inertial_rule)
+INERTIAL_RULE.set_parse_action(construct.inertial_rule)
 INERTIAL_RULE.set_name("inertial fluent rule")
 
 TRANSIENT_RULE  = TERM("head") + s_kw("when") + CONDITIONS("conditions") + semi
-TRANSIENT_RULE.set_parse_action(build_transient_rule)
+TRANSIENT_RULE.set_parse_action(construct.transient_rule)
 TRANSIENT_RULE.set_name("transient rule")
 
 RULE = GEN_RULE | INERTIAL_RULE | TRANSIENT_RULE
@@ -237,11 +122,11 @@ TYPE_DEC.set_parse_action(lambda s, l, t: ASTs.TypeAST(t['head']))
 TYPE_DEC.set_name("type_dec")
 
 FLUENT      = op(fluent_kws)("annotation") + s_kw("fluent") + TERM("head") + semi
-FLUENT.set_parse_action(build_fluent)
+FLUENT.set_parse_action(construct.fluent)
 FLUENT.set_name("fluent")
 
 EVENT       = event_kws('annotation')  + s_kw("event")  + TERM("head") + semi
-EVENT.set_parse_action(build_event)
+EVENT.set_parse_action(construct.event)
 EVENT.set_name("event")
 
 
@@ -291,7 +176,7 @@ institution_structure = (INSTITUTION('head')
                                | FLUENT
                                | RULE
                                | INITIALLY)('body'))
-institution_structure.set_parse_action(build_institution)
+institution_structure.set_parse_action(construct.institution)
 institution_structure.set_name("Institution Structure")
 
 top_institution = orm(institution_structure)
@@ -307,7 +192,7 @@ bridge_structure = (BRIDGE('head')
                           | RULE
                           | INITIALLY)('body'))
 
-bridge_structure.set_parse_action(build_institution)
+bridge_structure.set_parse_action(construct.institution)
 bridge_structure.set_name("Bridge Structure")
 
 top_bridge = orm(bridge_structure)
