@@ -1,0 +1,10 @@
+%%-*- mode: instal -*-
+%% a test institution to check the generation of
+%% institutional events from external events
+institution minimalInstEv;
+
+exogenous event basicExEvent;
+
+inst event basicEvent_i;
+
+basicExEvent generates basicEvent_i;

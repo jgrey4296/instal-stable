@@ -1,0 +1,20 @@
+%%-*- mode: instal -*-
+%% A test institution to check institutional events
+%% can trigger other institutional events.
+%% basixExEvent -> instChainStart -> instChainMid -> instChainEnd
+institution minimalEventChain
+
+type Example : first second third
+
+external event basicExEvent(Example)
+institutional event instChainStart(Example)
+institutional event instChainMid(Example)
+institutional event instChainEnd(Example)
+
+basicExEvent(Example)   generates instChainStart(Example)
+instChainStart(Example) generates instChainMid(Example)
+instChainMid(Example)   generates instChainEnd(Example)
+
+initially perm(instChainStart(Example))
+initially perm(instChainMid(Example))
+initially perm(instChainEnd(Example))

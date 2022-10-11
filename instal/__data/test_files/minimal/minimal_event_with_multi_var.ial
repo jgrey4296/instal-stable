@@ -1,0 +1,14 @@
+%%-*- mode: instal -*-
+%% a test institution to demonstrate events with multiple variables.
+%% note the declaration of `Example`, declaring and defining its instances.
+institution minimalEventMultiVar
+
+type Example : first second third
+
+external event basicExEvent(Example, Example2, Example3)
+institutional event instMultiVar(Example, Example2, Example3)
+
+basicExEvent(Example, _, _) generates instMultiVar(Example, Example, Example)
+basicExEvent(_, Example2, Example3) generates instMultiVar(Example3, Example2, Example3)
+
+initially perm(instMultiVar(Example, Example2, Example3))

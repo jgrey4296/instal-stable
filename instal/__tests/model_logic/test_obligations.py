@@ -5,21 +5,41 @@
 ##-- imports
 from __future__ import annotations
 
+#
 import logging as logmod
+import pathlib
 import unittest
 import warnings
-import pathlib
+from importlib.resources import files
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
 from unittest import mock
+
+from instal.cli.compiler import compile_target
+from instal.compiler.domain_compiler import InstalDomainCompiler
+from instal.parser.v2.parser import InstalPyParser
+from instal.solve.clingo_solver import ClingoSolver
+
 ##-- end imports
+
+##-- data
+test_files      = files("instal.__data.test_files.minimal")
+##-- end data
 
 ##-- warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     pass
 ##-- end warnings
+
+def save_last(compiled, append=None):
+    "A utility to save lines of text to a file for debugging compiled output "
+    with open(pathlib.Path(__file__).parent / "last_run.lp", 'w') as f:
+        f.write("\n".join(compiled))
+        if bool(append):
+            f.write("\n".join(str(x) for x in append))
+
 
 class TestInstalObligations(unittest.TestCase):
     @classmethod

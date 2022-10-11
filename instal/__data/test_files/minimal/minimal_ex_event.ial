@@ -1,0 +1,7 @@
+%%-*- mode: instal -*-
+%% A test institution to check the use of a simple,
+%% variable-less external event.
+institution minimalEx;
+
+exogenous event basicExEvent;
+exogenous event secondEvent;

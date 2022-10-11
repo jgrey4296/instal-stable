@@ -1,0 +1,9 @@
+%%-*- mode: instal -*-
+%% a test institution to check institutional events
+%% aren't generated without a generation rule
+institution minimalInstEvNoGen;
+
+exogenous event basicExEvent;
+
+inst event basicEvent_i;
+

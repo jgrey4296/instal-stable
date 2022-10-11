@@ -37,6 +37,7 @@ def save_last(compiled, append=None):
     with open(pathlib.Path(__file__).parent / "last_run.lp", 'w') as f:
         f.write("\n".join(compiled))
         if bool(append):
+            f.write("\n%% Resulting Atoms:\n ")
             f.write("\n".join(str(x) for x in append))
 
 class TestInstalFluents(unittest.TestCase):
@@ -57,54 +58,53 @@ class TestInstalFluents(unittest.TestCase):
     def tearDownClass(cls):
         logging.removeHandler(cls.file_h)
 
-    def test_minimal_fluent(self):
+    def test_minimal_inertial_fluent(self):
         # Compile a harness
-        compiled = compile_target([test_files / "minimal_fluent.ial"], with_prelude=True)
-        # Add an event
-        parser   = InstalPyParser()
-        situation = parser.parse_situation("initially testFact in minimalFluent")
-        # query    = parser.parse_query("observed basicExEvent at 0")
-        query = []
-        # Solve
-        solver   = ClingoSolver("\n".join(compiled),
-                                options=['-n', "1",
-                                         '-c', f'horizon=2'])
-
-        # Check it is observed
-        solver.solve(query, situation)
-        self.assertEqual(len(solver.results), 1)
-        result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalFluent)", result)
-        self.assertIn("holdsat(testFact,minimalFluent,0)", result)
-
-    def test_minimal_fluent_negated(self):
-        # Compile a harness
-        compiled = compile_target([test_files / "minimal_fluent.ial"], with_prelude=True)
-        # Add an event
-        parser   = InstalPyParser()
-        situation = parser.parse_situation("not initially testFact in minimalFluent")
-        # query    = parser.parse_query("observed basicExEvent at 0")
-        query = []
-        # Solve
-        solver   = ClingoSolver("\n".join(compiled),
-                                options=['-n', "1",
-                                         '-c', f'horizon=2'])
-
-        # Check it is observed
-        solver.solve(query, situation)
-        self.assertEqual(len(solver.results), 1)
-        result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalFluent)", result)
-        self.assertNotIn("holdsat(testFact,minimalFluent,0)", result)
-
-    def test_minimal_fluent_initiate(self):
-        # Compile a harness
-        compiled = compile_target([test_files / "minimal_fluent.ial"], with_prelude=True)
+        compiled = compile_target([test_files / "minimal_inertial_fluent.ial"], with_prelude=True)
         # Add an event
         parser    = InstalPyParser()
-        # situation = parser.parse_situation("not initially testFact in minimalFluent\ninitially perm(basicInstEvent) in minimalFluent")
-        situation = parser.parse_situation("not initially testFact in minimalFluent")
-        query     = parser.parse_query("observed basicEvent at 1")
+        situation = parser.parse_situation("initially testFact in minimalInertialFluent")
+        query     = []
+        # Solve
+        self.assertTrue(compiled)
+        self.assertTrue(situation)
+        solver   = ClingoSolver("\n".join(compiled),
+                                options=['-n', "1",
+                                         '-c', f'horizon=2'])
+
+        # Check it is observed
+        solver.solve(query, situation)
+        self.assertEqual(len(solver.results), 1)
+        result = str(solver.results[0].shown)
+        self.assertIn("institution(minimalInertialFluent)", result)
+        self.assertIn("holdsat(testFact,minimalInertialFluent,0)", result)
+
+    def test_minimal_inertial_fluent_negated(self):
+        # Compile a harness
+        compiled = compile_target([test_files / "minimal_inertial_fluent.ial"], with_prelude=True)
+        # Add an event
+        parser    = InstalPyParser()
+        situation = parser.parse_situation("not initially testFact in minimalInertialFluent")
+        query     = []
+        # Solve
+        solver   = ClingoSolver("\n".join(compiled),
+                                options=['-n', "1",
+                                         '-c', f'horizon=2'])
+
+        # Check it is observed
+        solver.solve(query, situation)
+        self.assertEqual(len(solver.results), 1)
+        result = str(solver.results[0].shown)
+        self.assertIn("institution(minimalInertialFluent)", result)
+        self.assertNotIn("holdsat(testFact,minimalInertialFluent,0)", result)
+
+    def test_minimal_inertial_fluent_initiate(self):
+        # Compile a harness
+        compiled = compile_target([test_files / "minimal_inertial_fluent.ial"], with_prelude=True)
+        # Add an event
+        parser    = InstalPyParser()
+        situation = parser.parse_situation("not initially testFact in minimalInertialFluent")
+        query     = parser.parse_query("observed basicEvent(init) at 1")
         # Solve
         solver   = ClingoSolver("\n".join(compiled),
                                 options=['-n', "1",
@@ -115,18 +115,18 @@ class TestInstalFluents(unittest.TestCase):
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertIn("institution(minimalFluent)", result)
-        self.assertIn("holdsat(perm(basicInstEvent),minimalFluent,0)", result)
-        self.assertNotIn("holdsat(testFact,minimalFluent,0)", result)
-        self.assertIn("holdsat(testFact,minimalFluent,2)", result)
+        self.assertIn("institution(minimalInertialFluent)", result)
+        self.assertIn("holdsat(perm(basicInstEvent(init)),minimalInertialFluent,0)", result)
+        self.assertNotIn("holdsat(testFact,minimalInertialFluent,0)", result)
+        self.assertIn("holdsat(testFact,minimalInertialFluent,2)", result)
 
-    def test_minimal_fluent_terminate(self):
+    def test_minimal_inertial_fluent_terminate(self):
         # Compile a harness
-        compiled = compile_target([test_files / "minimal_fluent.ial"], with_prelude=True)
+        compiled = compile_target([test_files / "minimal_inertial_fluent.ial"], with_prelude=True)
         # Add an event
         parser    = InstalPyParser()
-        situation = parser.parse_situation("initially testFact in minimalFluent")
-        query     = parser.parse_query("observed basicEventTerm at 1")
+        situation = parser.parse_situation("initially testFact in minimalInertialFluent")
+        query     = parser.parse_query("observed basicEvent(term) at 1")
         # Solve
         solver   = ClingoSolver("\n".join(compiled),
                                 options=['-n', "1",
@@ -137,11 +137,49 @@ class TestInstalFluents(unittest.TestCase):
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertIn("institution(minimalFluent)", result)
-        self.assertIn("holdsat(perm(basicInstEventTerm),minimalFluent,0)", result)
-        self.assertIn("occurred(basicInstEventTerm,minimalFluent,1)", result)
-        self.assertIn("holdsat(testFact,minimalFluent,0)", result)
-        self.assertNotIn("holdsat(testFact,minimalFluent,2)", result)
+        self.assertIn("institution(minimalInertialFluent)", result)
+        self.assertIn("holdsat(perm(basicInstEvent(term)),minimalInertialFluent,0)", result)
+        self.assertIn("holdsat(testFact,minimalInertialFluent,0)", result)
+
+        self.assertIn("occurred(basicInstEvent(term),minimalInertialFluent,1)", result)
+
+        self.assertNotIn("holdsat(testFact,minimalInertialFluent,2)", result)
+
+    def test_minimal_inertial_fluent_to_transient(self):
+        """
+        Ensure a transient fluent only holds when its condition is met.
+        """
+        # Compile a harness
+        compiled = compile_target([test_files / "minimal_transient_fluent.ial"], with_prelude=True)
+        # Add an event
+        parser    = InstalPyParser()
+        situation = parser.parse_situation("not initially testFact in minimalTransientFluent")
+        query     = parser.parse_query("observed basicEvent(init) at 1\nobserved basicEvent(term) at 2")
+        # Solve
+        solver   = ClingoSolver("\n".join(compiled),
+                                options=['-n', "1",
+                                         '-c', f'horizon=4'])
+
+        # Check it is observed
+        solver.solve(query, situation)
+        self.assertEqual(len(solver.results), 1)
+        result = str(solver.results[0].shown)
+        save_last(compiled, append=solver.results[0].atoms)
+        self.assertIn("institution(minimalTransientFluent)", result)
+
+        self.assertNotIn("holdsat(testTransient,minimalTransientFluent,0)", result)
+        self.assertNotIn("holdsat(testFact,minimalTransientFluent,0)", result)
+
+        self.assertIn("occurred(basicInstEvent(init),minimalTransientFluent,1)", result)
+        self.assertNotIn("holdsat(testFact,minimalTransientFluent,1)", result)
+        self.assertNotIn("holdsat(testTransient,minimalTransientFluent,1)", result)
+
+        self.assertIn("occurred(basicInstEvent(term),minimalTransientFluent,2)", result)
+        self.assertIn("holdsat(testFact,minimalTransientFluent,2)", result)
+        self.assertIn("holdsat(testTransient,minimalTransientFluent,2)", result)
+
+        self.assertNotIn("holdsat(testFact,minimalTransientFluent,3)", result)
+        self.assertNotIn("holdsat(testTransient,minimalTransientFluent,3)", result)
 
 
 

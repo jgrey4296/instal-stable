@@ -1,0 +1,21 @@
+%%-*- mode: instal -*-
+%% a test institution to check transient fluents
+%% only hold when their conditions holds
+institution minimalTransientFluent
+
+type Change : init term
+
+fluent testFact
+transient fluent testTransient
+
+exogenous     event basicEvent(Change)
+institutional event basicInstEvent(Change)
+
+basicEvent(Change)   generates basicInstEvent(Change)
+
+basicInstEvent(init) initiates  testFact
+basicInstEvent(term) terminates testFact
+
+testTransient when testFact
+
+initially perm(basicInstEvent(Change))
