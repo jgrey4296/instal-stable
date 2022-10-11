@@ -1,0 +1,146 @@
+%% From:
+%% @thesis{thompson18_build_abstr_story_compon_instit_tropes_,
+%%   author = {Thompson, Matt},
+%%   file = {2018/Thompson/Thompson_2018_Building_Abstractable_Story_Components_w.pdf},
+%%   school = {university of bath},
+%%   tags = {ASP,InstaL,MAS,StoryBuilding,TropICAL,constraints,design,dissertation,folksonomy,institution,language,narrative,norms,programming,storytelling},
+%%   title = {Building Abstractable Story Components with Institutions and Tropes},
+%%   url = {https://ethos.bl.uk/OrderDetails.do?uin=uk.bl.ethos.761032},
+%%   year = {2018},
+%% }
+institution dontTouchItYouIdiot;
+
+%%TYPES ----------
+type Identity;
+type Agent;
+type Role;
+type Trope;
+type Phase;
+type Place;
+type PlaceName;
+type Object;
+type ObjectName;
+
+%%FLUENTS ----------
+fluent role(Agent , Role);
+fluent phase(Trope , Phase);
+fluent place(PlaceName , Place);
+fluent object(ObjectName , Object);
+
+%%EXTERNAL EVENTS: Dont Touch it You Idiot ----------
+exogenous event break(Agent, ObjectName);
+exogenous event drop(Agent, ObjectName);
+exogenous event go(Agent , PlaceName);
+exogenous event return(Agent);
+exogenous event fight(Agent , Agent);
+exogenous event noDeadline;
+
+
+%%VIOLATION EVENTS: Dont Touch it You Idiot ----------
+violation event noViolation;
+
+
+%%INST EVENTS: Dont Touch it You Idiot ----------
+inst event intFight(Agent , Agent);
+
+inst event intDrop(Agent, ObjectName);
+inst event intReturn(Agent);
+
+inst event intBreak(Agent, ObjectName);
+inst event intGo(Agent, PlaceName);
+
+inst event intDontTouchItYouIdiot(Agent, Agent, ObjectName, PlaceName);
+inst event intNoDeadline;
+
+
+%%INITIATES: Dont Touch it You Idiot ----------
+intDontTouchItYouIdiot(R, S, T, U) initiates phase(dontTouchItYouIdiot , phaseA),
+                                             perm(go(R, U))
+                                             if
+                                             phase(dontTouchItYouIdiot , active),
+                                             role(R, owner),
+                                             place(U, away);
+
+intDontTouchItYouIdiot(R, S, T, U) initiates phase(dontTouchItYouIdiot , phaseB),
+                                             perm(break(S, T))
+                                             if
+                                             phase(dontTouchItYouIdiot , phaseA), role(S, idiot),
+                                             object(T, item);
+
+intDontTouchItYouIdiot(R, S, T, U) initiates phase(dontTouchItYouIdiot , phaseC),
+                                             perm(return(R))
+                                             if
+                                             phase(dontTouchItYouIdiot , phaseB),
+                                             role(R, owner);
+
+intDontTouchItYouIdiot(R, S, T, U) initiates phase(dontTouchItYouIdiot , phaseD),
+                                             perm(fight(R, S))
+                                             if
+                                             phase(dontTouchItYouIdiot , phaseC),role(S, idiot),
+                                             role(R, owner);
+
+
+%%TERMINATES: Dont Touch it You Idiot ----------
+intDontTouchItYouIdiot(R, S, T, U) terminates phase(dontTouchItYouIdiot , active),
+                                              perm(drop(R, T))
+                                              if
+                                              phase(dontTouchItYouIdiot , active),
+                                              role(R, owner),
+                                              object(T, item);
+
+intDontTouchItYouIdiot(R, S, T, U) terminates phase(dontTouchItYouIdiot , phaseA),
+                                              perm(go(R, U))
+                                              if
+                                              phase(dontTouchItYouIdiot , phaseA),
+                                              role(R, owner),
+                                              place(U, away);
+
+intDontTouchItYouIdiot(R, S, T, U) terminates phase(dontTouchItYouIdiot , phaseB),
+                                              perm(break(S, T))
+                                              if
+                                              phase(dontTouchItYouIdiot , phaseB),
+                                              role(S, idiot),
+                                              object(T, item);
+
+intDontTouchItYouIdiot(R, S, T, U) terminates phase(dontTouchItYouIdiot , phaseC),
+                                              perm(return(R))
+                                              if phase(dontTouchItYouIdiot , phaseC),
+                                              role(R, owner);
+
+intDontTouchItYouIdiot(R, S, T, U) terminates phase(dontTouchItYouIdiot , phaseD),
+                                              perm(fight(R, S))
+                                              if
+                                              phase(dontTouchItYouIdiot , phaseD),
+                                              role(S, idiot),
+                                              role(R, owner);
+
+% GENERATES: Dont Touch it You Idiot ----------
+fight(R, S) generates intDontTouchItYouIdiot(R, S, T, U)
+                      if role(S, idiot), role(R, owner);
+
+return(R) generates intDontTouchItYouIdiot(R, S, T, U) if role(R, owner);
+
+go(R, U) generates intDontTouchItYouIdiot(R, S, T, U)
+                   if role(R, owner), place(U, away);
+
+break(S, T) generates intDontTouchItYouIdiot(R, S, T, U)
+                      if role(S, idiot), object(T, item);
+
+drop(R, T) generatesintDontTouchItYouIdiot(R, S, T, U)
+           if role(R, owner), object(T, item);
+
+
+%%INITIALLY: -----------
+initially pow(intDontTouchItYouIdiot(R, S, T, U))
+          if role(R, owner), role(S, idiot) , object(T, item), place(U, away);
+
+initially perm(intDontTouchItYouIdiot(R, S, T, U))
+          if role(R, owner), role(S, idiot ), object(T, item), place(U, away);
+
+initially perm(drop(R, T)) if role(R, owner), object(T, item);
+
+initially phase(dontTouchItYouIdiot , active),
+          role(joey, owner),
+          role(punch , idiot),
+          place(offstage , away),
+          object(sausages , item);

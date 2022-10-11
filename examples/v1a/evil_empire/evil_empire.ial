@@ -1,0 +1,113 @@
+%% @thesis{thompson18_build_abstr_story_compon_instit_tropes_,
+%%   author = {Thompson, Matt},
+%%   file = {2018/Thompson/Thompson_2018_Building_Abstractable_Story_Components_w.pdf},
+%%   school = {university of bath},
+%%   tags = {ASP,InstaL,MAS,StoryBuilding,TropICAL,constraints,design,dissertation,folksonomy,institution,language,narrative,norms,programming,storytelling},
+%%   title = {Building Abstractable Story Components with Institutions and Tropes},
+%%   url = {https://ethos.bl.uk/OrderDetails.do?uin=uk.bl.ethos.761032},
+%%   year = {2018},
+%% }
+institution evilEmpire;
+
+%% TYPES ----------
+type Identity;
+type Agent;
+type Role;
+type Trope;
+type Phase;
+type Place;
+type PlaceName;
+type Object;
+type ObjectName;
+
+%% FLUENTS ----------
+fluent role(Agent , Role);
+fluent phase(Trope , Phase);
+fluent place(PlaceName , Place);
+fluent object(ObjectName , Object);
+
+%% EXTERNAL EVENTS: The Evil Empire ----------
+exogenous event chase(Agent , Agent);
+exogenous event escape(Agent);
+exogenous event capture(Agent , Agent);
+exogenous event noDeadline;
+
+%% VIOLATION EVENTS: The Evil Empire ----------
+violation event noViolation;
+
+%% INST EVENTS: The Evil Empire ----------
+inst event intChase(Agent , Agent);
+inst event intCapture(Agent, Agent);
+inst event intEscape(Agent);
+inst event intEvilEmpire(Agent, Agent);
+inst event intNoDeadline;
+
+%% INITIATES: The Evil Empire ----------
+intEvilEmpire(R, S) initiates phase(evilEmpire , phaseA),
+                    perm(capture(R, S))
+                    if
+                    phase(evilEmpire , active),
+                    role(S, empire),
+                    role(R, hero);
+
+intEvilEmpire(R, S) initiates phase(evilEmpire , phaseB),
+                    perm(escape(R))
+                    if
+                    phase(evilEmpire , phaseA),
+                    role(R, hero);
+
+%% TERMINATES: The Evil Empire ----------
+intEvilEmpire(R, S) terminates phase(evilEmpire , active),
+                               perm(chase(R, S))
+                               if
+                               phase(evilEmpire , active),
+                               role(S, empire),
+                               role(R, hero);
+
+intEvilEmpire(R, S) terminates phase(evilEmpire , phaseA),
+                               perm(capture(R, S))
+                               if
+                               phase(evilEmpire , phaseA),
+                               role(S, empire),
+                               role(R, hero);
+
+intEvilEmpire(R, S) terminates phase(evilEmpire , phaseB),
+                               perm(escape(R))
+                               if
+                               phase(evilEmpire , phaseB),
+                               role(R, hero);
+
+%% GENERATES: The Evil Empire ----------
+escape(R) generates intEvilEmpire(R, S)
+                    if
+                    role(R, hero);
+
+chase(R, S) generates intEvilEmpire(R, S)
+                      if
+                      role(S, empire),
+                      role(R, hero);
+
+capture(R, S) generates intEvilEmpire(R, S)
+                        if
+                        role(S, empire),
+                        role(R, hero);
+
+%% INITIALLY: -----------
+initially pow(intEvilEmpire(R, S))
+          if
+           role(R, hero),
+           role(S, empire);
+
+initially perm(intEvilEmpire(R, S))
+          if
+          role(R, hero),
+          role(S, empire);
+
+initially perm(chase(R, S))
+          if
+          role(S, empire),
+          role(R, hero);
+
+initially phase(evilEmpire , active),
+          role(empire , empire),
+          role(hero, hero);

@@ -1,0 +1,73 @@
+%% @thesis{thompson18_build_abstr_story_compon_instit_tropes_,
+%%   author = {Thompson, Matt},
+%%   file = {2018/Thompson/Thompson_2018_Building_Abstractable_Story_Components_w.pdf},
+%%   school = {university of bath},
+%%   tags = {ASP,InstaL,MAS,StoryBuilding,TropICAL,constraints,design,dissertation,folksonomy,institution,language,narrative,norms,programming,storytelling},
+%%   title = {Building Abstractable Story Components with Institutions and Tropes},
+%%   url = {https://ethos.bl.uk/OrderDetails.do?uin=uk.bl.ethos.761032},
+%%   year = {2018},
+%% }
+institution obligation2;
+% TYPES ----------
+type Identity; type Agent; type Role; type Trope; type Phase; type Place;type PlaceName; type Object; type ObjectName;
+% FLUENTS ----------
+fluent fluent fluent fluent
+role(Agent , Role); phase(Trope , Phase); place(PlaceName , Place); object(ObjectName , Object);% EXTERNAL EVENTS: Obligation 2 ----------
+exogenous exogenous exogenous
+event event event
+kill(Agent , Agent); go(Agent , PlaceName); noDeadline;
+% VIOLATION EVENTS: Obligation 2 ----------
+violation event violHeroGoLandOfAdventure; violation event noViolation;% INST EVENTS: Obligation 2 ----------
+inst event inst event inst event inst event
+intKill(Agent , Agent);
+intGo(Agent, PlaceName);
+intObligation2(Agent, Agent, Agent, PlaceName); intNoDeadline;
+% OBLIGATION FLUENTS: Obligation 2 ----------
+obligation fluent obl(intGo(Agent, PlaceName), intKill(Agent, Agent),violHeroGoLandOfAdventure);
+% INITIATES: Obligation 2 ----------
+violHeroGoLandOfAdventure initiates perm(kill(R, S)) if
+role(R, villain),
+role(S, hero);
+% TERMINATES: Obligation 2 ----------
+intObligation2(R, S, T, U) terminates
+phase(obligation2 , active),
+obl(intGo(R,U), intKill(S,T), violHeroGoLandOfAdventure), perm(go(R, U)),
+perm(intGo(R,U)), pow(intGo(R,U)) if phase(obligation2 , active),
+role(R, hero),
+place(U, landOfAdventure),
+role(T, mentor),
+role(S, villain), role(R, hero), role(S, villain);
+intKill(S, T) terminates
+obl(intGo(R,U), intKill(S,T), violHeroGoLandOfAdventure), perm(go(R, U)),
+perm(intGo(R,U)), pow(intGo(R,U)) if role(R, hero),
+place(U, landOfAdventure),
+role(T, mentor),
+role(S, villain), role(R, hero), role(S, villain);
+% GENERATES: Obligation 2 ----------
+kill(S, T) generates intObligation2(R, S, T, U) if
+role(R, hero), role(S, villain);
+go(R, U) generates intObligation2(R, S, T, U) if
+role(R, hero),
+place(U, landOfAdventure); kill(R, S) generates
+intObligation2(R, S, T, U) if role(T, mentor),
+role(S, villain); go(R, U) generates
+intGo(R,U) if role(R, hero),
+place(U, landOfAdventure); kill(S, T) generates
+intKill(S,T) if role(R, hero),
+role(S, villain); kill(R, S) generates
+intKill(R,S) if
+role(T, mentor), role(S, villain);
+% INITIALLY: -----------
+initially
+pow(intObligation2(R, S, T, U)) if role(R, hero), role(S, villain), role(
+T, mentor), place(U, landOfAdventure);
+initially
+perm(intObligation2(R, S, T, U)) if role(R, hero), role(S, villain), role
+(T, mentor), place(U, landOfAdventure); initially
+obl(intGo(R,U), intKill(S,T), violHeroGoLandOfAdventure), perm(go(R, U)), perm(intGo(R,U)), pow(intGo(R,U)) if role(R, hero), place(U,
+landOfAdventure);initially
+pow(intKill(S, T)),
+phase(obligation2 , active),
+role(hero, hero),
+role(villain , villain),
+role(mentor , mentor), place(landOfAdventure , landOfAdventure);

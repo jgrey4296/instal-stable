@@ -1,0 +1,160 @@
+%% @thesis{thompson18_build_abstr_story_compon_instit_tropes_,
+%%   author = {Thompson, Matt},
+%%   file = {2018/Thompson/Thompson_2018_Building_Abstractable_Story_Components_w.pdf},
+%%   school = {university of bath},
+%%   tags = {ASP,InstaL,MAS,StoryBuilding,TropICAL,constraints,design,dissertation,folksonomy,institution,language,narrative,norms,programming,storytelling},
+%%   title = {Building Abstractable Story Components with Institutions and Tropes},
+%%   url = {https://ethos.bl.uk/OrderDetails.do?uin=uk.bl.ethos.761032},
+%%   year = {2018},
+%% }
+institution branch3;
+
+%% TYPES ----------
+type Identity;
+type Agent;
+type Role;
+type Trope;
+type Phase;
+type Place;
+type PlaceName;
+type Object;
+type ObjectName;
+
+%% FLUENTS ----------
+fluent role(Agent , Role);
+fluent phase(Trope , Phase);
+fluent place(PlaceName , Place);
+fluent object(ObjectName , Object);
+
+%% EXTERNAL EVENTS: Branch 3 ----------
+exogenous event kill(Agent , Agent);
+exogenous event go(Agent , PlaceName);
+exogenous event find(Agent, ObjectName);
+exogenous event meet(Agent , Agent);
+exogenous event noDeadline;
+
+%% VIOLATION EVENTS: Branch 3 ----------
+violation event noViolation;
+
+%% INST EVENTS: Branch 3 ----------
+inst event intKill(Agent , Agent);
+inst event intFind(Agent, ObjectName);
+inst event intGo(Agent, PlaceName);
+inst event intMeet(Agent , Agent);
+inst event intBranch3(Agent, Agent, Agent, ObjectName, PlaceName, PlaceName, PlaceName);
+inst event intNoDeadline;
+
+%% INITIATES: Branch 3 ----------
+intBranch3(R, S, T, U, V, W, X) initiates phase(branch3 , phaseA),
+                                          perm(find(R, U)),
+                                          perm(go(R, X)),
+                                          perm(kill(R, S))
+                                          if
+                                          phase(branch3 , active),
+                                          object(U, sword),
+                                          role(R, hero),
+                                          place(X, landOfAdventure),
+                                          role(S, villain);
+
+intBranch3(R, S, T, U, V, W, X) initiates phase(branch3 , phaseB),
+                                          perm(meet(R, T)),
+                                          perm(go(R, V))
+                                          if
+                                          phase(branch3 , phaseA),
+                                          place(V, realmOfMystery),
+                                          role(R, hero),
+                                          role(T, mentor);
+
+%% TERMINATES: Branch 3 ----------
+intBranch3(R, S, T, U, V, W, X) terminates phase(branch3 , active),
+                                           perm(go(R, W))
+                                           if
+                                           phase(branch3 , active),
+                                           role(R, hero),
+                                           place(W, home);
+
+intBranch3(R, S, T, U, V, W, X) terminates phase(branch3 , phaseA),
+                                           perm(find(R, U)),
+                                           perm(go(R, X)),
+                                           perm(kill(R, S))
+                                           if
+                                           phase(branch3 , phaseA),
+                                           object(U, sword),
+                                           role(R, hero),
+                                           place(X, landOfAdventure),
+                                           role(S, villain);
+
+intBranch3(R, S, T, U, V, W, X) terminates phase(branch3 , phaseB),
+                                           perm(meet(R, T)),
+                                           perm(go(R, V))
+                                           if
+                                           phase(branch3 , phaseB),
+                                           place(V, realmOfMystery),
+                                           role(R, hero),
+                                           role(T, mentor);
+
+%% GENERATES: Branch 3 ----------
+find(R, U) generates intBranch3(R, S, T, U, V, W, X)
+                     if
+                     role(R, hero),
+                     object(U, sword);
+
+go(R, V) generates intBranch3(R, S, T, U, V, W, X)
+                   if
+                   role(R, hero),
+                   place(V, realmOfMystery);
+
+meet(R, T) generates intBranch3(R, S, T, U, V, W, X)
+                     if
+                     role(T, mentor),
+                     role(R, hero);
+
+go(R, W) generates intBranch3(R, S, T, U, V, W, X)
+                   if
+                   role(R, hero),
+                   place(W, home);
+
+go(R, X) generates intBranch3(R, S, T, U, V, W, X)
+                   if
+                   role(R, hero),
+                   place(X, landOfAdventure);
+
+kill(R, S) generates intBranch3(R, S, T, U, V, W, X)
+                     if
+                     role(S, villain),
+                     role(R, hero);
+
+%% INITIALLY: -----------
+initially pow(intBranch3(R, S, T, U, V, W, X))
+          if
+          role(R, hero),
+          role(S, villain),
+          role(T, mentor),
+          object(U, sword),
+          place(V, realmOfMystery),
+          place(W, home),
+          place(X, landOfAdventure);
+
+initially perm(intBranch3(R, S, T, U, V, W, X))
+          if
+          role(R, hero),
+          role(S, villain),
+          role(T, mentor),
+          object(U, sword),
+          place(V, realmOfMystery),
+          place(W , home),
+          place(X, landOfAdventure);
+
+initially perm(go(R, W))
+          if
+          role(R, hero),
+          place(W, home);
+
+initially phase(branch3 , active),
+          role(hero, hero),
+          role(villain , villain),
+          role(mentor , mentor),
+          place(home, home),
+          place(landOfAdventure , landOfAdventure),
+          place(realmOfMystery , realmOfMystery),
+          object(sword , sword);
