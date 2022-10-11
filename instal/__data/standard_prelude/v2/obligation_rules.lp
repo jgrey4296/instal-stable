@@ -1,5 +1,6 @@
 %%-- obligation rules
 % obligation completion are institutional events:
+% regardless of whether the obligation is a fluent or event itself
 eventType(obligation(O), Ins, inst) :- obligationalFluent(obligation(O, _, _, _), Ins).
 % As are violations:
 eventType(violation(V), Ins, viol)  :- obligationalFluent(obligation(_, _, V, _), Ins).

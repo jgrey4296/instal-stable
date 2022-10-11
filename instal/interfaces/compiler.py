@@ -22,6 +22,7 @@ class InstalCompiler_i(metaclass=abc.ABCMeta):
     """
     def __init__(self):
         self._compiled_text : list[str] = []
+        # TODO add delayed registers
 
     @property
     def compilation(self):

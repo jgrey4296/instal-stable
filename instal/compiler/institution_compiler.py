@@ -10,6 +10,7 @@ from instal.interfaces.compiler import InstalCompiler_i
 from instal.interfaces import ast as IAST
 from instal.compiler.util import CompileUtil
 from instal.compiler.situation_compiler import InstalSituationCompiler
+from instal.compiler.domain_compiler import InstalDomainCompiler
 from instal.defaults import COMP_DATA_loc, STANDARD_PRELUDE_loc
 
 ##-- end imports
@@ -62,7 +63,7 @@ class InstalInstitutionCompiler(InstalCompiler_i):
     def load_prelude(self) -> str:
         text = []
         if inst_prelude.is_dir():
-            for path in sorted(x for x in inst_prelude.iterdir() if x.name != ".DS_Store"):
+            for path in sorted(x for x in inst_prelude.iterdir() if x.suffix == ".lp"):
                 text += path.read_text().split("\n")
         else:
             assert(inst_prelude.is_file())
@@ -108,6 +109,12 @@ class InstalInstitutionCompiler(InstalCompiler_i):
         logging.debug("Compiling Types")
         # Print types. Also adds a constraint that every type must be grounded.
         self.insert(HEADER, header="Type Grounding and declaration", sub="")
+        domain_compiler = InstalDomainCompiler()
+
+        with_values = [x for x in type_list if bool(x.body)]
+        if bool(with_values):
+            self.insert(domain_compiler.compile(with_values))
+
         for t in type_list:
             self.insert(TYPE_PAT, x=t.head.value.lower())
 

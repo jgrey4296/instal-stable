@@ -5,19 +5,22 @@ from __future__ import annotations
 import logging as logmod
 import os
 import time
-from functools import partial
 from collections import defaultdict
 from dataclasses import InitVar, dataclass, field
+from functools import partial
 from pathlib import Path
 from typing import IO, List
 
 import clingo
 import instal
 from clingo import Control, Function, Number, Symbol, parse_term
-from instal.interfaces.ast import InitiallyAST, TermAST, QueryAST, DomainSpecAST, InstalAST
-from instal.interfaces.solver import SolverWrapper_i, InstalModelResult
-
+from instal.interfaces.ast import (DomainSpecAST, InitiallyAST, InstalAST,
+                                   QueryAST, TermAST)
+from instal.interfaces.solver import InstalModelResult, SolverWrapper_i
 ##-- end imports
+
+
+
 
 ##-- logging
 logging       = logmod.getLogger(__name__)
@@ -147,6 +150,7 @@ class ClingoSolver(SolverWrapper_i):
             match ast:
                 case InitiallyAST():
                     assert(not bool(ast.conditions))
+                    assert(not any(x.has_var for x in ast.body))
                     for fact in ast.body:
                         results.append((not ast.negated,
                                         Function("extHoldsat",
@@ -159,10 +163,11 @@ class ClingoSolver(SolverWrapper_i):
                     results.append((True, Function("_eventSet", [Number(time)])))
 
                 case DomainSpecAST():
+                    raise NotImplementedException()
                     for fact in ast.body:
                         assert(not bool(ast.head.params))
                         results.append((True,
-                                        Function(str(ast.head.value), [parse_term(str(x) for x in ast.body)])))
+                                        Function(str(ast.head.value.lower()), [parse_term(str(x) for x in ast.body)])))
 
                 case TermAST():
                     results.append((True, parse_term(str(ast))))

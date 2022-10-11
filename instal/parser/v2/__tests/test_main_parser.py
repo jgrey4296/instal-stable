@@ -16,7 +16,7 @@ from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
 from unittest import mock
 
 import instal.interfaces.ast as ASTs
-import instal.parser.v2.parse_funcs as dsl
+import instal.parser.v2.institution_parse_funcs as i_dsl
 from instal.interfaces.parser import InstalParserTestCase
 ##-- end imports
 
@@ -32,40 +32,41 @@ with warnings.catch_warnings():
 
 class TestInstitutionParser(InstalParserTestCase):
     def test_simple_institution(self):
-        self.assertParseResultsIsInstance(dsl.top_institution,
+        self.assertParseResultsIsInstance(i_dsl.top_institution,
                                           ("institution simple;\ntype Test;", ASTs.InstitutionDefAST),
                                           )
 
     def test_simple_bridge(self):
-        self.assertParseResultsIsInstance(dsl.top_bridge,
+        self.assertParseResultsIsInstance(i_dsl.top_bridge,
                                           ("bridge test;\ntype Test;\nsink blah;", ASTs.BridgeDefAST),
                                           )
 
     def test_sources(self):
-        for result, data in self.yieldParseResults(dsl.top_bridge,
+        for result, data in self.yieldParseResults(i_dsl.top_bridge,
                                                    ("bridge test;\ntype Test;\nsource bloo;\nsource other;", ["bloo", "other"]),
                                                    ):
             sources = (x.value for x in result[0].sources)
             self.assertAllIn(sources, data[1])
 
     def test_sinks(self):
-        for result, data in self.yieldParseResults(dsl.top_bridge,
+        for result, data in self.yieldParseResults(i_dsl.top_bridge,
                                                    ("bridge test;\ntype Test;\nsource bloo;\nsource other;", ["bloo", "other"]),
                                                    ):
             sinks = (x.value for x in result[0].sinks)
             self.assertAllIn(sinks, data[1])
 
     def test_types(self):
-        for result, data in self.yieldParseResults(dsl.top_institution,
+        for result, data in self.yieldParseResults(i_dsl.top_institution,
                                                    ("institution test;\ntype Test;\ntype Other;", ["Test", "Other"])
                                                    ):
             types = (x.head.value for x in result[0].types)
             self.assertAllIn(types, data[1])
 
     def test_events(self):
-        for result, data in self.yieldParseResults(dsl.top_institution,
+        for result, data in self.yieldParseResults(i_dsl.top_institution,
                                                    ("institution test;\nexogenous event blah;\nexogenous event other;", ["blah", "other"], {ASTs.EventEnum.exogenous}),
                                                    ("institution test;\nexo event blah;\nexo event other;", ["blah", "other"], {ASTs.EventEnum.exogenous}),
+                                                   ("institution test;\nexternal event blah;\nexternal event other;", ["blah", "other"], {ASTs.EventEnum.exogenous}),
 
                                                    ("institution test;\ninstitutional event blah;\ninstitutional event other;\ninstitutional event another;", ["blah", "other", "another"], {ASTs.EventEnum.institutional}),
                                                    ("institution test;\ninst event blah;\ninst event other;\ninst event another;", ["blah", "other", "another"], {ASTs.EventEnum.institutional}),
@@ -80,7 +81,7 @@ class TestInstitutionParser(InstalParserTestCase):
 
 
     def test_fluents(self):
-        for result, data in self.yieldParseResults(dsl.top_institution,
+        for result, data in self.yieldParseResults(i_dsl.top_institution,
                                                    ("institution test;\nfluent testFluent;\nfluent otherFluent;", ["testFluent", "otherFluent"], {ASTs.FluentEnum.inertial}),
 
                                                    ("institution test;\ntransient fluent testFluent;\ntransient fluent otherFluent;", ["testFluent", "otherFluent"], {ASTs.FluentEnum.transient}),
@@ -98,31 +99,66 @@ class TestInstitutionParser(InstalParserTestCase):
             self.assertAllIn((x.annotation for x in fluents), data[2])
 
     def test_generation_rules(self):
-        for result, data in self.yieldParseResults(dsl.top_institution,
-                                                   ("institution test;\nsomething initiates else;", ["something"], ["else"], {ASTs.RuleEnum.initiates}),
+        for result, data in self.yieldParseResults(i_dsl.top_institution,
                                                    ("institution test;\nsomething generates else;", ["something"], ["else"], {ASTs.RuleEnum.generates}),
+                                                   ("institution test;\nsomething generates one, two, three(val);", ["something"], ["one", "two", "three(val)"], {ASTs.RuleEnum.generates}),
+                                                   ("institution test\nsomething(value) generates else(other)", ["something(value)"], ["else(other)"], {ASTs.RuleEnum.generates}),
+                                                   ("institution test\nsomething(Variable) generates else(Other)", ["something(Variable)"], ["else(Other)"], {ASTs.RuleEnum.generates}),
+                                                   ("institution test\nsomething(_) generates else(_)", ["something(_)"], ["else(_)"], {ASTs.RuleEnum.generates}),
                                                    ):
             rules = result[0].rules
-            self.assertAllIn((x.head.value for x in rules), data[1])
-            self.assertAllIn((y.value for x in rules for y in x.body), data[2])
+            self.assertAllIn((str(x.head) for x in rules), data[1])
+            self.assertAllIn((str(y) for x in rules for y in x.body), data[2])
             self.assertAllIn((x.annotation for x in rules), data[3])
 
+    def test_inertial_rules(self):
+        for result, data in self.yieldParseResults(i_dsl.top_institution,
+                                                   ("institution test;\nsomething initiates else;", ["something"], ["else"], {ASTs.RuleEnum.initiates}),
+                                                   ("institution test;\nsomething initiates one, two, three(Var);", ["something"], ["one", "two", "three(Var)"], {ASTs.RuleEnum.initiates}),
+                                                   ("institution test\nsomething(value) initiates else(other)", ["something(value)"], ["else(other)"], {ASTs.RuleEnum.initiates}),
+                                                   ("institution test\nsomething(Variable) initiates else(Other)", ["something(Variable)"], ["else(Other)"], {ASTs.RuleEnum.initiates}),
+                                                   ("institution test\nsomething(_) initiates else(_)", ["something(_)"], ["else(_)"], {ASTs.RuleEnum.initiates}),
+
+                                                   ("institution test;\nsomething terminates else;", ["something"], ["else"], {ASTs.RuleEnum.terminates}),
+                                                   ("institution test;\nsomething terminates one, two, three(Var);", ["something"], ["one", "two", "three(Var)"], {ASTs.RuleEnum.terminates}),
+                                                   ("institution test\nsomething(value) terminates else(other)", ["something(value)"], ["else(other)"], {ASTs.RuleEnum.terminates}),
+                                                   ("institution test\nsomething(Variable) terminates else(Other)", ["something(Variable)"], ["else(Other)"], {ASTs.RuleEnum.terminates}),
+                                                   ("institution test\nsomething(_) terminates else(_)", ["something(_)"], ["else(_)"], {ASTs.RuleEnum.terminates}),
+                                                   ):
+            rules = result[0].rules
+            self.assertAllIn((str(x.head) for x in rules), data[1])
+            self.assertAllIn((str(y) for x in rules for y in x.body), data[2])
+            self.assertAllIn((x.annotation for x in rules), data[3])
+
+
+
+
     def test_transient_rules(self):
-        for result, data in self.yieldParseResults(dsl.top_institution,
-                                                   ("institution test;\nsomething when else;", ["something"], ["else"]),
-                                                   ("institution test;\nsomething when else;", ["something"], ["else"]),
+        for result, data in self.yieldParseResults(i_dsl.top_institution,
+                                                   ("institution test;\nsomething when else;", ["something"], ["else"], {ASTs.RuleEnum.transient}),
+                                                   ("institution test;\nblah when bloo;", ["blah"], ["bloo"], {ASTs.RuleEnum.transient}),
+
+                                                   ("institution test;\nsomething when else;", ["something"], ["else"], {ASTs.RuleEnum.transient}),
+                                                   ("institution test\nsomething(value) when else(other)", ["something(value)"], ["else(other)"], {ASTs.RuleEnum.transient}),
+                                                   ("institution test\nsomething(Variable) when else(Variable)", ["something(Variable)"], ["else(Variable)"], {ASTs.RuleEnum.transient}),
+                                                   ("institution test\nsomething(Variable, SecondVar) when else(Variable, SecondVar)", ["something(Variable, SecondVar)"], ["else(Variable, SecondVar)"], {ASTs.RuleEnum.transient}),
+                                                   ("institution test\nsomething(_) when else(_)", ["something(_)"], ["else(_)"], {ASTs.RuleEnum.transient}),
                                                    ):
             transients = result[0].rules
-            self.assertAllIn((x.head.value for x in transients), data[1])
-            self.assertAllIn((y.value for x in transients for y in x.body), data[2])
+            self.assertAllIn((str(x.head) for x in transients), data[1])
+            self.assertAllIn((str(y) for x in transients for y in x.body), data[2])
+            self.assertAllIn((x.annotation for x in transients), data[3])
 
 
     def test_initially(self):
-        for result, data in self.yieldParseResults(dsl.top_institution,
+        for result, data in self.yieldParseResults(i_dsl.top_institution,
                                                    ("institution test;\ninitially something;", ["something"]),
+                                                   ("institution test;\ninitially something(value);", ["something(value)"]),
+                                                   ("institution test;\ninitially something(Variable, SecondVar);", ["something(Variable, SecondVar)"]),
+                                                   ("institution test;\ninitially something(_, SecondVar);", ["something(_, SecondVar)"]),
                                                    ):
             initial = result[0].initial
-            self.assertAllIn((y.value for x in initial for y in x.body), data[1])
+            self.assertAllIn((str(y) for x in initial for y in x.body), data[1])
 
 
     @unittest.skip("TODO")
@@ -130,7 +166,7 @@ class TestInstitutionParser(InstalParserTestCase):
         pass
 
     def test_simple_full(self):
-        self.assertFilesParse(dsl.top_institution,
+        self.assertFilesParse(i_dsl.top_institution,
                               "test_inst.ial",
                               "test_inst2.ial",
                               "test_inst3.ial",

@@ -90,6 +90,10 @@ class TermAST(InstalAST):
         return all(x == y for x,y in zip(self.params, other.params))
 
 
+    @property
+    def has_var(self) -> bool:
+        return self.is_var or any(x.has_var for x in self.params)
+
 ##-- end core base asts
 
 ##-- institutions and bridges
@@ -134,8 +138,8 @@ class InitiallyAST(InstalAST):
 
 ##-- specialised asts
 @dataclass(frozen=True)
-class TypeAST(InstalAST):
-    head : TermAST = field()
+class TypeAST(DomainSpecAST):
+    pass
 
 @dataclass(frozen=True)
 class EventAST(InstalAST):

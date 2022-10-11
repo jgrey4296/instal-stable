@@ -21,6 +21,7 @@ import pyparsing as pp
 from instal.interfaces.parser import InstalParser_i
 import instal.interfaces.ast as ASTs
 import instal.parser.v2.parse_funcs as PF
+import instal.parser.v2.institution_parse_funcs as IPF
 
 if TYPE_CHECKING:
     # tc only imports
@@ -37,7 +38,7 @@ class InstalPyParser(InstalParser_i):
     def parse_institution(self, text:str, *, parse_source:str=None) -> list[ASTs.InstitutionDefAST]:
         """ Mainly for .ial's """
         logging.debug("Parsing Institution, parse_source: %s", parse_source)
-        result = PF.top_institution.parse_string(text, parse_all=True)[:]
+        result = IPF.top_institution.parse_string(text, parse_all=True)[:]
         if parse_source is not None:
             [x.parse_source.append(parse_source) for x in result]
         return result
@@ -45,7 +46,7 @@ class InstalPyParser(InstalParser_i):
     def parse_bridge(self, text:str, *, parse_source:str=None) -> list[ASTs.BridgeDefAST]:
         """ Mainly for .iab's """
         logging.debug("Parsing Bridge, parse_source: %s", parse_source)
-        result = PF.top_bridge.parse_string(text, parse_all=True)[:]
+        result = IPF.top_bridge.parse_string(text, parse_all=True)[:]
         if parse_source is not None:
             [x.parse_source.append(parse_source) for x in result]
         return result

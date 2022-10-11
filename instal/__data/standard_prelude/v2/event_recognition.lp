@@ -16,9 +16,9 @@ event(violation(Ev))                   :- event(Ev), eventType(Ev, _,   inst).
 eventType(violation(Ev), Ins, viol)    :- event(Ev), eventType(Ev, Ins, inst).
 
 %% Institutional null occurrence when nothing can be recognised:
-occurred(null, In, I)             :- instant(I),
-                                     institution(In),
-                                     not occurred(_, I).
+{ occurred(null, In, I) }             :- instant(I),
+                                         institution(In),
+                                         not occurred(_, I).
 
 
 %% for Debugging:
@@ -33,5 +33,7 @@ occurred(_unempoweredEvent(E), In, I)  :- instant(I),
 
 %% Reject any model with a faulty event type:
 % :- eventType(_, _, T), not event_types(T).
+
+:- instant(I), institution(In), not occurred(_, In, I).
 
 %%-- end events recognition

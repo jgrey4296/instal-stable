@@ -54,6 +54,14 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ):
             self.assertEqual(result[0].time, data[1])
 
+    def test_query_multiple_at_time(self):
+        for result, data in self.yieldParseResults(dsl.top_query,
+                                                   ("observed person(bob) at 5\nobserved person(bill) at 10", 5, 10),
+                                                   ("observed basicExEvent(first) at 0\nobserved basicExEvent(second)  at 1", 0, 1)
+                                                   ):
+            self.assertEqual(result[0].time, data[1])
+            self.assertEqual(result[1].time, data[2])
+
 
 if __name__ == '__main__':
     unittest.main()

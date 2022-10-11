@@ -7,18 +7,21 @@ from __future__ import annotations
 
 import abc
 import argparse
-import pathlib
+import importlib
 import logging as logmod
+import pathlib
 from copy import deepcopy
 from dataclasses import InitVar, dataclass, field
 from re import Pattern
+from sys import stderr, stdout
 from typing import (TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
                     Iterable, Iterator, Mapping, Match, MutableMapping,
                     Protocol, Sequence, Tuple, TypeAlias, TypeGuard, TypeVar,
                     cast, final, overload, runtime_checkable)
-import importlib
 from uuid import UUID, uuid1
 from weakref import ref
+
+import pyparsing as pp
 from instal import defaults
 
 if TYPE_CHECKING:
@@ -26,32 +29,47 @@ if TYPE_CHECKING:
     pass
 ##-- end imports
 
-##-- logging
-logging = logmod.getLogger(__name__)
-# If CLI:
-# logging = logmod.root
-# logging.setLevel(logmod.NOTSET)
-##-- end logging
+##-- Logging
+DISPLAY_LEVEL = logmod.WARN
+LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
+LOG_FORMAT    = "%(asctime)s | %(levelname)8s | %(message)s"
+FILE_MODE     = "w"
+STREAM_TARGET = stdout
+
+logging         = logmod.root
+logging.setLevel(logmod.NOTSET)
+console_handler = logmod.StreamHandler(STREAM_TARGET)
+file_handler    = logmod.FileHandler(LOG_FILE_NAME, mode=FILE_MODE)
+
+console_handler.setLevel(DISPLAY_LEVEL)
+# console_handler.setFormatter(logmod.Formatter(LOG_FORMAT))
+file_handler.setLevel(logmod.DEBUG)
+# file_handler.setFormatter(logmod.Formatter(LOG_FORMAT))
+
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
+##-- end Logging
 
 ##-- argparse
-parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+argparser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                  epilog = "\n".join([""]))
-parser.add_argument('--parser', default="instal.parser.v1")
-parser.add_argument('--out', required=True)
+argparser.add_argument('--parser', default="instal.parser.v1", help="The import path to the parser package")
+argparser.add_argument('--out', required=True)
 ##-- end argparse
 
-
 def main():
-    global parser
-    args     = parser.parse_args()
-    args.out = pathlib.Path(args.out).expanduser().resolve()
-    print("Test output:\n {},\n {}".format(args.out, args.parser))
 
-    # Now import and build the parser
-    parser_import     = args.parser + ".parse_funcs"
-    parser_module     = importlib.import_module(parser_import)
-    top_parsers =     [(x, getattr(parser_module, x)) for x in dir(parser_module)
-                       if "top_" in x]
+    args     = argparser.parse_args()
+    args.out = pathlib.Path(args.out).expanduser().resolve()
+    print("Outputting diagrams to: %s", args.out)
+
+
+    # Now import and build the argparser
+    parser_import = args.parser + ".parse_funcs"
+    print(f"Importing {parser_import}")
+
+    parser_module = importlib.import_module(parser_import)
+    top_parsers   = [(x, getattr(parser_module, x)) for x in dir(parser_module) if "top_" in x]
     for name, parser in top_parsers:
         print(f"Making Diagram for: {name}")
         parser.create_diagram(args.out / (name + "_railroad.html"),

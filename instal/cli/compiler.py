@@ -92,7 +92,7 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, 
         compiler = None
         parse_fn = None
         checker  = None
-        text     = target.read_text()
+        text = target.read_text()
 
         ##-- match
         match target.suffix:

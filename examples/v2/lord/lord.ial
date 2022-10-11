@@ -1,57 +1,58 @@
 %%
 %% The 'Lord' institution from
-% @thesis{li14_normat_confl_detec_resol_cooper_instit_,
-%   author = {Li, TingTing},
-%   school = {University of Bath},
-%   title  = {Normative Conflict Detection and Resolution in Cooperating Institutions},
-%   year   = {2014},
-% }
+%% @thesis{li14_normat_confl_detec_resol_cooper_instit_,
+%%   author = {Li, TingTing},
+%%   school = {University of Bath},
+%%   title  = {Normative Conflict Detection and Resolution in Cooperating Institutions},
+%%   year   = {2014},
+%% }
 %%
-institution lord;
 
-type Person;
-type Age;
-type Gender;
-type Castle;
+institution lord
 
-exogenous event register(Person);
-exogenous event serveInArmy(Person);
-exogenous event deadline;
-exogenous event releaseSolePolicy(Person);
-exogenous event goToWar(Castle);
-exogenous event demandToFight(Castle);
+type Person
+type Age
+type Gender
+type Castle
 
-inst event intReleaseSolePolicy(Person);
-inst event intDemandToFight(Castle);
-inst event intRegister(Person);
-inst event intServeInArmy(Person);
+exogenous event deadline
+exogenous event demandToFight(Castle)
+exogenous event goToWar(Castle)
+exogenous event register(Person)
+exogenous event releaseSolePolicy(Person)
+exogenous event serveInArmy(Person)
 
-violation event illegal(Person);
+inst event intDemandToFight(Castle)
+inst event intRegister(Person)
+inst event intReleaseSolePolicy(Person)
+inst event intServeInArmy(Person)
 
-fluent onlySon(Person);
-fluent ageOlder(Person, Age);
-fluent gender(Person, Gender);
-fluent attacked(Castle);
+violation event illegal(Person)
 
-obligation fluent obl(serveInArmy(Person), deadline, illegal(Person), oneshot);
+fluent ageOlder(Person, Age)
+fluent attacked(Castle)
+fluent gender(Person, Gender)
+fluent onlySon(Person)
 
-register(Person)          generates intRegister(Person);
-demandToFight(Castle)     generates intDemandToFight(Castle);
-serveInArmy(Person)       generates intServeInArmy(Person);
-releaseSolePolicy(Person) generates intReleaseSolePolicy(Person);
+obligation fluent obl(serveInArmy(Person), deadline, illegal(Person), oneshot)
 
-intRegister(Person)          initiates obl(serveInArmy(Person), deadline, illegal(Person)), perm(serveInArmy(Person)) if ageOlder(Person, sixteen), gender(Person, male);
-intDemandToFight(Castle)     initiates perm(goToWar(Castle)) if attacked(Castle);
+demandToFight(Castle)     generates intDemandToFight(Castle)
+register(Person)          generates intRegister(Person)
+releaseSolePolicy(Person) generates intReleaseSolePolicy(Person)
+serveInArmy(Person)       generates intServeInArmy(Person)
 
-intReleaseSolePolicy(Person) terminates obl(serveInArmy(Person), deadline, illegal(Person)), perm(serveInArmy(Person)) if onlySon(Person);
+intRegister(Person)          initiates obl(serveInArmy(Person), deadline, illegal(Person)), perm(serveInArmy(Person)) if ageOlder(Person, sixteen), gender(Person, male)
+intDemandToFight(Castle)     initiates perm(goToWar(Castle)) if attacked(Castle)
 
-initially perm(register(Person)), pow(intRegister(Person)), perm(intRegister(Person));
-initially perm(deadline);
-initially perm(releaseSolePolicy(Person)), perm(intReleaseSolePolicy(Person)), pow(intReleaseSolePolicy(Person));
-initially perm(demandToFight(Castle)), perm(intDemandToFight(Castle)), pow(intDemandToFight(Castle));
-initially attacked(eastCastle);
-initially onlySon(tom);
-initially ageOlder(tom,sixteen);
-initially gender(tom,male);
-initially ageOlder(bob,sixteen);
-initially gender(bob,male);
+intReleaseSolePolicy(Person) terminates obl(serveInArmy(Person), deadline, illegal(Person)), perm(serveInArmy(Person)) if onlySon(Person)
+
+initially ageOlder(bob,sixteen)
+initially ageOlder(tom,sixteen)
+initially attacked(eastCastle)
+initially gender(bob,male)
+initially gender(tom,male)
+initially onlySon(tom)
+initially perm(deadline)
+initially perm(demandToFight(Castle)), perm(intDemandToFight(Castle)), pow(intDemandToFight(Castle))
+initially perm(register(Person)), pow(intRegister(Person)), perm(intRegister(Person))
+initially perm(releaseSolePolicy(Person)), perm(intReleaseSolePolicy(Person)), pow(intReleaseSolePolicy(Person))

@@ -40,7 +40,7 @@ def institution(string, loc, toks):
                 inst.fluents.append(elem)
             case ASTs.EventAST():
                 inst.events.append(elem)
-            case ASTs.TypeAST():
+            case ASTs.DomainSpecAST():
                 inst.types.append(elem)
             case ASTs.RuleAST():
                 inst.rules.append(elem)
@@ -86,7 +86,7 @@ def event(string, loc, toks) -> ASTs.EventAST:
     head     = toks['head']
     anno_str = toks.annotation
     match anno_str:
-        case "exogenous"     | "exo":
+        case "exogenous"     | "exo" |  "external":
             annotation = ASTs.EventEnum.exogenous
         case "institutional" | "inst":
             annotation = ASTs.EventEnum.institutional

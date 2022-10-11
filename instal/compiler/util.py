@@ -33,7 +33,7 @@ type_matcher = re.compile(r"([A-Z][^0-9_]*)(?:_?([0-9]+))?")
 
 class CompileUtil:
     @staticmethod
-    def wrap_types(types:list[ASTs.TypeAST], *params:ASTs.TermAST) -> set[str]:
+    def wrap_types(types:list[ASTs.DomainSpecAST], *params:ASTs.TermAST) -> set[str]:
         """
         convert instal variables (User, Book etc)
         to terms for the right hand side of rules to ensure correct typing:
