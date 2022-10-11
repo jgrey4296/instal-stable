@@ -33,6 +33,8 @@ with warnings.catch_warnings():
     pass
 ##-- end warnings
 
+logging = logmod.root
+
 def save_last(compiled, append=None):
     "A utility to save lines of text to a file for debugging compiled output "
     with open(pathlib.Path(__file__).parent / "last_run.lp", 'w') as f:

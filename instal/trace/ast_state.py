@@ -9,7 +9,7 @@ import instal.interfaces.ast as iAST
 from clingo import Symbol
 from instal.interfaces.solver import InstalModelResult
 from instal.interfaces.trace import State_i
-from instal.parser.v2.parse_funcs import TERM
+from instal.parser.v2.utils import TERM
 
 ##-- end imports
 

@@ -32,6 +32,7 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     pass
 ##-- end warnings
+logging = logmod.root
 
 def save_last(compiled, append=None):
     "A utility to save lines of text to a file for debugging compiled output "

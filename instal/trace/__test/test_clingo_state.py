@@ -80,7 +80,7 @@ class TestClingoState(unittest.TestCase):
 
 
     def test_state_creation(self):
-        state = InstalASTState()
+        state = InstalClingoState()
 
         self.assertEqual(state.timestep, 0)
 
@@ -89,7 +89,7 @@ class TestClingoState(unittest.TestCase):
         term_par1 = iast.TermAST("test")
         term1 = iast.TermAST("blah", [term_par1, iast.TermAST(0)])
 
-        state = InstalASTState()
+        state = InstalClingoState()
 
         self.assertFalse(bool(state.rest))
         state.insert(term1)
@@ -102,7 +102,7 @@ class TestClingoState(unittest.TestCase):
         term1 = iast.TermAST("blah", [term_par1, iast.TermAST(0)])
         term2 = iast.TermAST("blah", [term_par2, iast.TermAST(0)])
 
-        state = InstalASTState()
+        state = InstalClingoState()
 
         self.assertNotIn(term2, state)
         state.insert(term1)
@@ -118,7 +118,7 @@ class TestClingoState(unittest.TestCase):
         term_a = iast.TermAST("holdsat", [term1, iast.TermAST(0)])
         term_b = iast.TermAST("holdsat", [term1, iast.TermAST(0)])
 
-        state = InstalASTState()
+        state = InstalClingoState()
 
         self.assertNotIn(term_b, state)
         state.insert(term_a)
@@ -132,7 +132,7 @@ class TestClingoState(unittest.TestCase):
         term1 = iast.TermAST("blah", [term_par1, iast.TermAST(0)])
         term2 = iast.TermAST("blah", [term_par2, iast.TermAST(0)])
 
-        state = InstalASTState()
+        state = InstalClingoState()
 
         self.assertNotIn(term2, state)
         state.insert(term1)
@@ -148,7 +148,7 @@ class TestClingoState(unittest.TestCase):
         term1_clone  = iast.TermAST(term2.value, term2.params[:-1] + [iast.TermAST(0)])
 
         self.assertEqual(term1, term1_clone)
-        state = InstalASTState()
+        state = InstalClingoState()
         self.assertNotIn(term2, state)
         state.insert(term1)
         self.assertIn(term2, state)
@@ -160,7 +160,7 @@ class TestClingoState(unittest.TestCase):
         term1 = iast.TermAST("blah", [term_par1, iast.TermAST(0)])
         term2 = iast.TermAST("blah", [term_par2, iast.TermAST(1)])
 
-        state = InstalASTState()
+        state = InstalClingoState()
 
         self.assertNotIn(term2, state)
         state.insert(term1)
