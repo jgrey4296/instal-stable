@@ -57,7 +57,7 @@ class TestSituationCompiler(unittest.TestCase):
             "holdsat(test, testInst, I) :- start(I),",
             "institution(testInst),",
             "inertialFluent(test, testInst),",
-            "holdsat(live(testInst), I),",
+            "holdsat(live(testInst), testInst, I),",
             "true.",
             ""
             ]
@@ -82,14 +82,14 @@ class TestSituationCompiler(unittest.TestCase):
             "holdsat(first, testInst, I) :- start(I),",
             "institution(testInst),",
             "inertialFluent(first, testInst),",
-            "holdsat(live(testInst), I),",
+            "holdsat(live(testInst), testInst, I),",
             "true.",
             "",
             "% initially: second (if [conditions])",
             "holdsat(second, testInst, I) :- start(I),",
             "institution(testInst),",
             "inertialFluent(second, testInst),",
-            "holdsat(live(testInst), I),",
+            "holdsat(live(testInst), testInst, I),",
             "true.",
             ]
         self.assertEqual(len(result.strip().split("\n")), len(expected))
@@ -117,14 +117,14 @@ class TestSituationCompiler(unittest.TestCase):
             "holdsat(blah, firstInst, I) :- start(I),",
             "institution(firstInst),",
             "inertialFluent(blah, firstInst),",
-            "holdsat(live(firstInst), I),",
+            "holdsat(live(firstInst), firstInst, I),",
             "true.",
             "",
             "% initially: bloo (if [conditions])",
             "holdsat(bloo, secondInst, I) :- start(I),",
             "institution(secondInst),",
             "inertialFluent(bloo, secondInst),",
-            "holdsat(live(secondInst), I),",
+            "holdsat(live(secondInst), secondInst, I),",
             "true.",
             "",
             ]

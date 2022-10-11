@@ -119,7 +119,7 @@ class TestBridgeCompiler(unittest.TestCase):
         compiler.compile_fluents(inst)
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
-            "ifluent(ipow(first, second, third), simple) :- bridge(simple, first, third), true.",
+            "inertialFluent(ipow(first, second, third), simple) :- bridge(simple, first, third), true.",
             ""
             ]
         # self.assertEqual(len(result.split("\n")), len(expected))
