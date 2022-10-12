@@ -29,19 +29,24 @@ obligationTypes(oneshot;multishot).
 
 %%-- suppress_warnings
 true.
-event(null).
-event(violation(null)).
-inertialFluent(0, 0).
-transientFluent(0, 0).
-obligationalFluent(0, 0).
-initiated(0, 0, 0).
-terminated(0, 0, 0).
-xInitiated(0, 0, 0, 0).
-xTerminated(0, 0, 0, 0).
-bridge(0,0,0).
-sink(0, 0).
-source(0, 0).
-_typeNotDeclared :- 1 == 2.
+bridge(0,0,0)                             :- 1 == 2.
+event(null)                               :- 1 == 2.
+event(violation(null))                    :- 1 == 2.
+eventType(0,0,0)                          :- 1 == 2.
+inertialFluent(0, 0)                      :- 1 == 2.
+initiated(0, 0, 0)                        :- 1 == 2.
+obligationalFluent(0, 0)                  :- 1 == 2.
+obligationalFluent(obligation(0,0,0,0),0) :- 1 == 2.
+occurred(obligation(0), 0, 0)             :- 1 == 2.
+occurred(0, 0)                            :- 1 == 2.
+occurred(0,0,0)                           :- 1 == 2.
+sink(0, 0)                                :- 1 == 2.
+source(0, 0)                              :- 1 == 2.
+terminated(0, 0, 0)                       :- 1 == 2.
+transientFluent(0, 0)                     :- 1 == 2.
+xInitiated(0, 0, 0, 0)                    :- 1 == 2.
+xTerminated(0, 0, 0, 0)                   :- 1 == 2.
+_typeNotDeclared                          :- 1 == 2.
 %%-- end suppress_warnings
 
 %%-- defends against partially grounded institutions
