@@ -11,46 +11,89 @@
 
 
 institution obligation1;
-% TYPES ----------
-type Identity; type Agent; type Role; type Trope;type Phase;
+
+%% TYPES ----------
+type Identity;
+type Agent;
+type Role;
+type Trope;
+type Phase;
 type Place;
-type PlaceName; type Object; type ObjectName;
-% FLUENTS ----------
-fluent role(Agent , Role); fluent phase(Trope , Phase);fluent place(PlaceName , Place); fluent object(ObjectName , Object);
-% EXTERNAL EVENTS: Obligation 1 ----------
-exogenous event go(Agent , PlaceName); exogenous event noDeadline;
-% VIOLATION EVENTS: Obligation 1 ----------violation event violHeroGoLandOfAdventure; violation event noViolation;
-% INST EVENTS: Obligation 1 ----------
+type PlaceName;
+type Object;
+type ObjectName;
+
+%% FLUENTS ----------
+fluent role(Agent , Role);
+fluent phase(Trope , Phase);
+fluent place(PlaceName , Place);
+fluent object(ObjectName , Object);
+
+%% EXTERNAL EVENTS: Obligation 1 ----------
+exogenous event go(Agent , PlaceName);
+exogenous event noDeadline;
+
+%% VIOLATION EVENTS: Obligation 1 ----------violation event violHeroGoLandOfAdventure;
+violation event noViolation;
+
+%% INST EVENTS: Obligation 1 ----------
 inst event intGo(Agent, PlaceName);
-inst event intObligation1(Agent, PlaceName, PlaceName); inst event intNoDeadline;% OBLIGATION FLUENTS: Obligation 1 ----------
+inst event intObligation1(Agent, PlaceName, PlaceName);
+inst event intNoDeadline;
+
+%% OBLIGATION FLUENTS: Obligation 1 ----------
 obligation fluent obl(intGo(Agent, PlaceName), intNoDeadline, noViolation);
-% INITIATES: Obligation 1 ----------
-intObligation1(R, S, T) initiates
-phase(obligation1 , phaseA),
-obl(intGo(R,T), intNoDeadline , noViolation), perm(go(R, T)), perm(intGo(R
-,T)), pow(intGo(R,T)) ifphase(obligation1 , active), role(R, hero),
-place(T, landOfAdventure);
-% TERMINATES: Obligation 1 ----------
-intObligation1(R, S, T) terminates phase(obligation1 , active), perm(go(R, S)) if
-phase(obligation1 , active), role(R, hero),place(S, home); intObligation1(R, S, T) terminates
-phase(obligation1 , phaseA),
-obl(intGo(R,T), intNoDeadline , noViolation), perm(go(R, T)), perm(intGo(R
-,T)), pow(intGo(R,T)) if phase(obligation1 , phaseA), role(R, hero),
-place(T, landOfAdventure);% GENERATES: Obligation 1 ----------
-go(R, S) generates intObligation1(R, S, T) if
-role(R, hero),
-place(S, home); go(R, T) generates
-intObligation1(R, S, T) if role(R, hero),
-place(T, landOfAdventure);go(R, S) generates intGo(R,S) if
-role(R, hero),
-place(S, landOfAdventure);
-% INITIALLY: -----------
-initially
-pow(intObligation1(R, S, T)) if role(R, hero), place(S, home), place(T,
-landOfAdventure);initially
-perm(intObligation1(R, S, T)) if role(R, hero), place(S, home), place(T,
-landOfAdventure); initially
-perm(go(R, S)) if role(R, hero), place(S, home); initially
-phase(obligation1 , active),
-role(hero, hero),
-place(landOfAdventure , landOfAdventure), place(home, home);
+
+%% INITIATES: Obligation 1 ----------
+intObligation1(R, S, T) initiates phase(obligation1 , phaseA),
+                                  obl(intGo(R,T), intNoDeadline , noViolation),
+                                  perm(go(R, T)),
+                                  perm(intGo(R ,T)),
+                                  pow(intGo(R,T))
+                                  if
+                                  phase(obligation1 , active),
+                                  role(R, hero),
+                                  place(T, landOfAdventure);
+
+%% TERMINATES: Obligation 1 ----------
+intObligation1(R, S, T) terminates phase(obligation1 , active),
+                                   perm(go(R, S))
+                                   if
+                                   phase(obligation1 , active),
+                                   role(R, hero),
+                                   place(S, home);
+
+intObligation1(R, S, T) terminates phase(obligation1 , phaseA),
+                                   obl(intGo(R,T), intNoDeadline , noViolation),
+                                   perm(go(R, T)),
+                                   perm(intGo(R ,T)),
+                                   pow(intGo(R,T))
+                                   if
+                                   phase(obligation1 , phaseA),
+                                   role(R, hero),
+                                   place(T, landOfAdventure);
+
+%% GENERATES: Obligation 1 ----------
+go(R, S) generates intObligation1(R, S, T)
+                   if role(R, hero), place(S, home);
+
+go(R, T) generates intObligation1(R, S, T)
+                   if role(R, hero), place(T, landOfAdventure);
+
+go(R, S) generates intGo(R,S)
+                   if role(R, hero), place(S, landOfAdventure);
+
+%% INITIALLY: -----------
+initially pow(intObligation1(R, S, T))
+          if role(R, hero), place(S, home), place(T, landOfAdventure);
+
+initially perm(intObligation1(R, S, T))
+          if role(R, hero), place(S, home), place(T, landOfAdventure);
+
+initially perm(go(R, S))
+          if role(R, hero), place(S, home);
+
+initially phase(obligation1 , active),
+          role(hero, hero),
+          place(landOfAdventure , landOfAdventure),
+          place(home, home);

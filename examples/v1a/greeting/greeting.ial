@@ -1,26 +1,39 @@
 institution greeting;
 
+%% TYPES ----------
 type Person;
 
+%% EXTERNAL EVENTS: ----------
 exogenous event enterroom(Person);
 exogenous event wave(Person);
 exogenous event timepassed;
 
+%% INST EVENTS: ----------
 inst event arrives(Person);
 inst event greetsroom(Person);
 inst event socialdeadline;
 
+%% VIOLATION EVENTS: ----------
 violation event rude(Person);
 
+%% FLUENTS ----------
 fluent in_room(Person);
 
+%% OBLIGATIONS ----------
 obligation fluent obl(greetsroom(Person), socialdeadline, rude(Person));
 
+%% GENERATES: ----------
 enterroom(A) generates arrives(A);
-wave(A) generates greetsroom(A);
-timepassed generates socialdeadline;
+wave(A)      generates greetsroom(A);
+timepassed   generates socialdeadline;
 
-arrives(A) initiates in_room(A), obl(greetsroom(A),socialdeadline,rude(A)), perm(wave(A)), pow(wave(A)), perm(greetsroom(A));
-arrives(A) terminates pow(enterroom(A));
+%% INITIATES: ----------
+arrives(A) initiates in_room(A),
+                     obl(greetsroom(A),socialdeadline,rude(A)),
+                     perm(wave(A)),
+                     pow(wave(A)),
+                     perm(greetsroom(A));
 
+%% TERMINATES: ----------
+arrives(A)    terminates pow(enterroom(A));
 greetsroom(A) terminates perm(greetsroom(A));

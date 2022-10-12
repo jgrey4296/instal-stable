@@ -1,3 +1,4 @@
 institution c;
 
+%% EXTERNAL EVENTS: ----------
 exogenous event permsink;

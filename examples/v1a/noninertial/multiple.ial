@@ -1,9 +1,12 @@
 institution bwhennotb;
 
+%% FLUENTS ----------
 noninertial fluent b;
 noninertial fluent a;
 noninertial fluent c;
 noninertial fluent q;
+
+%% NON-INERTIAL RULES: ----------
 b when not b, a;
 c when q;
 a when b, c, q;

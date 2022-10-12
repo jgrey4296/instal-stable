@@ -1,24 +1,29 @@
 institution sea;
 
+%% TYPES ----------
 type Boat;
 type Port;
 type Good;
 
+%% EXTERNAL EVENTS:  ----------
 exogenous event ex_arrive(Boat, Port);
 exogenous event ex_leave(Boat, Port);
 exogenous event ex_flares(Boat);
 exogenous event ex_shop(Boat, Port, Good);
 
+%% INST EVENTS:  ----------
 inst event arrive(Boat, Port);
 inst event leave(Boat, Port);
 inst event distress(Boat);
 inst event buy(Boat, Port, Good);
 
-ex_arrive(B, P) generates arrive(B, P);
-ex_leave(B, P) generates leave(B, P);
-ex_flares(B) generates distress(B);
+%% GENERATES:  ----------
+ex_arrive(B, P)  generates arrive(B, P);
+ex_leave(B, P)   generates leave(B, P);
+ex_flares(B)     generates distress(B);
 ex_shop(B, P, G) generates buy(B, P, G);
 
+%% INITIATES:  ----------
 initially perm(ex_arrive(B, P));
 initially perm(ex_leave(B, P));
 initially perm(ex_flares(B));

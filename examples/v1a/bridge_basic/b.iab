@@ -2,8 +2,11 @@ bridge b;
 source a;
 sink c;
 
+%% FLUENTS ----------
 cross fluent ipow(a, perm(permsink), c);
 
+%% INITIATES ----------
 c xinitiates perm(permsink);
 
+%% INITIALLY: -----------
 initially ipow(a,perm(permsink),c);

@@ -1,5 +1,7 @@
 institution bwhennotb;
 
+%% FLUENTS ----------
 noninertial fluent b;
 
+%% NON-INERTIAL RULES: ----------
 b when not b;

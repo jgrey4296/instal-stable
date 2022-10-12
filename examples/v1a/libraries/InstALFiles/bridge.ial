@@ -1,60 +1,57 @@
-% name of institution
 institution bridge;
 
-% types
+%% TYPES ----------
 type User;
 type Book;
 type Number; 
 type Inst;
 
 
-% exogeneous events
-exogenous event register(User); 
+%% EXTERNAL EVENTS:  ----------
+exogenous event register(User);
 exogenous event borrow(User, Book); 
-%exogenous event return(User, Book); 
+%% exogenous event return(User, Book);
 exogenous event rmRegister(User);
 exogenous event rmBorrow(User, Book); 
 
 
-% institutional events
-inst event intRegister(User); 
+%% INST EVENTS:  ----------
+inst event intRegister(User);
 inst event intBorrow(User, Book); 
-%inst event intReturn(User, Book); 
-%inst event due(User, Book); 
+%% inst event intReturn(User, Book);
+%% inst event due(User, Book);
 inst event intRmRegister(User);
 inst event intRmBorrow(User, Book); 
 inst event intRmRequest(User, Book);
 
-% violation
+%% VIOLATION EVENTS:  ----------
 violation event issueFine(User, Book);
 
-% fluents
+%% FLUENTS ----------
 fluent inDebt(User, Book);
 
-% cross-fluents 
+%% cross-fluents
 cross fluent gpow(Inst, rmRegister(User), Inst);
 cross fluent gpow(Inst, rmBorrow(User, Book), Inst);
 cross fluent ipow(Inst, inDebt(User, Book), Inst);
 
+%% non-inertial fluent
+%% noninertial fluent normalUser(User);
+%% noninertial fluent available(Book);
 
-% non-inertial fluent 
-%noninertial fluent normalUser(User);
-%noninertial fluent available(Book);
-
-% obligation fluents
-%obligation fluent obl(intReturn(User, Book), due(User, Book), issueFine(User, Book)); 
-
+%% obligation fluents
+%% obligation fluent obl(intReturn(User, Book), due(User, Book), issueFine(User, Book));
 
 
-%norms
-intRegister(User) xgenerates rmRegister(User); 
-intRmRequest(User, Book) xgenerates rmBorrow(User, Book); 
+%% GENERATES:  ----------
+%% norms
+intRegister(User)        xgenerates rmRegister(User);
+intRmRequest(User, Book) xgenerates rmBorrow(User, Book);
 
-issueFine(User, Book) xinitiates inDebt(User, Book); 
+%% INITIATES:  ----------
+issueFine(User, Book)    xinitiates inDebt(User, Book);
 
-
-
-%% initial conditions 
+%% INITIALLY: -----------
 initially gpow(libB, rmRegister(User), libC);
 initially gpow(libC, rmRegister(User), libB);
 initially gpow(libB, rmBorrow(User, Book), libC);

@@ -1,7 +1,9 @@
 institution adsrhr;
 
+%% FLUENTS ----------
 noninertial fluent a;
 noninertial fluent b;
 
+%% NON-INERTIAL RULES: ----------
 b when a;
 a when not b;

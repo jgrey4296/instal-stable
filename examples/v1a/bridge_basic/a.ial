@@ -1,0 +1,13 @@
+institution a;
+
+%% EXTERNAL EVENTS: ----------
+exogenous event b;
+
+%% INST EVENTS: ----------
+inst event c;
+
+%% GENERATES: ----------
+b generates c;
+
+%% INITIALLY: -----------
+initially perm(b), pow(b), perm(c);

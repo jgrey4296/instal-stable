@@ -114,7 +114,7 @@ intDontTouchItYouIdiot(R, S, T, U) terminates phase(dontTouchItYouIdiot , phaseD
                                               role(S, idiot),
                                               role(R, owner);
 
-% GENERATES: Dont Touch it You Idiot ----------
+%% GENERATES: Dont Touch it You Idiot ----------
 fight(R, S) generates intDontTouchItYouIdiot(R, S, T, U)
                       if role(S, idiot), role(R, owner);
 

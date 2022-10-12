@@ -1,17 +1,24 @@
 institution land;
 
+%% TYPES ----------
 type Boat;
 type Port;
 type Good;
 
+%% EXTERNAL EVENTS:  ----------
 exogenous event ex_sell(Port, Boat, Good);
+
+%% INST EVENTS:  ----------
 inst event sell(Port, Boat, Good);
 
+%% FLUENTS ----------
 fluent in_distress(Boat);
 fluent present(Port, Boat);
 
+%% GENERATES:  ----------
 ex_sell(P, B, G) generates sell(P, B, G);
 
+%% INITIATES:  ----------
 initially pow(ex_sell(P, B, G));
 initially perm(sell(P, B, G));
 initially perm(ex_sell(P, B, G));

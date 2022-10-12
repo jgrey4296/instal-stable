@@ -1,70 +1,69 @@
-% name of institution
 institution pubA;
 
-% types
+%% TYPES ----------
 type User;
 type Book;
 type Number; 
 
-% exogeneous events
-exogenous event register(User);       % for new users 
+%% EXTERNAL EVENTS:  ----------
+exogenous event register(User);       % for new users
 exogenous event borrow(User, Book); 
 exogenous event return(User, Book); 
 exogenous event extend(User); 
 exogenous event due(User, Book); 
 
-% institutional events
-inst event intRegister(User); 
+%% INST EVENTS:  ----------
+inst event intRegister(User);
 inst event intBorrow(User, Book); 
 inst event intReturn(User, Book); 
 inst event intDue(User, Book); 
 inst event intExtend(User);
 
-% violation event
-violation event issueFine(User, Book);  % late return 
+%% VIOLATION EVENTS:  ----------
+violation event issueFine(User, Book);  %% late return
 
 
-% fluents
-fluent allowance(User, Number);  % max borrow allowance 
-fluent loans(User, Number);   % counter of borrowed items 
-fluent borrowed(User, Book);  % the Book is borrowed by User
-fluent onLoan(Book);   % the Book is currently on loan. 
+%% FLUENTS ----------
+fluent allowance(User, Number); %% max borrow allowance
+fluent loans(User, Number);     %% counter of borrowed items
+fluent borrowed(User, Book);    %% the Book is borrowed by User
+fluent onLoan(Book);            %% the Book is currently on loan.
 fluent registeredUser(User);
-fluent inCollection(Book);  % the Book is in the collection of the library. 
-fluent next(Number, Number); % used for counting books borrowed 
-fluent inDebt(User, Book); % the User has a fine to pay for the Book 
+fluent inCollection(Book);      %% the Book is in the collection of the library.
+fluent next(Number, Number);    %% used for counting books borrowed
+fluent inDebt(User, Book);      %% the User has a fine to pay for the Book
 
-% non-inertial fluent 
+%% non-inertial fluent
 noninertial fluent normalUser(User);   % only normal users  can borrow books. 
 noninertial fluent available(Book);  % only available books can be borrowed. 
 
-% obligation fluents
+%% obligation fluents
 obligation fluent obl(intReturn(User, Book), intDue(User, Book), issueFine(User, Book)); 
 
-%%% g-rule
-
-% anyone can register as it's public library. 
+%% GENERATES:  ----------
+%% anyone can register as it's public library.
 register(User) generates intRegister(User);
-% only registered users can borrow and return books.    
+
+%% only registered users can borrow and return books.
 borrow(User, Book) generates intBorrow(User, Book) if registeredUser(User);  
-return(User, Book) generates intReturn(User, Book) if registeredUser(User); 
-extend(User) generates intExtend(User) if registeredUser(User);
-% 20170317 JAP
+return(User, Book) generates intReturn(User, Book) if registeredUser(User);
+extend(User)       generates intExtend(User) if registeredUser(User);
+%% 20170317 JAP
 due(User,Book) generates intDue(User,Book) if registeredUser(User);
 
-% return due is set to 3 days. 
-% intBorrow(User, Book) generates due(User, Book) if normalUser(User), available(Book) in 3 ;  
+%% return due is set to 3 days.
+%% intBorrow(User, Book) generates due(User, Book) if normalUser(User), available(Book) in 3 ;
 
-%%% c-rule
-
-% normal users are registered users who have borrowed less than Max. 
+%% NON-INERTIAL RULES: ----------
+%% normal users are registered users who have borrowed less than Max.
 normalUser(User) when registeredUser(User), allowance(User, Max), loans(User, Number), Number < Max;
-% a book is available if it's in the collection of the library and not on loan. 
- available(Book) when inCollection(Book), not onLoan(Book);
-  
-% initiate counter and allowance for new users. 
+%% a book is available if it's in the collection of the library and not on loan.
+available(Book) when inCollection(Book), not onLoan(Book);
+
+%% INITIATES:  ----------
+%% initiate counter and allowance for new users.
 intRegister(User) initiates registeredUser(User), 
-                            allowance(User, 2),   % Max = 2 
+                            allowance(User, 2),   %% Max = 2
                             loans(User, 0); 
 
 intRegister(User) initiates perm(borrow(User, Book)),
@@ -77,15 +76,13 @@ intRegister(User) initiates perm(extend(User)),
 							
 
 intBorrow(User, Book) initiates borrowed(User, Book),
-                                onLoan(Book),  % change state of the book
-                                loans(User, NewNumber),  % update the counter
+                                onLoan(Book),  %% change state of the book
+                                loans(User, NewNumber),  %% update the counter
                                 obl(intReturn(User, Book), intDue(User, Book), issueFine(User, Book)) 
 								if normalUser(User), available(Book), 
                                    loans(User, Number), next(Number, NewNumber);
 
 
-intBorrow(User, Book) terminates loans(User, Number)
-                                 if normalUser(User), available(Book), loans(User, Number); 
 
 
 
@@ -98,38 +95,37 @@ intBorrow(User, Book) initiates perm(return(User, Book)),
 intReturn(User, Book) initiates loans(User, NewNumber) 
 								if loans(User, Number), next(NewNumber, Number);
 
+%% each issued fine updates the state of the user
+issueFine(User, Book) initiates inDebt(User, Book);
+
+intExtend(User) initiates allowance(User, NewMax)
+    if allowance(User, Max), next(Max, NewMax);
+
+%% TERMINATES:  ----------
+intBorrow(User, Book) terminates loans(User, Number)
+                                 if normalUser(User), available(Book), loans(User, Number);
 
 intReturn(User, Book) terminates onLoan(Book), borrowed(User, Book),
                                  loans(User, Number) if loans(User, Number); 
 								
-% each issued fine updates the state of the user 
-issueFine(User, Book) initiates inDebt(User, Book);
-
-
-
-intExtend(User) initiates allowance(User, NewMax)
-    if allowance(User, Max), next(Max, NewMax); 
 intExtend(User) terminates allowance(User, Max)
-    if allowance(User, Max); 
+                           if allowance(User, Max);
 
-%% initial setting 
+%% INITIALLY: -----------
 initially perm(register(User)),
 		  perm(intRegister(User)),
 		  pow(intRegister(User)); 
 
 initially perm(due(User, Book)),
-	  perm(intDue(User,Book)),
-	  pow(due(User, Book)),
-	  pow(intDue(User,Book)); 
+	      perm(intDue(User,Book)),
+	      pow(due(User, Book)),
+	      pow(intDue(User,Book));
 
-% initially inCollection(book1_a), 
-%           inCollection(book2_a),
-%           inCollection(book3_a), 
-%           inCollection(book4_a); 
+%% initially inCollection(book1_a),
+%%           inCollection(book2_a),
+%%           inCollection(book3_a),
+%%           inCollection(book4_a);
 
-% initially next(0, 1), next(1, 2), 
-%           next(2, 3), next(3, 4), 
-%           next(4, 5);
-
-
-
+%% initially next(0, 1), next(1, 2),
+%%           next(2, 3), next(3, 4),
+%%           next(4, 5);

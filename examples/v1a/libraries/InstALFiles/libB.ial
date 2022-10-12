@@ -1,24 +1,22 @@
-% name of institution
 institution libB;
 
-% types
+%% TYPES ----------
 type User;
 type Book;
 type Number; 
 
-% exogeneous events
-exogenous event register(User); 
+%% EXTERNAL EVENTS:  ----------
+exogenous event register(User);
 exogenous event borrow(User, Book); 
 exogenous event return(User, Book); 
 exogenous event rmRequest(User, Book); 
 exogenous event due(User, Book); 
 
-% for remote members 
 exogenous event rmRegister(User);
 exogenous event rmBorrow(User, Book); 
 
-% institutional events
-inst event intRegister(User); 
+%% INST EVENTS:  ----------
+inst event intRegister(User);
 inst event intBorrow(User, Book); 
 inst event intReturn(User, Book); 
 inst event intDue(User, Book); 
@@ -26,12 +24,12 @@ inst event intDue(User, Book);
 inst event intRmRegister(User);
 inst event intRmBorrow(User, Book); 
 inst event intRmRequest(User, Book);
-%inst event intRmReturn(User, Book); 
+% %inst event intRmReturn(User, Book);
 
-% violation event
+%% VIOLATION EVENTS:  ----------
 violation event issueFine(User, Book);
 
-% fluents
+%% FLUENTS ----------
 fluent allowance(User, Number);
 fluent loans(User, Number); 
 fluent borrowed(User, Book); 
@@ -42,46 +40,41 @@ fluent next(Number, Number);
 fluent member(User);
 fluent inDebt(User, Book);
 
-% non-inertial fluent 
+%% non-inertial fluent
 noninertial fluent normalUser(User);
 noninertial fluent available(Book);
 
-% obligation fluents
+%% obligation fluents
 obligation fluent obl(intReturn(User, Book), intDue(User, Book), issueFine(User, Book)); 
 
-%%% g-rule
 
-% members only library. 
-register(User) generates intRegister(User) if member(User);
+%% GENERATES:  ----------
+%% members only library.
+register(User)   generates intRegister(User) if member(User);
 rmRegister(User) generates intRmRegister(User);  
-% 20170317 JAP
-due(User,Book) generates intDue(User,Book) if registeredUser(User);
+%% 20170317 JAP
+due(User,Book)   generates intDue(User,Book) if registeredUser(User);
 
-% intBorrow is generated only when the book is available and the users is a member and registered. 
-borrow(User, Book) generates intBorrow(User, Book) if member(User); 
-% remote request is only for registered members (excl. remotely registered users) borrowing unavailable books.
+%% intBorrow is generated only when the book is available and the users is a member and registered.
+borrow(User, Book) generates intBorrow(User, Book) if member(User);
+
+%% remote request is only for registered members (excl. remotely registered users) borrowing unavailable books.
 rmRequest(User, Book) generates intRmRequest(User, Book) if member(User), not available(Book); 
+rmBorrow(User, Book)  generates intBorrow(User, Book) if registeredUser(User), not member(User);
+return(User, Book)    generates intReturn(User, Book) if registeredUser(User);
 
-rmBorrow(User, Book) generates intBorrow(User, Book) if registeredUser(User), not member(User); 
-
-%borrow(User, Book) generates intRmRequest(User, Book) if registeredUser(User), member(User), not available(Book); 
-
-return(User, Book) generates intReturn(User, Book) if registeredUser(User); 
-
-% intBorrow(User, Book) generates intDue(User, Book) if normalUser(User), available(Book) in 3 ;  
-
-
-
-%rmReturn(User, Book) generates intReturn(User, Book) if registeredUser(User), not member(User); 
+%% borrow(User, Book) generates intRmRequest(User, Book) if registeredUser(User), member(User), not available(Book);
+%% intBorrow(User, Book) generates intDue(User, Book) if normalUser(User), available(Book) in 3 ;
+%% rmReturn(User, Book)  generates intReturn(User, Book) if registeredUser(User), not member(User);
 
 
 %%% c-rule
-
 normalUser(User) when registeredUser(User), allowance(User, Max), loans(User, Number), Number < Max;
- available(Book) when inCollection(Book), not onLoan(Book);
+available(Book)  when inCollection(Book), not onLoan(Book);
   
 
-intRegister(User) initiates registeredUser(User), 
+%% INITIATES:  ----------
+intRegister(User) initiates registeredUser(User),
                             allowance(User, 2), 
                             loans(User, 0); 
 
@@ -96,73 +89,80 @@ intRegister(User) initiates perm(rmRequest(User, Book)),
                             pow(intRmRequest(User, Book));
 
 
+%% remotely registered users can borrow up to only one item
 intRmRegister(User) initiates registeredUser(User), 
-                               allowance(User, 1),     % remotely registered users can borrow up to only one item
-                               loans(User, 0); 
+                              allowance(User, 1),
+                              loans(User, 0);
 
 intRmRegister(User) initiates perm(rmBorrow(User, Book)),
                               perm(intBorrow(User, Book)),
                               pow(intBorrow(User, Book)); 
 
-
 intBorrow(User, Book) initiates borrowed(User, Book),
                                 onLoan(Book),
                                 loans(User, NewNumber), 
-                                obl(intReturn(User, Book), intDue(User, Book), issueFine(User, Book)) 
-								if normalUser(User), available(Book), loans(User, Number), next(Number, NewNumber);
+                                obl(intReturn(User, Book), intDue(User, Book), issueFine(User, Book))
+								                if
+                                normalUser(User),
+                                available(Book),
+                                loans(User, Number),
+                                next(Number, NewNumber);
 
-
-intBorrow(User, Book) terminates loans(User, Number)
-                                 if normalUser(User), available(Book), loans(User, Number); 
 
 
 intBorrow(User, Book) initiates perm(return(User, Book)),
                                 perm(intReturn(User, Book)),
                                 pow(intReturn(User, Book))
-								if normalUser(User), available(Book);
+                                if
+                                normalUser(User),
+                                available(Book);
 
 
 intReturn(User, Book) initiates loans(User, NewNumber) 
-								if loans(User, Number), next(NewNumber, Number);
-
-
-intReturn(User, Book) terminates onLoan(Book), borrowed(User, Book),
-                                 loans(User, Number) if loans(User, Number); 
-								
-
+								                if
+                                loans(User, Number),
+                                next(NewNumber, Number);
 
 issueFine(User, Book) initiates inDebt(User, Book);
 
-%% initial setting 
+
+%% TERMINATES:  ----------
+intBorrow(User, Book) terminates loans(User, Number)
+                                 if
+                                 normalUser(User),
+                                 available(Book),
+                                 loans(User, Number);
+
+intReturn(User, Book) terminates onLoan(Book),
+                                 borrowed(User, Book),
+                                 loans(User, Number)
+                                 if loans(User, Number);
+								
+%% INITIALLY: -----------
 initially perm(register(User)),
-		  perm(intRegister(User)),
-		  pow(intRegister(User)); 
+		      perm(intRegister(User)),
+          pow(intRegister(User));
 
 initially perm(due(User, Book)),
-		  pow(due(User, Book)); 
+		      pow(due(User, Book));
 
 initially perm(intDue(User, Book)),
-		  pow(intDue(User, Book)); 
+		      pow(intDue(User, Book));
 
 
-% initially next(0, 1), next(1, 2), 
-%           next(2, 3), next(3, 4), 
-%           next(4, 5);
+%% initially next(0, 1), next(1, 2),
+%%           next(2, 3), next(3, 4),
+%%           next(4, 5);
 
 
 %%% for interacting insts. 
 initially perm(rmRegister(User)),
-		  perm(intRmRegister(User)),
-		  pow(intRmRegister(User));  
+		      perm(intRmRegister(User)),
+		      pow(intRmRegister(User));
 
 initially perm(rmBorrow(User, Book));
 
-% % specific settings for libB
-% initially inCollection(book1_b), 
-%           inCollection(book2_b);
-% initially member(bob);
-
-
-
-
-
+%% % specific settings for libB
+%% initially inCollection(book1_b),
+%%           inCollection(book2_b);
+%% initially member(bob);

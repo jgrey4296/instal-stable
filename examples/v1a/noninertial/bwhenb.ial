@@ -1,5 +1,7 @@
 institution bwhenb;
 
+%% FLUENTS ----------
 noninertial fluent b;
 
+%% NON-INERTIAL RULES: ----------
 b when b;
