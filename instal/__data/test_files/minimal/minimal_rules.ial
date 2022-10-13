@@ -1,0 +1,43 @@
+%%-*- mode: instal -*-
+%% A test institution to check the use of a simple,
+%% variable-less external event.
+institution minimalRules.
+
+type Example : first second third.
+
+fluent testFluent
+transient fluent testTransient
+
+external event basicExEvent.
+external event basicExEventWithParam(Example).
+external event basicExEventMulti(Example, Example2)
+
+institutional event instBasicEvent(Example).
+institutional event instMultiVar(Example, Example2)
+
+%% A Chain of institutional events:
+institutional event instChainStart(Example)
+institutional event instChainMid(Example)
+institutional event instChainEnd(Example)
+
+%% Transient Fluent Rule Setup:
+instBasicEvent(first)  initiates testFluent.
+instBasicEvent(second) terminates testFluent.
+testTransient when testFluent.
+
+%% Generation rules:
+basicExEventWithParam(Example) generates instBasicEvent(Example), instChainStart(Example).
+
+%% This is unpermitted initially, breaking the chain:
+instChainStart(Example)        generates instChainMid(Example)
+instChainMid(Example)          generates instChainEnd(Example)
+
+basicExEventMulti(Example, _)  generates instMultiVar(Example, Example)
+basicExEventMulti(_, Example2) generates instMultiVar(Example2, Example2)
+
+
+initially perm(instMultiVar(Example, Example2)).
+%% Note: just start and end of the chain are permitted:
+initially perm(instBasicEvent(Example)).
+initially perm(instChainStart(Example)).
+initially perm(instChainEnd(Example)).

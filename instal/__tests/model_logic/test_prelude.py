@@ -61,8 +61,40 @@ class TestInstalPrelude(unittest.TestCase):
     def tearDownClass(cls):
         logging.removeHandler(cls.file_h)
 
-    def test_initial(self):
-        pass
+    def test_prelude_success(self):
+        # Compile a harness
+        compiled = compile_target([test_files / "minimal_inst.ial"], with_prelude=True)
+        # Add an event
+        parser   = InstalPyParser()
+        query    = [] # parser.parse_query("observed basicExEvent at 0")
+        # Solve
+        solver   = ClingoSolver("\n".join(compiled),
+                                options=['-n', "1",
+                                         '-c', f'horizon=2'])
+
+        # Check it is observed
+        solver.solve(query)
+        self.assertEqual(len(solver.results), 1)
+        save_last(compiled, solver.results[0].atoms)
+        result = str(solver.results[0].shown)
+        self.assertIn("institution(minimalInst)", result)
+
+    def test_prelude_fail(self):
+        # Compile a harness
+        compiled = compile_target([test_files / "minimal_inst.ial"], with_prelude=False)
+        # Add an event
+        parser   = InstalPyParser()
+        query    = [] # parser.parse_query("observed basicExEvent at 0")
+        # Solve
+        solver   = ClingoSolver("\n".join(compiled),
+                                options=['-n', "1",
+                                         '-c', f'horizon=2'])
+
+        # Check it is observed
+        solver.solve(query)
+        save_last(compiled)
+        self.assertEqual(len(solver.results), 0)
+
 
 
 if __name__ == '__main__':

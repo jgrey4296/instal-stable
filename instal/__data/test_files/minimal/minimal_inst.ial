@@ -1,3 +1,3 @@
 %%-*- mode: instal -*-
 %% a test institution to check the empty institution.
-institution minimalNoEv;
+institution minimalInst;

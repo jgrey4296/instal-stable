@@ -41,9 +41,13 @@ top_domain.set_name("Domain Specifications")
 ##-- end idc domain
 
 ##-- iaf facts / situation
-cond_list     = PU.op(PU.s_kw("if") + PU.CONDITIONS)("conditions")
-IAF_INITIALLY = PU.op(PU.not_kw("not")) + PU.s_kw("initially") + PU.TERM("body") + PU.in_inst + cond_list + pp.line_end
-IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body']], t.conditions[:], inst=t['inst'], negated=True if 'not' in t else False))
+if_conds      = PU.if_conds
+IAF_INITIALLY = PU.op(PU.not_kw("not")) + PU.s_kw("initially") + PU.TERM("body") + PU.in_inst + if_conds + pp.line_end
+IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body']],
+                                                                 conditions=t.conditions[:],
+                                                                 inst=t['inst'],
+                                                                 negated=True if 'not' in t else False))
+IAF_INITIALLY.add_condition(lambda s, l, t: not any(x.has_var for x in t[0].body))
 
 top_fact = PU.orm(IAF_INITIALLY)
 top_fact.ignore(PU.comment)
@@ -51,9 +55,11 @@ top_fact.set_name("Initial Facts")
 ##-- end iaf facts / situation
 
 ##-- iaq query specification
-OBSERVED = PU.op(PU.not_kw("not")) + PU.s_kw('observed') + PU.TERM('fact') + PU.op(PU.s_kw('at') + pp.common.integer('time')) + pp.line_end
-# OBSERVED.set_parse_action(lambda s, l, t: breakpoint())
-OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'], time=t.time if t.time != '' else None, negated=True if 'not' in t else False))
+OBSERVED = PU.op(PU.not_kw("not")) + PU.s_kw('observed') + PU.TERM('fact') + PU.at_time('time') + if_conds('conds') + PU.semi
+OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'],
+                                                        time=t.time[0],
+                                                        negated=True if 'not' in t else False,
+                                                        conditions=t['conds'][:] if 'conds' in t else []))
 
 top_query = PU.orm(OBSERVED)
 top_query.ignore(PU.comment)

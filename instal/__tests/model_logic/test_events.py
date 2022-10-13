@@ -62,7 +62,7 @@ class TestInstalEvents(unittest.TestCase):
 
     def test_event_observation(self):
         # Compile a harness
-        compiled = compile_target([test_files / "minimal_ex_event.ial"], with_prelude=True)
+        compiled = compile_target([test_files / "minimal_events.ial"], with_prelude=True)
         # Add an event
         parser   = InstalPyParser()
         query    = parser.parse_query("observed basicExEvent at 0")
@@ -75,13 +75,13 @@ class TestInstalEvents(unittest.TestCase):
         solver.solve(query)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEx)", result)
+        self.assertIn("institution(minimalEvents)", result)
         self.assertIn("observed(basicExEvent,0)", result)
         self.assertNotIn("observed(null,0)", result)
 
     def test_event_observation_timestep(self):
         # Compile a harness
-        compiled = compile_target([test_files / "minimal_ex_event.ial"], with_prelude=True)
+        compiled = compile_target([test_files / "minimal_events.ial"], with_prelude=True)
         # Add an event
         parser   = InstalPyParser()
         query    = parser.parse_query("observed basicExEvent at 1")
@@ -94,13 +94,13 @@ class TestInstalEvents(unittest.TestCase):
         solver.solve(query)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEx)", result)
+        self.assertIn("institution(minimalEvents)", result)
         self.assertIn("observed(basicExEvent,1)", result)
         self.assertNotIn("observed(null,1)", result)
 
     def test_event_observation_twice(self):
         # Compile a harness
-        compiled = compile_target([test_files / "minimal_ex_event.ial"], with_prelude=True)
+        compiled = compile_target([test_files / "minimal_events.ial"], with_prelude=True)
         # Add an event
         parser   = InstalPyParser()
         query    = parser.parse_query("observed basicExEvent \nobserved basicExEvent at 1")
@@ -114,14 +114,14 @@ class TestInstalEvents(unittest.TestCase):
 
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEx)", result)
+        self.assertIn("institution(minimalEvents)", result)
         self.assertIn("observed(basicExEvent,0)", result)
         self.assertIn("observed(basicExEvent,1)", result)
 
 
     def test_event_observation_null_events(self):
         # Compile a harness
-        compiled = compile_target([test_files / "minimal_no_events.ial"], with_prelude=True)
+        compiled = compile_target([test_files / "minimal_inst.ial"], with_prelude=True)
         # Solve
         solver   = ClingoSolver("\n".join(compiled),
                                 options=['-n', "1",
@@ -130,19 +130,19 @@ class TestInstalEvents(unittest.TestCase):
 
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalNoEv)", result)
+        self.assertIn("institution(minimalInst)", result)
         self.assertIn("observed(null,0)", result)
         self.assertIn("observed(null,1)", result)
-        self.assertIn("occurred(null,minimalNoEv,0)", result)
-        self.assertIn("occurred(null,minimalNoEv,1)", result)
-        self.assertIn("occurred(null,minimalNoEv,2)", result)
+        self.assertIn("occurred(null,minimalInst,0)", result)
+        self.assertIn("occurred(null,minimalInst,1)", result)
+        self.assertIn("occurred(null,minimalInst,2)", result)
         # null events are generated:
         # self.assertIn("observed(null,0)", result)
 
 
     def test_event_observation_outside_time_bounds(self):
         # Compile a harness
-        compiled = compile_target([test_files / "minimal_ex_event.ial"], with_prelude=True)
+        compiled = compile_target([test_files / "minimal_events.ial"], with_prelude=True)
         # Add an event
         parser   = InstalPyParser()
         query    = parser.parse_query("observed basicExEvent at 10")
@@ -155,13 +155,35 @@ class TestInstalEvents(unittest.TestCase):
 
         self.assertEqual(len(solver.results), 1)
         result : str = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEx)", result)
+        self.assertIn("institution(minimalEvents)", result)
         # Event is not observed
         self.assertNotIn("observed(basicExEvent,10)", result)
 
+    def test_event_observation_inside_extended_time_bounds(self):
+        # Compile a harness
+        compiled = compile_target([test_files / "minimal_events.ial"], with_prelude=True)
+        # Add an event
+        parser   = InstalPyParser()
+        query    = parser.parse_query("observed basicExEvent at 10")
+        # Solve
+        solver   = ClingoSolver("\n".join(compiled),
+                                options=['-n', "1",
+                                         '-c', f'horizon=15'])
+
+        solver.solve(query)
+
+        self.assertEqual(len(solver.results), 1)
+        result : str = str(solver.results[0].shown)
+        self.assertIn("institution(minimalEvents)", result)
+        # Event is not observed
+        self.assertIn("observed(basicExEvent,10)", result)
+
+
+
+
     def test_event_observation_different_events(self):
         # Compile a harness
-        compiled = compile_target([test_files / "minimal_ex_event.ial"], with_prelude=True)
+        compiled = compile_target([test_files / "minimal_events.ial"], with_prelude=True)
         # Add an event
         parser   = InstalPyParser()
         query    = parser.parse_query("observed basicExEvent\nobserved secondEvent at 1")
@@ -176,14 +198,14 @@ class TestInstalEvents(unittest.TestCase):
 
         self.assertEqual(len(solver.results), 1)
         result : str = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEx)", result)
+        self.assertIn("institution(minimalEvents)", result)
         self.assertIn("observed(basicExEvent,0)", result)
         self.assertIn("observed(secondEvent,1)", result)
 
 
     def test_event_observation_with_conflicting_times(self):
         # Compile a harness
-        compiled = compile_target([test_files / "minimal_ex_event.ial"], with_prelude=True)
+        compiled = compile_target([test_files / "minimal_events.ial"], with_prelude=True)
         # Add events
         parser   = InstalPyParser()
         query    = parser.parse_query("observed basicExEvent at 0\nobserved secondEvent at 0")
@@ -199,7 +221,7 @@ class TestInstalEvents(unittest.TestCase):
 
     def test_event_observation_unrecognised(self):
         # Compile a harness
-        compiled  = compile_target([test_files / "minimal_ex_event.ial"], with_prelude=True)
+        compiled  = compile_target([test_files / "minimal_events.ial"], with_prelude=True)
         # Add an event
         parser    = InstalPyParser()
         query     = parser.parse_query("observed badEvent at 0")
@@ -212,80 +234,15 @@ class TestInstalEvents(unittest.TestCase):
         solver.solve(query)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEx)", result)
+        self.assertIn("institution(minimalEvents)", result)
         self.assertIn("observed(_unrecognisedEvent,0)", result)
-
-    def test_event_recognition_unpermitted(self):
-        # Compile a harness
-        compiled = compile_target([test_files / "minimal_inst_event.ial"], with_prelude=True)
-        # Add an event
-        parser   = InstalPyParser()
-        query    = parser.parse_query("observed basicExEvent at 0")
-        # Solve
-        solver   = ClingoSolver("\n".join(compiled),
-                                options=['-n', "1",
-                                         '-c', f'horizon=2'])
-
-        # Check it is observed
-        solver.solve(query)
-        # solver.solve(query, situation)
-        self.assertEqual(len(solver.results), 1)
-        result = str(solver.results[0].shown)
-
-        self.assertIn("institution(minimalInstEv)", result)
-        self.assertIn("observed(basicExEvent,0)", result)
-        self.assertIn("occurred(_unpermittedEvent(basicEvent_i),minimalInstEv,0)", result)
-
-    def test_event_recognition_permitted(self):
-        # Compile a harness
-        compiled  = compile_target([test_files / "minimal_inst_event.ial"], with_prelude=True)
-        # Add an event
-        parser    = InstalPyParser()
-        query     = parser.parse_query("observed basicExEvent at 0")
-        situation = parser.parse_situation("initially perm(basicEvent_i) in minimalInstEv")
-        # Solve
-        solver    = ClingoSolver("\n".join(compiled),
-                                 options=['-n', "1",
-                                          '-c', f'horizon=2'])
-        # Check it is observed
-        solver.solve(query, situation)
-        self.assertEqual(len(solver.results), 1)
-        result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalInstEv)", result)
-        self.assertIn("observed(basicExEvent,0)", result)
-        self.assertIn("occurred(basicEvent_i,minimalInstEv,0)", result)
-
-
-    def test_event_recognition_unempowered(self):
-        # Compile a harness
-        compiled  = compile_target([test_files / "minimal_inst_event_no_generate.ial"], with_prelude=True)
-        # Add an event
-        parser    = InstalPyParser()
-        query     = parser.parse_query("observed basicExEvent at 0")
-        situation = parser.parse_situation("initially perm(basicEvent_i) in minimalInstEv")
-        # Solve
-        save_last(compiled)
-        solver    = ClingoSolver("\n".join(compiled),
-                                 options=['-n', "1",
-                                          '-c', f'horizon=2'])
-        # Check it is observed
-        solver.solve(query, situation)
-        self.assertEqual(len(solver.results), 1)
-        result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalInstEvNoGen", result)
-        self.assertIn("observed(basicExEvent,0)", result)
-        self.assertIn("occurred(null,minimalInstEvNoGen,0)", result)
-        self.assertIn("occurred(_unempoweredEvent(basicExEvent),minimalInstEvNoGen,0)", result)
-        self.assertNotIn("occurred(basicEvent_i", result)
-
-
 
     def test_event_with_var(self):
         # Compile a harness
-        compiled = compile_target([test_files / "minimal_event_with_var.ial"], with_prelude=True)
+        compiled = compile_target([test_files / "minimal_events.ial"], with_prelude=True)
         # Add an event
         parser   = InstalPyParser()
-        query    = parser.parse_query("observed basicExEvent(first) at 0\nobserved basicExEvent(second) at 1")
+        query    = parser.parse_query("observed basicExEventWithParam(first) at 0\nobserved basicExEventWithParam(second) at 1")
         # Solve
         solver   = ClingoSolver("\n".join(compiled),
                                 options=['-n', "1",
@@ -296,18 +253,18 @@ class TestInstalEvents(unittest.TestCase):
         save_last(compiled, append=solver.results[0].atoms)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEx)", result)
-        self.assertIn("observed(basicExEvent(first),0)", result)
-        self.assertIn("observed(basicExEvent(second),1)", result)
+        self.assertIn("institution(minimalEvents)", result)
+        self.assertIn("observed(basicExEventWithParam(first),0)", result)
+        self.assertIn("observed(basicExEventWithParam(second),1)", result)
         self.assertNotIn("observed(null,0)", result)
 
 
     def test_event_with_unrecognized_var(self):
         # Compile a harness
-        compiled = compile_target([test_files / "minimal_event_with_var.ial"], with_prelude=True)
+        compiled = compile_target([test_files / "minimal_events.ial"], with_prelude=True)
         # Add an event
         parser   = InstalPyParser()
-        query    = parser.parse_query("observed basicExEvent(other) at 0")
+        query    = parser.parse_query("observed basicExEventWithVar(other) at 0")
         # Solve
         solver   = ClingoSolver("\n".join(compiled),
                                 options=['-n', "1",
@@ -318,15 +275,15 @@ class TestInstalEvents(unittest.TestCase):
         save_last(compiled, append=solver.results[0].atoms)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEx)", result)
-        self.assertNotIn("observed(basicExEvent(other),0)", result)
+        self.assertIn("institution(minimalEvents)", result)
+        self.assertNotIn("observed(basicExEventWithParam(other),0)", result)
 
     def test_event_with_domain_extended_var(self):
         # Compile a harness
-        compiled = compile_target([test_files / "minimal_event_with_var.ial"], with_prelude=True)
+        compiled = compile_target([test_files / "minimal_events.ial"], with_prelude=True)
         # Add an event
         parser   = InstalPyParser()
-        query    = parser.parse_query("observed basicExEvent(other) at 0")
+        query    = parser.parse_query("observed basicExEventWithParam(other) at 0")
         domain   = InstalDomainCompiler().compile(parser.parse_domain("Example : other"))
         # Solve
         solver   = ClingoSolver("\n".join(compiled + [domain]),
@@ -338,15 +295,15 @@ class TestInstalEvents(unittest.TestCase):
         save_last(compiled, append=solver.results[0].atoms)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEx)", result)
-        self.assertIn("observed(basicExEvent(other),0)", result)
+        self.assertIn("institution(minimalEvents)", result)
+        self.assertIn("observed(basicExEventWithParam(other),0)", result)
 
     def test_event_with_multi_var(self):
         # Compile a harness
-        compiled = compile_target([test_files / "minimal_event_with_multi_var.ial"], with_prelude=True)
+        compiled = compile_target([test_files / "minimal_events.ial"], with_prelude=True)
         # Add an event
         parser    = InstalPyParser()
-        query     = parser.parse_query("observed basicExEvent(first, second, third) at 0")
+        query     = parser.parse_query("observed basicExEventMulti(first, second, third) at 0")
         # Solve
         solver   = ClingoSolver("\n".join(compiled),
                                 options=['-n', "1",
@@ -357,55 +314,9 @@ class TestInstalEvents(unittest.TestCase):
         save_last(compiled, append=solver.results[0].atoms)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEventMultiVar)", result)
-        self.assertIn("observed(basicExEvent(first,second,third),0)", result)
-        self.assertIn("occurred(instMultiVar(first,first,first),minimalEventMultiVar,0)", result)
+        self.assertIn("institution(minimalEvents)", result)
+        self.assertIn("observed(basicExEventMulti(first,second,third),0)", result)
 
-    def test_event_with_multi_inst_generation(self):
-        # Compile a harness
-        compiled = compile_target([test_files / "minimal_event_with_multi_var.ial"], with_prelude=True)
-        # Add an event
-        parser    = InstalPyParser()
-        query     = parser.parse_query("observed basicExEvent(first, second, third) at 0")
-        # Solve
-        solver   = ClingoSolver("\n".join(compiled),
-                                options=['-n', "1",
-                                         '-c', f'horizon=2'])
-
-        # Check it is observed
-        solver.solve(query)
-        save_last(compiled, append=solver.results[0].atoms)
-        self.assertEqual(len(solver.results), 1)
-        result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEventMultiVar)", result)
-        self.assertIn("observed(basicExEvent(first,second,third),0)", result)
-        self.assertIn("occurred(instMultiVar(first,first,first),minimalEventMultiVar,0)", result)
-        self.assertIn("occurred(instMultiVar(third,second,third),minimalEventMultiVar,0)", result)
-
-
-
-
-    def test_event_with_chained_generation(self):
-        # Compile a harness
-        compiled = compile_target([test_files / "minimal_event_chain.ial"], with_prelude=True)
-        # Add an event
-        parser    = InstalPyParser()
-        query     = parser.parse_query("observed basicExEvent(first) at 1")
-        # Solve
-        solver   = ClingoSolver("\n".join(compiled),
-                                options=['-n', "1",
-                                         '-c', f'horizon=2'])
-
-        # Check it is observed
-        solver.solve(query)
-        save_last(compiled, append=solver.results[0].atoms)
-        self.assertEqual(len(solver.results), 1)
-        result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEventChain)", result)
-        self.assertIn("observed(basicExEvent(first),1)", result)
-        self.assertIn("occurred(instChainStart(first),minimalEventChain,1)", result)
-        self.assertIn("occurred(instChainMid(first),minimalEventChain,1)", result)
-        self.assertIn("occurred(instChainEnd(first),minimalEventChain,1)", result)
 
 
 ##-- main

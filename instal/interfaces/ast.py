@@ -124,9 +124,10 @@ class DomainSpecAST(InstalAST):
 
 @dataclass(frozen=True)
 class QueryAST(InstalAST):
-    head    : TermAST  = field()
-    time    : None|int = field(default=None)
-    negated : bool     = field(default=False)
+    head       : TermAST            = field()
+    time       : None|int           = field(default=None)
+    negated    : bool               = field(default=False)
+    conditions : list[ConditionAST] = field(default_factory=list)
 
 @dataclass(frozen=True)
 class InitiallyAST(InstalAST):

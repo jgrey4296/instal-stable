@@ -1,0 +1,19 @@
+%%-*- mode: instal -*-
+%% A minimal institution to check initial fact declarations
+institution minimalInitials.
+
+type Param : first second.
+
+fluent notInitialised.
+fluent aFact.
+fluent withParam(Param).
+fluent multiParam(Param, Param2, Param3).
+fluent successfulConditionalFluent.
+fluent failedConditionalFluent.
+
+
+initially aFact.
+initially withParam(first).
+initially multiParam(first, second, first).
+initially successfulConditionalFluent if aFact.
+initially failedConditionalFluent if notInitialsed.

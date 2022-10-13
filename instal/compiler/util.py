@@ -78,7 +78,7 @@ class CompileUtil:
 
     @staticmethod
     def compile_conditions(inst, all_conditions:list[ASTs.ConditionAST]) -> set[str]:
-
+        # TODO handle condiitons that are events
         assert(all(isinstance(x, ASTs.ConditionAST) for x in all_conditions))
 
         result          = set(["true"])

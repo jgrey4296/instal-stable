@@ -1,9 +1,0 @@
-%%-*- mode: instal -*-
-%% A test institution demonstrating an extermal event
-%% that has a variable.
-%% Note the combined declaration and definition of `Example`
-institution minimalEx
-
-type Example : first second third
-
-exogenous event basicExEvent(Example)

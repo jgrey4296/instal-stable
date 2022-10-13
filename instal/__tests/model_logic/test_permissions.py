@@ -61,8 +61,71 @@ class TestInstalPermissions(unittest.TestCase):
     def tearDownClass(cls):
         logging.removeHandler(cls.file_h)
 
-    def test_initial(self):
-        pass
+    def test_event_recognition_unpermitted(self):
+        # Compile a harness
+        compiled = compile_target([test_files / "minimal_permissions.ial"], with_prelude=True)
+        # Add an event
+        parser   = InstalPyParser()
+        query    = parser.parse_query("observed basicExEvent at 0")
+        # Solve
+        solver   = ClingoSolver("\n".join(compiled),
+                                options=['-n', "1",
+                                         '-c', f'horizon=2'])
+
+        # Check it is observed
+        solver.solve(query)
+        # solver.solve(query, situation)
+        self.assertEqual(len(solver.results), 1)
+        result = str(solver.results[0].shown)
+
+        self.assertIn("institution(minimalPermissions)", result)
+        self.assertIn("observed(basicExEvent,0)", result)
+        self.assertIn("occurred(_unpermittedEvent(basicEvent_i),minimalPermissions,0)", result)
+
+
+
+    def test_event_recognition_permitted(self):
+        # Compile a harness
+        compiled  = compile_target([test_files / "minimal_permissions.ial"], with_prelude=True)
+        # Add an event
+        parser    = InstalPyParser()
+        query     = parser.parse_query("observed basicExEvent at 0")
+        situation = parser.parse_situation("initially perm(basicEvent_i) in minimalPermissions")
+        # Solve
+        solver    = ClingoSolver("\n".join(compiled),
+                                 options=['-n', "1",
+                                          '-c', f'horizon=2'])
+        # Check it is observed
+        solver.solve(query, situation)
+        self.assertEqual(len(solver.results), 1)
+        save_last(compiled, solver.results[0].atoms)
+        result = str(solver.results[0].shown)
+        self.assertIn("institution(minimalPermissions)", result)
+        self.assertIn("observed(basicExEvent,0)", result)
+        self.assertIn("occurred(basicEvent_i,minimalPermissions,0)", result)
+
+
+    def test_event_recognition_unempowered(self):
+        # Compile a harness
+        compiled  = compile_target([test_files / "minimal_permissions.ial"], with_prelude=True)
+        # Add an event
+        parser    = InstalPyParser()
+        query     = parser.parse_query("observed basicExEvent at 0")
+        situation = parser.parse_situation("initially perm(basicEvent_i) in minimalPermissions")
+        # Solve
+        save_last(compiled)
+        solver    = ClingoSolver("\n".join(compiled),
+                                 options=['-n', "1",
+                                          '-c', f'horizon=2'])
+        # Check it is observed
+        solver.solve(query, situation)
+        self.assertEqual(len(solver.results), 1)
+        save_last(compiled, solver.results[0].atoms)
+        result = str(solver.results[0].shown)
+        self.assertIn("institution(minimalPermissions)", result)
+        self.assertIn("observed(basicExEvent,0)", result)
+        self.assertIn("occurred(basicEvent_i,minimalPermissions,0)", result)
+
 
 
 if __name__ == '__main__':

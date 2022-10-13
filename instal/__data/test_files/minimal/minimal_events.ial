@@ -1,0 +1,11 @@
+%%-*- mode: instal -*-
+%% A test institution to check the use of a simple,
+%% variable-less external event.
+institution minimalEvents.
+
+type Example : first second third.
+
+external event basicExEvent.
+external event basicExEventWithParam(Example).
+external event secondEvent.
+external event basicExEventMulti(Example, Example2, Example3)

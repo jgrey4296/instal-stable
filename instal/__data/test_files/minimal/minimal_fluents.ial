@@ -1,15 +1,15 @@
 %%-*- mode: instal -*-
 %% A test institution to check inertial fluent
 %% initiation and termination
-institution minimalInertialFluent
+institution minimalFluents
 
 type Change : init term
 
-fluent testFact
-
-exogenous event basicEvent(Change)
-
+external      event basicEvent(Change)
+external      event basicEvent(Change)
 institutional event basicInstEvent(Change)
+
+fluent testFact
 
 basicEvent(Change)   generates basicInstEvent(Change)
 

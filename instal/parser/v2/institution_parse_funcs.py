@@ -54,18 +54,20 @@ generation_kws = PU.generation_kws
 inertial_kws   = PU.inertial_kws
 op_lits        = PU.op_lits
 
+if_conds       = PU.if_conds
+
 ##-- end util imports
 
 ##-- rules
 GEN_RULE       = (TERM("head")
                + generation_kws("annotation")
-               + term_list("body") + op(op(ln) + s_kw("if") + CONDITIONS)("conditions") + semi)
+               + term_list("body") + if_conds("conditions") + semi)
 GEN_RULE.set_parse_action(construct.generate_rule)
 GEN_RULE.set_name("event generation rule")
 
 INERTIAL_RULE  = (TERM("head")
                + inertial_kws("annotation")
-               + term_list("body") + op(op(ln) + s_kw("if") + CONDITIONS)("conditions") + semi)
+               + term_list("body") + if_conds("conditions") + semi)
 INERTIAL_RULE.set_parse_action(construct.inertial_rule)
 INERTIAL_RULE.set_name("inertial fluent rule")
 
@@ -77,7 +79,7 @@ RULE = GEN_RULE | INERTIAL_RULE | TRANSIENT_RULE
 
 ##-- end rules
 
-##-- components
+##-- types, fluents, events
 type_vals = s_lit(":") + orm(TERM)("body")
 TYPE_DEC    = s_kw("type") + TERM('head') + op(type_vals) + semi
 TYPE_DEC.add_parse_action(lambda s, l, t: ASTs.DomainSpecAST(t['head'], t['body'][:] if 'body' in t else []))
@@ -91,10 +93,10 @@ EVENT       = event_kws('annotation')  + s_kw("event")  + TERM("head") + semi
 EVENT.set_parse_action(construct.event)
 EVENT.set_name("event")
 
-INITIALLY   = s_kw("initially") + term_list("body") + op(s_kw("if") + CONDITIONS)("conditions") + semi
+INITIALLY   = s_kw("initially") + term_list("body") + if_conds("conditions") + semi
 INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST(t['body'][:], t.conditions[:]))
 INITIALLY.set_name("initially")
-##-- end components
+##-- end types, fluents, events
 
 ##-- institution head
 INSTITUTION = s_kw("institution") + TERM("head") + semi
@@ -112,7 +114,6 @@ SINK.set_parse_action(lambda s, l, t: ASTs.SinkAST(t['head']))
 SOURCE      = s_kw("source") + TERM("head") + semi
 SOURCE.set_parse_action(lambda s, l, t: ASTs.SourceAST(t['head']))
 ##-- end bridge specific
-
 
 ##-- top level parser entry points
 institution_structure = (INSTITUTION('head')

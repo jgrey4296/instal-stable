@@ -45,7 +45,7 @@ s_lit   = lambda x: pp.Literal(x).suppress()
 ln      = orm(pp.White("\n\r").set_whitespace_chars("\t ")).suppress()
 ln.set_name("ln")
 comment = pp.Regex(r"%.+?\n")
-semi    = s(op(lit(";")) + pp.line_end)
+semi    = s(op(lit(";") | lit(".")) + pp.line_end)
 semi.set_name(";")
 
 # TODO: shift these lists into defaults, as dicts to use in constructors as well
@@ -56,6 +56,9 @@ inertial_kws   = pp.MatchFirst(kw(x) for x in ["initiates", "terminates", "xinit
 op_lits        = pp.MatchFirst(lit(x) for x in ["<=", ">=", "<>", "!=", "<", ">", "=", ])
 
 not_kw         = kw("not")
+
+at_time = op(s_kw('at') + pp.common.integer('time'))
+at_time.set_parse_action(lambda s, l, t: t['time'] if 'time' in t else [0])
 
 ##-- end util
 
@@ -90,7 +93,6 @@ TERM.set_name("term")
 in_inst       = s_kw('in') + TERM('inst')
 ##-- end term parser
 
-
 ##-- conditions
 CONDITION   = op(kw("not"))("not") + TERM("head")
 CONDITION.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['head'], True if 'not' in t else False))
@@ -100,8 +102,11 @@ COMPARISON  = TERM("lhs") + op_lits("op") + TERM("rhs")
 COMPARISON.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['lhs'], False, operator=t['op'], rhs=t['rhs']))
 COMPARISON.set_name("comparison")
 
-# TODO handle 'in {time}'
 CONDITIONS  = pp.delimited_list(op(ln) + (COMPARISON | CONDITION))
 CONDITIONS.set_name("Condition list")
+
+if_conds    = op(op(ln) + s_kw("if") + CONDITIONS)
+
+# TODO handle time delay 'in {time}'
 
 ##-- end conditions
