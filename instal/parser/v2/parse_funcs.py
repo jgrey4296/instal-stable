@@ -46,7 +46,7 @@ IAF_INITIALLY = PU.op(PU.not_kw("not")) + PU.s_kw("initially") + PU.TERM("body")
 IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body']],
                                                                  conditions=t.conditions[:],
                                                                  inst=t['inst'],
-                                                                 negated=True if 'not' in t else False))
+                                                                 negated='not' in t))
 IAF_INITIALLY.add_condition(lambda s, l, t: not any(x.has_var for x in t[0].body))
 
 top_fact = PU.orm(IAF_INITIALLY)
@@ -58,11 +58,10 @@ top_fact.set_name("Initial Facts")
 OBSERVED = PU.op(PU.not_kw("not")) + PU.s_kw('observed') + PU.TERM('fact') + PU.at_time('time') + if_conds('conds') + PU.semi
 OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'],
                                                         time=t.time[0],
-                                                        negated=True if 'not' in t else False,
+                                                        negated='not' in t,
                                                         conditions=t['conds'][:] if 'conds' in t else []))
 
 top_query = PU.orm(OBSERVED)
 top_query.ignore(PU.comment)
 top_query.set_name("Queries")
 ##-- end iaq query specification
-

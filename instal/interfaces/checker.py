@@ -38,4 +38,4 @@ class InstalChecker_i(metaclass=abc.ABCMeta):
         raise Exception(msg)
 
     @abc.abstractmethod
-    def check(self, ast:iast.InstalAST): pass
+    def check(self, ast:InstalAST): pass

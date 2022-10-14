@@ -38,9 +38,8 @@ FAILED   = "Failed"   + ("_" * 11)
 def debug_try_action(instring, loc, expr, *args):
     """
     Log Entry into parsers
-
-
     """
+    # pylint: disable=unused-argument, consider-using-f-string
     context = _calc_mark_string(instring, loc)
     logging.warning("{3[0]:>10}{3[1]:3}{3[2]:<10} {0} <{1}> at {2}:  ".format(MATCHING, expr.name, loc, context))
 
@@ -48,6 +47,7 @@ def debug_match_action(instring, startloc, endloc, expr, toks, *args):
     """
     Log Parser Success
     """
+    # pylint: disable=unused-argument, consider-using-f-string
     context = _calc_mark_string(instring, endloc)
     logging.warning("{4[0]:>10}{4[1]:3}{4[2]:<10}\t {0} <{1}> ({2}) {3}".format(MATCHED, expr.name, str(toks), endloc, context))
 
@@ -55,6 +55,7 @@ def debug_fail_action(instring, loc, expr, exc, *args):
     """
     Log Parser failure
     """
+    # pylint: disable=unused-argument, consider-using-f-string
     if isinstance(exc, pp.ParseBaseException):
         found_str = exc.pstr[exc.loc:exc.loc + 1].replace(r'\\', '\\').replace("\n", "\\n")
         mark_str  = _calc_mark_string(instring, exc.loc)
@@ -78,6 +79,7 @@ def debug_pyparsing(*flags, all_warnings=False):
     Only applies for parsers created *after* this,
     so has to be set at boot time.
     """
+    # pylint: disable=protected-access
     if flags is None:
         flags = [pp.Diagnostics.enable_debug_on_named_expressions]
     if not debug_pyparsing_active_p():
@@ -99,16 +101,15 @@ def debug_pyparsing(*flags, all_warnings=False):
 
 def dfs_activate(*parsers, remove=False):
     """ DFS on a parser, adding debug funcs to named sub parsers """
+    # pylint: disable=protected-access
     queue = list(parsers)
     found = set()
     while bool(queue):
         current = queue.pop(0)
-        if id(current) in found:
+        if current is None or id(current) in found:
             continue
-        elif current is None:
-            continue
-        else:
-            found.add(id(current))
+
+        found.add(id(current))
 
         if bool(current.name) and current.name != current._defaultName and not remove:
             current.set_debug_actions(debug_try_action,

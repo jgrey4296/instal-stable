@@ -6,21 +6,22 @@
 from __future__ import annotations
 
 import abc
-from collections.abc import Sequence
 import logging as logmod
+from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import InitVar, dataclass, field
 from re import Pattern
 from typing import (TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
                     Iterable, Iterator, Mapping, Match, MutableMapping,
-                    Protocol, Sequence, Tuple, TypeAlias, TypeGuard, TypeVar,
+                    Protocol, Tuple, TypeAlias, TypeGuard, TypeVar,
                     cast, final, overload, runtime_checkable)
 from uuid import UUID, uuid1
 from weakref import ref
-from instal.interfaces.solver import InstalModelResult
-from instal.interfaces.ast import TermAST
-from instal.defaults import STATE_HOLDSAT_GROUPS
+
 from clingo import Symbol
+from instal.defaults import STATE_HOLDSAT_GROUPS
+from instal.interfaces.ast import TermAST
+from instal.interfaces.solver import InstalModelResult
 
 if TYPE_CHECKING:
     # tc only imports
@@ -98,10 +99,13 @@ class Trace_i(Sequence):
     metadata : dict                   = field(default_factory=dict)
 
     _states  : dict[str, State_i]     = field(default_factory=dict)
+    _ordered : list[int]              = field(init=False, default_factory=list)
     state_constructor : ClassVar[State_i] = None
 
     def __post_init__(self, states):
-        self._states = {x.timestep : x for x in states}
+        self._states  = {x.timestep : x for x in states}
+        self._ordered = sorted(x.timestep for x in states)
+
 
     @staticmethod
     @abc.abstractmethod
@@ -130,7 +134,7 @@ class Trace_i(Sequence):
         return len(self._states)
 
     def last(self) -> State_i:
-        return self.trace[-1]
+        return self._states[str(self._ordered[-1])]
 
     @property
     def timesteps(self) -> list[int]:

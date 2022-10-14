@@ -4,10 +4,15 @@ from __future__ import annotations
 import abc
 import logging as logmod
 import pathlib
+from dataclasses import InitVar, dataclass, field
 from importlib.readers import MultiplexedPath
 from types import NoneType
-from typing import IO, List
+from typing import (IO, TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
+                    Iterable, Iterator, List, Mapping, Match, MutableMapping,
+                    Protocol, Sequence, Tuple, TypeAlias, TypeGuard, TypeVar,
+                    cast, final, overload, runtime_checkable)
 from unittest import TestCase, skip
+from unittest.util import safe_repr
 
 import instal.interfaces.ast as InASTs
 import pyparsing as pp
@@ -44,6 +49,7 @@ class InstalParserTestCase(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        # pylint: disable=consider-using-f-string
         LOGLEVEL      = logmod.DEBUG
         LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
 
@@ -59,9 +65,9 @@ class InstalParserTestCase(TestCase):
         logmod.root.removeHandler(cls.file_h)
 
 
-    def assertFilesParse(self, dsl:pp.ParserElement, *files:str|pathlib.Path, loc:None|MultiPlexedPath=None):
+    def assertFilesParse(self, dsl:pp.ParserElement, *files:str|pathlib.Path, loc:None|MultiplexedPath=None):
         """
-        Assert all files parse.
+        Assert all files parse without error.
         Can be simple names all appended to the path `loc` if provided,
         which is expected to be a MultiplexedPath provided by
         importlib.resources.files
@@ -75,11 +81,11 @@ class InstalParserTestCase(TestCase):
             with self.subTest(msg=path):
                 self.assertTrue(path.exists())
                 try:
-                    result   = dsl.parse_file(path, parse_all=True)
+                    dsl.parse_file(path, parse_all=True)
                 except pp.ParseException as err:
                     raise self.failureException("\n"+err.explain(0)) from None
 
-    def yieldParseResults(self, dsl:pp.ParserElement, *tests) -> Iterator:
+    def yieldParseResults(self, dsl:pp.ParserElement, *tests) -> Iterator[Any]:
         """
         For each test, yield its result and additional values
         for manual testing
@@ -178,6 +184,8 @@ class InstalParserTestCase(TestCase):
     def assertAllIn(self, values, container):
         for value in values:
             self.assertIn(value, container)
+
+
     def _formatMessage(self, msg, standardMsg):
         """Honour the longMessage attribute when generating failure messages.
         If longMessage is False this means:
@@ -188,24 +196,28 @@ class InstalParserTestCase(TestCase):
         * Use the standard message
         * If an explicit message is provided, plus ' : ' and the explicit message
         """
+        # pylint: disable=too-many-return-statements, consider-using-f-string
         if not self.longMessage:
             return msg or standardMsg
+
         if msg is None and self.current_parse_text is None:
             return standardMsg
+
         if msg is None and self.current_parse_text is not None:
             return standardMsg + f'\n\n in:\n{self.current_parse_text}'
+
         try:
             # don't switch to '{}' formatting in Python 2.X
             # it changes the way unicode input is handled
             if self.current_parse_text:
                 return '%s : %s\n\nin:\n%s' % (standardMsg, msg, self.current_parse_text)
-            else:
-                return '%s : %s' % (standardMsg, msg)
+
+            return '%s : %s' % (standardMsg, msg)
         except UnicodeDecodeError:
             if self.current_parse_text is not None:
                 return  '%s : %s\n\nin:\n%s' % (safe_repr(standardMsg), safe_repr(msg), safe_repr(self.current_parse_text))
-            else:
-                return  '%s : %s' % (safe_repr(standardMsg), safe_repr(msg or self.current_parse_text))
+
+            return  '%s : %s' % (safe_repr(standardMsg), safe_repr(msg or self.current_parse_text))
 
 
     def _set_current_parse_text(self, text:str):

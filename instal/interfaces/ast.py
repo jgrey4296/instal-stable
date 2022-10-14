@@ -5,9 +5,7 @@ AST representations from parsed instal -> compiled clingo
 ##-- imports
 from __future__ import annotations
 
-import abc
 import logging as logmod
-from copy import deepcopy
 from enum import Enum, auto
 from dataclasses import InitVar, dataclass, field
 from re import Pattern
@@ -20,7 +18,7 @@ from weakref import ref
 ##-- end imports
 
 __all__ = [
-    "EventEnum", "FluentEnum", "RelationalEnum", "InstalAST",
+    "EventEnum", "FluentEnum", "RuleEnum", "InstalAST",
     "TermAST", "InstitutionDefAST",
     "BridgeDefAST", "DomainSpecAST", "QueryAST", "InitiallyAST",
     "TypeAST", "EventAST", "FluentAST", "ConditionAST",

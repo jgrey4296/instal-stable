@@ -114,8 +114,6 @@ def generate_rule(string, loc, toks) -> ASTs.GenerationRuleAST:
                                   annotation=annotation
                                   )
 
-
-    pass
 def inertial_rule(string, loc, toks) -> ASTs.InertialRuleAST:
     head       = toks['head']
     body       = toks['body'][:]

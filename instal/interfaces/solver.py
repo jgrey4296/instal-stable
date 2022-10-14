@@ -8,9 +8,18 @@ import time
 import warnings
 from collections import defaultdict
 from dataclasses import InitVar, dataclass, field
-from typing import IO, List
+from typing import (IO, TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
+                    Iterable, Iterator, List, Mapping, Match, MutableMapping,
+                    Protocol, Sequence, Tuple, TypeAlias, TypeGuard, TypeVar,
+                    cast, final, overload, runtime_checkable)
 
 from clingo import parse_term
+
+if TYPE_CHECKING:
+    # tc only imports
+    from pathlib import Path
+    from instal.interfaces.ast import TermAST
+
 ##-- end imports
 
 logging = logmod.getLogger(__name__)
@@ -31,17 +40,8 @@ class InstalModelResult:
     type    : Any
 
 
-class _SolverWrapper_Protocol(metaclass=abc.ABCMeta):
-
-    @abc.abstractmethod
-    def solve(self, events:None|list[Any]=None, situation:None|list[Any]=None, fresh=False) -> int: pass
-
-    @property
-    @abc.abstractmethod
-    def metadata(self): pass
-
 @dataclass
-class SolverWrapper_i(_SolverWrapper_Protocol):
+class SolverWrapper_i:
     """
     An wrapper around a solver (ie: clingo) to interface with the rest of instal
     """
@@ -57,3 +57,11 @@ class SolverWrapper_i(_SolverWrapper_Protocol):
 
 
     def __post_init__(self): pass
+
+
+    @abc.abstractmethod
+    def solve(self, events:None|list[Any]=None, situation:None|list[Any]=None, fresh=False) -> int: pass
+
+    @property
+    @abc.abstractmethod
+    def metadata(self): pass
