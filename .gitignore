@@ -12,3 +12,4 @@ instal_tmp
 *.auctex
 *.auctex-auto
 build
+**/__tests/**/last_run.lp
