@@ -74,7 +74,7 @@ class TestInstalGeneration(unittest.TestCase):
                                          '-c', f'horizon=2'])
 
         # Check it is observed
-        solver.solve(query, situation)
+        solver.solve(query + situation)
         save_last(compiled, append=solver.results[0].atoms)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
@@ -95,7 +95,7 @@ class TestInstalGeneration(unittest.TestCase):
                                          '-c', f'horizon=2'])
 
         # Check it is observed
-        solver.solve(query, situation)
+        solver.solve(query + situation)
         save_last(compiled, append=solver.results[0].atoms)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
@@ -119,7 +119,7 @@ class TestInstalGeneration(unittest.TestCase):
                                          '-c', f'horizon=2'])
 
         # Check it is observed
-        solver.solve(query, situation)
+        solver.solve(query + situation)
         save_last(compiled, append=solver.results[0].atoms)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
@@ -184,7 +184,7 @@ class TestInstalGeneration(unittest.TestCase):
                                          '-c', f'horizon=2'])
 
         # Check it is observed
-        solver.solve(query, situation)
+        solver.solve(query + situation)
         save_last(compiled, append=solver.results[0].atoms)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
@@ -207,7 +207,7 @@ class TestInstalGeneration(unittest.TestCase):
                                          '-c', f'horizon=2'])
 
         # Check it is observed
-        solver.solve(query, situation)
+        solver.solve(query + situation)
         save_last(compiled, append=solver.results[0].atoms)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
@@ -234,7 +234,7 @@ class TestInstalGeneration(unittest.TestCase):
                                          '-c', f'horizon=4'])
 
         # Check it is observed
-        solver.solve(query, situation)
+        solver.solve(query + situation)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
         save_last(compiled, append=solver.results[0].atoms)

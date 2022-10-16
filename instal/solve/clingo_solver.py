@@ -96,17 +96,16 @@ class ClingoSolver(SolverWrapper_i):
 
         logging.info("Clingo initialization complete")
 
-    def solve(self, events:None|list[str|QueryAST|Symbol]=None, situation:None|list[str|InitiallyAST|Symbol]=None, fresh=False) -> int:
-        events    = events    or []
-        situation = situation or []
+    def solve(self, assertions:None|list[str|QueryAST|Symbol]=None, fresh=False) -> int:
+        assertions = assertions or []
 
-        if fresh:
+        if fresh or self.ctl is None:
             self.init_solver()
 
         logging.debug("Grounding Program")
         self.ctl.ground([("base", [])])
 
-        for x in (situation + events):
+        for x in assertions:
             logging.debug("assigning: %s", x)
             match x:
                 case InstalAST():
@@ -119,11 +118,13 @@ class ClingoSolver(SolverWrapper_i):
                 case _:
                     raise Exception("Unrecognized situation fact")
 
-        on_model_cb = partial(model_cb, self)
-
-
-        logging.info("Running Program")
-        self.ctl.solve(on_model=on_model_cb)
+        try:
+            on_model_cb = partial(model_cb, self)
+            logging.info("Running Program")
+            self.ctl.solve(on_model=on_model_cb)
+        except Exception as err:
+            logging.warning("Clingo ran into a problem: %s", err)
+            self.ctl = None
 
         logging.info("There are %s answer sets", len(self.results))
         return len(self.results)

@@ -73,7 +73,7 @@ class TestInstalFluents(unittest.TestCase):
                                          '-c', f'horizon=2'])
 
         # Check it is observed
-        solver.solve(query, situation)
+        solver.solve(query + situation)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
         self.assertIn("institution(minimalFluents)", result)
@@ -92,7 +92,7 @@ class TestInstalFluents(unittest.TestCase):
                                          '-c', f'horizon=2'])
 
         # Check it is observed
-        solver.solve(query, situation)
+        solver.solve(query + situation)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
         self.assertIn("institution(minimalFluents)", result)
@@ -111,7 +111,7 @@ class TestInstalFluents(unittest.TestCase):
                                          '-c', f'horizon=2'])
 
         # Check it is observed
-        solver.solve(query, situation)
+        solver.solve(query + situation)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
         save_last(compiled, append=solver.results[0].atoms)
@@ -138,7 +138,7 @@ class TestInstalFluents(unittest.TestCase):
                                          '-c', f'horizon=5'])
 
         # Check it is observed
-        solver.solve(query, situation)
+        solver.solve(query + situation)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
         save_last(compiled, append=solver.results[0].atoms)
@@ -168,7 +168,7 @@ class TestInstalFluents(unittest.TestCase):
                                          '-c', f'horizon=2'])
 
         # Check it is observed
-        solver.solve(query, situation)
+        solver.solve(query + situation)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
         save_last(compiled, append=solver.results[0].atoms)

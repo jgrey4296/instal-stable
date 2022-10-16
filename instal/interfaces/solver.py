@@ -60,7 +60,7 @@ class SolverWrapper_i:
 
 
     @abc.abstractmethod
-    def solve(self, events:None|list[Any]=None, situation:None|list[Any]=None, fresh=False) -> int: pass
+    def solve(self, assertions:None|list[Any]=None, fresh=False) -> int: pass
 
     @property
     @abc.abstractmethod

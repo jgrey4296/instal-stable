@@ -74,7 +74,7 @@ class TestInstalPermissions(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query)
-        # solver.solve(query, situation)
+        # solver.solve(query + situation)
         self.assertEqual(len(solver.results), 1)
         result = str(solver.results[0].shown)
 
@@ -96,7 +96,7 @@ class TestInstalPermissions(unittest.TestCase):
                                  options=['-n', "1",
                                           '-c', f'horizon=2'])
         # Check it is observed
-        solver.solve(query, situation)
+        solver.solve(query + situation)
         self.assertEqual(len(solver.results), 1)
         save_last(compiled, solver.results[0].atoms)
         result = str(solver.results[0].shown)
@@ -118,7 +118,7 @@ class TestInstalPermissions(unittest.TestCase):
                                  options=['-n', "1",
                                           '-c', f'horizon=2'])
         # Check it is observed
-        solver.solve(query, situation)
+        solver.solve(query + situation)
         self.assertEqual(len(solver.results), 1)
         save_last(compiled, solver.results[0].atoms)
         result = str(solver.results[0].shown)
