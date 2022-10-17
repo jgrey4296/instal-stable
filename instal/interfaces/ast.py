@@ -73,7 +73,7 @@ class TermAST(InstalAST):
 
     def __str__(self):
         if bool(self.params):
-            param_str = ", ".join(str(x) for x in self.params)
+            param_str = ",".join(str(x) for x in self.params)
             return self.value + "(" + param_str + ")"
 
         return str(self.value)

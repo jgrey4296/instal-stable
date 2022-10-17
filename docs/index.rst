@@ -14,7 +14,7 @@ Welcome to InstAL's documentation!
    :recursive:
    :toctree: _generated_instal
 
-   acab
+   instal.interfaces
 
 
 

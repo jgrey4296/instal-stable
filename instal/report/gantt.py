@@ -17,9 +17,8 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 ##-- data
-data_path       = files("instal.__data")
 tex_path        = files(TEX_loc)
-HEADER_PAT      = Template((data_path / "header_pattern").read_text())
+HEADER_PAT      = Template((tex_path / "header_pattern").read_text())
 GANTT_BAR       = Template((tex_path / "gantt_bar.tex").read_text())
 GANTT_CHART     = Template((tex_path / "gantt_chart.tex").read_text())
 GANTT_MILESTONE = Template((tex_path / "gantt_milestone.tex").read_text())

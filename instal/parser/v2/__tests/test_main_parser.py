@@ -141,7 +141,7 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("institution test;\nsomething when else;", ["something"], ["else"], {ASTs.RuleEnum.transient}),
                                                    ("institution test\nsomething(value) when else(other)", ["something(value)"], ["else(other)"], {ASTs.RuleEnum.transient}),
                                                    ("institution test\nsomething(Variable) when else(Variable)", ["something(Variable)"], ["else(Variable)"], {ASTs.RuleEnum.transient}),
-                                                   ("institution test\nsomething(Variable, SecondVar) when else(Variable, SecondVar)", ["something(Variable, SecondVar)"], ["else(Variable, SecondVar)"], {ASTs.RuleEnum.transient}),
+                                                   ("institution test\nsomething(Variable, SecondVar) when else(Variable, SecondVar)", ["something(Variable,SecondVar)"], ["else(Variable,SecondVar)"], {ASTs.RuleEnum.transient}),
                                                    ("institution test\nsomething(_) when else(_)", ["something(_)"], ["else(_)"], {ASTs.RuleEnum.transient}),
                                                    ):
             transients = result[0].rules
@@ -154,8 +154,8 @@ class TestInstitutionParser(InstalParserTestCase):
         for result, data in self.yieldParseResults(i_dsl.top_institution,
                                                    ("institution test;\ninitially something;", ["something"]),
                                                    ("institution test;\ninitially something(value);", ["something(value)"]),
-                                                   ("institution test;\ninitially something(Variable, SecondVar);", ["something(Variable, SecondVar)"]),
-                                                   ("institution test;\ninitially something(_, SecondVar);", ["something(_, SecondVar)"]),
+                                                   ("institution test;\ninitially something(Variable,SecondVar);", ["something(Variable,SecondVar)"]),
+                                                   ("institution test;\ninitially something(_,SecondVar);", ["something(_,SecondVar)"]),
                                                    ):
             initial = result[0].initial
             self.assertAllIn((str(y) for x in initial for y in x.body), data[1])

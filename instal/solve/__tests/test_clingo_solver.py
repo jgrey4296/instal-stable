@@ -140,9 +140,9 @@ class TestInstalClingoSolver(unittest.TestCase):
         self.assertIn(a_term, solver.results[0].atoms)
 
         # change the value of the term:
-        count2 = solver.solve([term_2], [term])
+        count2 = solver.solve([term_2, term])
         self.assertEqual(count, 1)
-        self.assertNotIn(term, solver.results[-1].atoms)
+        self.assertNotIn(str(term), solver.results[-1].atoms)
         self.assertIn(term_2, solver.results[-1].atoms)
         self.assertIn(a_term, solver.results[-1].atoms)
 
@@ -163,9 +163,9 @@ class TestInstalClingoSolver(unittest.TestCase):
         self.assertEqual(count, 1)
 
         # change the value of the term:
-        solver.solve(grounding=[("step", [Number(1)])])
-        solver.solve(grounding=[("step", [Number(5)])])
-        solver.solve(grounding=[("step", [Number(10)])])
+        solver.solve(reground=[("step", [Number(1)])])
+        solver.solve(reground=[("step", [Number(5)])])
+        solver.solve(reground=[("step", [Number(10)])])
         self.assertTrue(True)
 
 

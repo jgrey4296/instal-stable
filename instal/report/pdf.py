@@ -16,10 +16,9 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 ##-- data
-data_path       = files("instal.__data")
 tex_path        = files(TEX_loc)
 
-HEADER_PAT      = Template((data_path / "header_pattern").read_text())
+HEADER_PAT      = Template((tex_path / "header_pattern").read_text())
 PDF_PRELUDE     = Template((tex_path / "pdf_prelude.tex").read_text())
 
 TRACE           = Template((tex_path / "trace.tex").read_text())

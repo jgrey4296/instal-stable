@@ -20,6 +20,7 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     pass
 ##-- end warnings
+logging = logmod.root
 
 class TestInstalCheckers(unittest.TestCase):
     @classmethod
@@ -30,7 +31,6 @@ class TestInstalCheckers(unittest.TestCase):
         cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
         cls.file_h.setLevel(LOGLEVEL)
 
-        logging = logmod.root
         logging.setLevel(logmod.NOTSET)
         logging.addHandler(cls.file_h)
 

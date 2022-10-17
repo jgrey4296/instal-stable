@@ -103,28 +103,29 @@ class ClingoSolver(SolverWrapper_i):
         self.ctl.ground(default_grounding)
         logging.info("Clingo initialization complete")
 
-    def solve(self, assign_true:list[str|QueryAST|Symbol]=None, assign_false=None, fresh:bool=False, grounding:list[tuple]=None) -> int:
-        assign_true  = assign_true or []
-        assign_false = assign_false or []
+    def solve(self, assignments:list[str|QueryAST|Symbol|tuple[bool, Symbol]]=None, fresh:bool=False, reground:list[tuple]=None) -> int:
+        assignments = assignments or []
 
         if fresh or self.ctl is None:
             self.init_solver()
 
-        if bool(grounding):
-            logging.debug("Grounding Program: %s", grounding)
+        if bool(reground):
+            logging.debug("Grounding Program: %s", reground)
             self.ctl.cleanup()
-            self.ctl.ground(grounding)
+            self.ctl.ground(reground)
 
-        for sym, truthy in chain(zip(assign_true, cycle([True])), zip(assign_false, [False])):
+        for sym in assignments:
             logging.debug("assigning: %s", sym)
             match sym:
                 case InstalAST():
-                    for sym in self.ast_to_clingo(sym):
+                    for truthy, sym in self.ast_to_clingo(sym):
                         self.ctl.assign_external(sym, truthy)
                 case Symbol():
-                    self.ctl.assign_external(sym, truthy)
+                    self.ctl.assign_external(sym, True)
+                case bool(), Symbol():
+                    self.ctl.assign_external(sym[1], sym[0])
                 case str():
-                    self.ctl.assign_external(parse_term(sym), truthy)
+                    self.ctl.assign_external(parse_term(sym), True)
                 case _:
                     raise Exception("Unrecognized situation fact")
 
@@ -166,22 +167,24 @@ class ClingoSolver(SolverWrapper_i):
                 case InitiallyAST():
                     assert(not bool(ast.conditions))
                     assert(not any(x.has_var for x in ast.body))
+                    truthy = not ast.negated
                     for fact in ast.body:
-                        results.append(Function("extHoldsat",
-                                                 [parse_term(str(fact)),
-                                                  parse_term(str(ast.inst))]))
+                        symbol = Function("extHoldsat", [parse_term(str(fact)), parse_term(str(ast.inst))])
+                        results.append((truthy, symbol))
                 case QueryAST():
-                    time  = ast.time if ast.time else 0
-                    event = parse_term(str(ast.head))
-                    results.append(Function("extObserved", [event, Number(time)]))
-                    results.append(Function("_eventSet", [Number(time)]))
+                    time   = ast.time if ast.time else 0
+                    event  = parse_term(str(ast.head))
+                    truthy = not ast.negated
+                    results.append((truthy, Function("extObserved", [event, Number(time)])))
+                    results.append((truthy, Function("_eventSet", [Number(time)])))
 
                 case DomainSpecAST():
                     raise NotImplementedException()
                     for fact in ast.body:
                         assert(not bool(ast.head.params))
-                        results.append((True,
-                                        Function(str(ast.head.value.lower()), [parse_term(str(x) for x in ast.body)])))
+                        symbol = Function(str(ast.head.value.lower()), [parse_term(str(x) for x in ast.body)])
+                        results.append((True, symbol))
+
 
                 case TermAST():
                     results.append((True, parse_term(str(ast))))
