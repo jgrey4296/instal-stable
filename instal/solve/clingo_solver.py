@@ -2,8 +2,10 @@
 ##-- imports
 from __future__ import annotations
 
+import warnings
 import logging as logmod
 import os
+from itertools import cycle, chain
 import time
 from collections import defaultdict
 from dataclasses import InitVar, dataclass, field
@@ -18,9 +20,6 @@ from instal.interfaces.ast import (DomainSpecAST, InitiallyAST, InstalAST,
                                    QueryAST, TermAST)
 from instal.interfaces.solver import InstalModelResult, SolverWrapper_i
 ##-- end imports
-
-
-
 
 ##-- logging
 logging       = logmod.getLogger(__name__)
@@ -64,14 +63,16 @@ class ClingoSolver(SolverWrapper_i):
     An Oracle that uses Clingo as the solver
     """
 
-    options : list[str]    = field(kw_only=True, default_factory=list)
-    ctl     : None|Control = field(init=False, default=None)
+    options      : list[str]    = field(kw_only=True, default_factory=list)
+    ctl          : None|Control = field(init=False, default=None)
+    program_name : str          = field(kw_only=True, default="base")
 
     def __post_init__(self):
-        assert(self.program or bool(self.input_files))
+        if not self.program and bool(self.input_files):
+            warnings.warn("ClingoSolver created with no initial program or input files")
 
-        self.options = self.options or ['-n', str(1),
-                                        '-c', f'horizon={self.length}']
+        self.options = self.options or ['-n', 1,
+                                        '-c', f'horizon={2}']
 
         self.init_solver()
 
@@ -80,7 +81,9 @@ class ClingoSolver(SolverWrapper_i):
                                                                   " ".join(self.options),
                                                                   len(self.results))
     def init_solver(self):
-        self.ctl = Control(self.options, logger=clingo_intercept_logger)
+        self.results      = []
+        default_grounding = [(self.program_name, [])]
+        self.ctl          = Control([str(x) for x in self.options], logger=clingo_intercept_logger)
 
         for path in self.input_files:
             logging.debug("Clingo Loading: %s", path)
@@ -88,33 +91,40 @@ class ClingoSolver(SolverWrapper_i):
             self.ctl.load(str(path))
 
         try:
-            self.ctl.add("base", [], self.program)
+            if self.program:
+                self.ctl.add(self.program_name, [], self.program)
+
         except Exception as err:
             logging.exception("Clingo Failed to add Program")
             logging.debug(self.program)
             raise err
 
+        logging.debug("Initial Grounding of Program: %s", default_grounding)
+        self.ctl.ground(default_grounding)
         logging.info("Clingo initialization complete")
 
-    def solve(self, assertions:None|list[str|QueryAST|Symbol]=None, fresh=False) -> int:
-        assertions = assertions or []
+    def solve(self, assign_true:list[str|QueryAST|Symbol]=None, assign_false=None, fresh:bool=False, grounding:list[tuple]=None) -> int:
+        assign_true  = assign_true or []
+        assign_false = assign_false or []
 
         if fresh or self.ctl is None:
             self.init_solver()
 
-        logging.debug("Grounding Program")
-        self.ctl.ground([("base", [])])
+        if bool(grounding):
+            logging.debug("Grounding Program: %s", grounding)
+            self.ctl.cleanup()
+            self.ctl.ground(grounding)
 
-        for x in assertions:
-            logging.debug("assigning: %s", x)
-            match x:
+        for sym, truthy in chain(zip(assign_true, cycle([True])), zip(assign_false, [False])):
+            logging.debug("assigning: %s", sym)
+            match sym:
                 case InstalAST():
-                    for val, sym in self.ast_to_clingo(x):
-                        self.ctl.assign_external(sym, val)
+                    for sym in self.ast_to_clingo(sym):
+                        self.ctl.assign_external(sym, truthy)
                 case Symbol():
-                    self.ctl.assign_external(x, True)
+                    self.ctl.assign_external(sym, truthy)
                 case str():
-                    self.ctl.assign_external(parse_term(x), True)
+                    self.ctl.assign_external(parse_term(sym), truthy)
                 case _:
                     raise Exception("Unrecognized situation fact")
 
@@ -145,6 +155,10 @@ class ClingoSolver(SolverWrapper_i):
 
 
     def ast_to_clingo(self, *asts:TermAST) -> list[tuple[bool, Symbol]]:
+        """
+        Convert instal terms to clingo terms,
+        not caring if they are #external or not
+        """
         logging.debug("Converting to Clingo Symbols: %s", asts)
         results = []
         for ast in asts:
@@ -153,15 +167,14 @@ class ClingoSolver(SolverWrapper_i):
                     assert(not bool(ast.conditions))
                     assert(not any(x.has_var for x in ast.body))
                     for fact in ast.body:
-                        results.append((not ast.negated,
-                                        Function("extHoldsat",
+                        results.append(Function("extHoldsat",
                                                  [parse_term(str(fact)),
-                                                  parse_term(str(ast.inst))])))
+                                                  parse_term(str(ast.inst))]))
                 case QueryAST():
                     time  = ast.time if ast.time else 0
                     event = parse_term(str(ast.head))
-                    results.append((True, Function("extObserved", [event, Number(time)])))
-                    results.append((True, Function("_eventSet", [Number(time)])))
+                    results.append(Function("extObserved", [event, Number(time)]))
+                    results.append(Function("_eventSet", [Number(time)]))
 
                 case DomainSpecAST():
                     raise NotImplementedException()
