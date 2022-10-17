@@ -7,6 +7,8 @@ from clingo import Symbol, SymbolType, parse_term
 from instal.interfaces.solver import InstalModelResult
 from instal.interfaces.trace import State_i
 
+import instal.interfaces.ast as iAST
+
 ##-- end imports
 
 ##-- logging
@@ -20,7 +22,6 @@ class InstalClingoState(State_i):
 
     Representation of Terms: clingo.Symbol.
     """
-
 
     def __repr__(self) -> str:
         result = []
@@ -56,46 +57,46 @@ class InstalClingoState(State_i):
 
     def to_json(self) -> dict:
         state_dict = {
-                "occurred" : [],
-                "observed" : [],
-                "holdsat" : {
-                    "perms" : [],
-                    "pows" : [],
-                    "tpows" : [],
-                    "ipows" : [],
-                    "gpows" : [],
-                    "obls" : [],
-                    "fluents" : []
-                    }
-                }
-        for o in self.occurred:
-            state_dict["occurred"].append(symbol_to_atom_list(o))
-        for o in self.observed:
-            state_dict["observed"].append(symbol_to_atom_list(o))
-        for h in self.holdsat:
-            lst_atom = symbol_to_atom_list(h)
-            key = lst_atom[1][0][0]
-            if key == "perm":
-                state_dict["holdsat"]["perms"].append(lst_atom )
-            elif key == "pow":
-                state_dict["holdsat"]["pows"].append(lst_atom )
-            elif key == "tpow":
-                state_dict["holdsat"]["tpows"].append(lst_atom )
-            elif key == "gpow":
-                state_dict["holdsat"]["gpows"].append(lst_atom )
-            elif key == "ipow":
-                state_dict["holdsat"]["ipows"].append(lst_atom )
-            elif key == "obl":
-                state_dict["holdsat"]["obls"].append(lst_atom)
-            else:
-                state_dict["holdsat"]["fluents"].append(lst_atom)
+            "timestep" : self.timestep,
+            "occurred" : [str(x) for x in self.occurred],
+            "observed" : [str(x) for x in self.observed],
+            "holdsat"  : {},
+            "rest"     : [str(x) for x in self.rest]
+        }
 
-        return { "state" : state_dict,
-                 "metadata" : self.metadata }
+        for k, v in self.holdsat.items():
+            state_dict['holdsat'][k] = [str(x) for x in v]
 
+        return state_dict
 
-    def __contains__(self) -> bool:
-        pass
+    def __contains__(self, term) -> bool:
+        match term:
+            case Symbol():
+                pass
+            case iAST.TermAST():
+                term = parse_term(str(term))
+
+        try:
+            # coerce to current timestep
+            if (term.arguments[-1].type is SymbolType.Number
+                and term.arguments[-1].number != self.timestep):
+               val    = term.name
+               params = term.arguments[:-1] + [iAST.TermAST(self.timestep)]
+               term   = parse_term(f"{val}({','.join(str(x) for x in params)})")
+
+        except ValueError as err:
+            return False
+
+        match term.name:
+            case "holdsat":
+                return term in self.fluents
+            case "occurred":
+                return term in self.occurred
+            case "observed":
+                return term in self.observed
+            case _:
+                return term in self.rest
+
     def check(self, conditions) -> bool:
         return False
     def insert(self, term:str|Symbol|iAST.TermAST):

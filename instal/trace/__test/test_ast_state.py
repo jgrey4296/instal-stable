@@ -16,6 +16,8 @@ from unittest import mock
 
 from instal.trace.ast_state import InstalASTState
 from instal.interfaces import ast as iast
+from instal.parser.v2.utils import TERM
+from clingo import parse_term
 ##-- end imports
 
 logging = logmod.root
@@ -88,7 +90,7 @@ class TestASTState(unittest.TestCase):
 
     def test_state_insert(self):
         term_par1 = iast.TermAST("test")
-        term1 = iast.TermAST("blah", [term_par1, iast.TermAST(0)])
+        term1     = iast.TermAST("blah", [term_par1, iast.TermAST(0)])
 
         state = InstalASTState()
 
@@ -166,6 +168,50 @@ class TestASTState(unittest.TestCase):
         self.assertNotIn(term2, state)
         state.insert(term1)
         self.assertNotIn(term2, state)
+
+
+    def test_clingo_term(self):
+        term_par1 = iast.TermAST("test")
+        term1     = iast.TermAST("blah", [term_par1, iast.TermAST(0)])
+        c_term    = parse_term("blah(test,0)")
+
+        state = InstalASTState()
+
+        state.insert(term1)
+        self.assertTrue(c_term in state)
+
+    def test_clingo_term_not_in(self):
+        term_par1 = iast.TermAST("test")
+        term1     = iast.TermAST("blah", [term_par1, iast.TermAST(0)])
+        c_term    = parse_term("blah(other,0)")
+
+        state = InstalASTState()
+
+        state.insert(term1)
+        self.assertFalse(c_term in state)
+
+
+
+    def test_to_json(self):
+        term1     = TERM.parse_string("observed(else,0)")[0]
+        term2     = TERM.parse_string("occurred(something,inst,0)")[0]
+        term3     = TERM.parse_string("holdsat(perm(action,role),inst,0)")[0]
+
+        state = InstalASTState()
+
+        state.insert(term1)
+        state.insert(term2)
+        state.insert(term3)
+
+        as_json = state.to_json()
+        self.assertIsInstance(as_json, dict)
+        self.assertTrue(all([x in as_json for x in ["timestep", "occurred", "observed", "holdsat", "rest"]]))
+
+        self.assertEqual(as_json["timestep"], 0)
+        self.assertEqual(as_json["observed"][0], "observed(else,0)")
+        self.assertEqual(as_json["occurred"][0], "occurred(something,inst,0)")
+        self.assertEqual(as_json["holdsat"]["perm"][0], "holdsat(perm(action,role),inst,0)")
+
 
 if __name__ == '__main__':
     unittest.main()

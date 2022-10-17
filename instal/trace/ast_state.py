@@ -73,7 +73,15 @@ class InstalASTState(State_i):
         return state_dict
 
     def __contains__(self, term) -> bool:
+        match term:
+            case iAST.TermAST():
+                pass
+            case Symbol():
+                term = TERM.parse_string(str(term))[0]
+
+
         try:
+            # coerce to current timestep
             if int(term.params[-1].value) != self.timestep:
                 term = iAST.TermAST(term.value,
                                     params=(term.params[:-1]
