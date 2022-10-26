@@ -12,10 +12,11 @@ from instal.interfaces.checker import InstalChecker_i
 ##-- end imports
 
 @dataclass
-class BridgeEventsCheck(InstalChecker_i):
+class FluentCheck(InstalChecker_i):
+    """ ensure inertial fluents have associated initiation and terminations,
+    and transients don't.
+    """
 
     def check(self, ast):
-        # TODO check ex events generate inst events
-        pass
 
-    ##-- end misc
+        pass

@@ -13,9 +13,17 @@ from instal.interfaces.checker import InstalChecker_i
 
 @dataclass
 class RuleCheck(InstalChecker_i):
+    """ check rules make sense
+
+    generation rules : only events generate states
+
+    initial rules    : only initiate states
+
+    initiate rules   : only institutional events start states
+    terminate rules  : only institutional events end states
+
+    transient rules  : only states set transient state
+    """
 
     def check(self, ast):
-        # TODO check rules make sense
         pass
-
-    ##-- end misc

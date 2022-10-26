@@ -13,9 +13,8 @@ from instal.interfaces.checker import InstalChecker_i
 
 @dataclass
 class EventCheck(InstalChecker_i):
+    """ check external events generate institutional events """
 
     def check(self, ast):
-        # TODO check ex events generate inst events
-        pass
 
-    ##-- end misc
+        pass

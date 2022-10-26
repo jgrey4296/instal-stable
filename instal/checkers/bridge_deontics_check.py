@@ -13,9 +13,7 @@ from instal.interfaces.checker import InstalChecker_i
 
 @dataclass
 class BridgeDeonticsCheck(InstalChecker_i):
+    """ check bridge deontics are consistent """
 
     def check(self, ast):
-        # TODO check ex events generate inst events
         pass
-
-    ##-- end misc

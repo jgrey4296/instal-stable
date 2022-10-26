@@ -14,6 +14,9 @@ from instal.interfaces import ast as iAST
 
 @dataclass
 class BridgeStructureChecker(InstalChecker_i):
+    """ Check bridges have sources and sinks,
+    and those sources and sinks are defined
+    """
 
     def check(self, asts):
         sources = set()
@@ -47,5 +50,3 @@ class BridgeStructureChecker(InstalChecker_i):
 
         if bool(missing_sinks):
             self.warning("Bridge Sinks were declared but not defined", missing_sinks)
-
-    ##-- end misc

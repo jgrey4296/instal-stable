@@ -12,8 +12,8 @@ from instal.interfaces.checker import InstalChecker_i
 ##-- end imports
 
 @dataclass
-class DeclarationTypeCheck(InstalChecker_i):
-    """ Check the types used in rules """
+class QueryCheck(InstalChecker_i):
+    """ ensure queries are of defined external events """
 
     def check(self, ast):
 

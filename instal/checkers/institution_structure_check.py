@@ -14,6 +14,7 @@ from instal.interfaces import ast as iAST
 
 @dataclass
 class InstitutionStructureChecker(InstalChecker_i):
+    """ Check components of institutions are defined """
 
     def check(self, asts):
         for inst in asts:
@@ -34,6 +35,3 @@ class InstitutionStructureChecker(InstalChecker_i):
 
             if not bool(inst.initial):
                 self.warning("Institution has no initial facts", inst)
-
-
-    ##-- end misc

@@ -100,7 +100,7 @@ class InstitutionDefAST(InstalAST):
     head            : TermAST                = field()
     fluents         : list[FluentAST]        = field(default_factory=list)
     events          : list[EventAST]         = field(default_factory=list)
-    types           : list[TypeAST]          = field(default_factory=list)
+    types           : list[DomainSpecAST]    = field(default_factory=list)
     rules           : list[RuleAST]          = field(default_factory=list)
     initial         : list[InitiallyAST]     = field(default_factory=list)
 
@@ -196,7 +196,7 @@ class TransientRuleAST(RuleAST):
 @dataclass(frozen=True)
 class ConditionAST(InstalAST):
     """
-    Conditions for rules
+    Conditional expressions for rules
     """
     head     : TermAST      = field()
     negated  : bool         = field(default=False)

@@ -13,9 +13,8 @@ from instal.interfaces.checker import InstalChecker_i
 
 @dataclass
 class BridgeConnectionCheck(InstalChecker_i):
+    """ check cross institution generation events """
 
     def check(self, ast):
-        # TODO check ex events generate inst events
-        pass
 
-    ##-- end misc
+        pass
