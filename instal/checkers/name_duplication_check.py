@@ -8,6 +8,7 @@ import networkx
 from instal.errors import (InstalParserArgumentError, InstalParserError,
                            InstalParserNotDeclaredError, InstalParserTypeError)
 from instal.interfaces.checker import InstalChecker_i
+from instal.interfaces import ast as iAST
 
 ##-- end imports
 
