@@ -1,6 +1,6 @@
 #/usr/bin/env python3
 """
-
+The Interface for running compile time sanity checks on an instal model
 """
 ##-- imports
 from __future__ import annotations

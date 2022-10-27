@@ -1,3 +1,6 @@
+"""
+How to convert ASTs to an external format (eg: Clingo)
+"""
 ##-- imports
 from __future__ import annotations
 

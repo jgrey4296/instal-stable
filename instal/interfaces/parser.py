@@ -1,3 +1,6 @@
+"""
+The how a parser behaves in Instal, and a utility to test parsing
+"""
 ##-- imports
 from __future__ import annotations
 

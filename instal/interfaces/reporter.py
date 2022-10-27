@@ -1,3 +1,6 @@
+"""
+How to convert a (non-human friendly) model trace into a human readable format
+"""
 ##-- imports
 from __future__ import annotations
 
@@ -17,8 +20,7 @@ from instal.interfaces.trace import Trace_i
 @dataclass
 class InstalReporter_i(metaclass=abc.ABCMeta):
     """
-        InstalTracer
-        See __init__.py for more details.
+        InstalReporter
     """
 
     def __init__(self):

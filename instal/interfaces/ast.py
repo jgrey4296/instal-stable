@@ -1,6 +1,6 @@
 #/usr/bin/env python3
 """
-AST representations from parsed instal -> compiled clingo
+AST representations bridging parsed instal -> compiled clingo
 """
 ##-- imports
 from __future__ import annotations
