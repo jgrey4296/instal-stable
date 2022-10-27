@@ -33,7 +33,7 @@ logging = logmod.getLogger(__name__)
 
 ##-- idc domain
 DOMAIN_SPEC = PU.TERM('head') + PU.s_lit(":") + PU.orm(PU.TERM)("body") + pp.line_end
-DOMAIN_SPEC.set_parse_action(lambda s, l, t: ASTs.DomainSpecAST(t['head'], t['body'][:]))
+DOMAIN_SPEC.set_parse_action(lambda s, l, t: ASTs.DomainSpecAST(t['head'], t['body'][:], parse_loc=(pp.lineno(l, s), pp.col(l, s))))
 
 top_domain = PU.orm(DOMAIN_SPEC)
 top_domain.ignore(PU.comment)
@@ -46,7 +46,8 @@ IAF_INITIALLY = PU.op(PU.not_kw("not")) + PU.s_kw("initially") + PU.TERM("body")
 IAF_INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST([t['body']],
                                                                  conditions=t.conditions[:],
                                                                  inst=t['inst'],
-                                                                 negated='not' in t))
+                                                                 negated='not' in t,
+                                                                 parse_loc=(pp.lineno(l, s), pp.col(l, s))))
 IAF_INITIALLY.add_condition(lambda s, l, t: not any(x.has_var for x in t[0].body))
 
 top_fact = PU.orm(IAF_INITIALLY)
@@ -59,7 +60,8 @@ OBSERVED = PU.op(PU.not_kw("not")) + PU.s_kw('observed') + PU.TERM('fact') + PU.
 OBSERVED.set_parse_action(lambda s, l, t: ASTs.QueryAST(t['fact'],
                                                         time=t.time[0],
                                                         negated='not' in t,
-                                                        conditions=t['conds'][:] if 'conds' in t else []))
+                                                        conditions=t['conds'][:] if 'conds' in t else [],
+                                                        parse_loc=(pp.lineno(l, s), pp.col(l, s))))
 
 top_query = PU.orm(OBSERVED)
 top_query.ignore(PU.comment)

@@ -60,7 +60,8 @@ def term(string, loc, toks) -> ASTs.TermAST:
     is_var, value = toks['value']
     return ASTs.TermAST(value,
                         params=toks['params'][:] if 'params' in toks else [],
-                        is_var=is_var)
+                        is_var=is_var,
+                        parse_loc=(pp.lineno(loc, string), pp.col(loc, string)))
 
 
 def fluent(string, loc, toks) -> ASTs.FluentAST:
@@ -79,7 +80,7 @@ def fluent(string, loc, toks) -> ASTs.FluentAST:
         case _:
             annotation = ASTs.FluentEnum.inertial
 
-    return ASTs.FluentAST(head, annotation)
+    return ASTs.FluentAST(head, annotation, parse_loc=(pp.lineno(loc, string), pp.col(loc, string)))
 
 
 def event(string, loc, toks) -> ASTs.EventAST:
@@ -93,7 +94,7 @@ def event(string, loc, toks) -> ASTs.EventAST:
         case "violation"     | "viol":
             annotation = ASTs.EventEnum.violation
 
-    return ASTs.EventAST(head, annotation)
+    return ASTs.EventAST(head, annotation, parse_loc=(pp.lineno(loc, string), pp.col(loc, string)))
 
 def generate_rule(string, loc, toks) -> ASTs.GenerationRuleAST:
     head       = toks['head']
@@ -111,7 +112,8 @@ def generate_rule(string, loc, toks) -> ASTs.GenerationRuleAST:
     return ASTs.GenerationRuleAST(head,
                                   body,
                                   conditions,
-                                  annotation=annotation
+                                  annotation=annotation,
+                                  parse_loc=(pp.lineno(loc, string), pp.col(loc, string))
                                   )
 
 def inertial_rule(string, loc, toks) -> ASTs.InertialRuleAST:
@@ -134,7 +136,8 @@ def inertial_rule(string, loc, toks) -> ASTs.InertialRuleAST:
     return ASTs.InertialRuleAST(head,
                                 body,
                                 conditions,
-                                annotation=annotation
+                                annotation=annotation,
+                                parse_loc=(pp.lineno(loc, string), pp.col(loc, string))
                                 )
 
 
@@ -142,6 +145,7 @@ def transient_rule(string, loc, toks) -> ASTs.TransientRuleAST:
     return ASTs.TransientRuleAST(toks['head'],
                                  [],
                                  toks['conditions'],
-                                 annotation=ASTs.RuleEnum.transient)
+                                 annotation=ASTs.RuleEnum.transient,
+                                 parse_loc=(pp.lineno(loc, string), pp.col(loc, string)))
 
 ##-- end constructors

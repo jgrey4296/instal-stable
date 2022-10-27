@@ -56,7 +56,14 @@ class RuleEnum(Enum):
 ##-- core base asts
 @dataclass(frozen=True)
 class InstalAST:
-    parse_source : list[str] = field(default_factory=list, kw_only=True)
+    parse_source : list[str]            = field(default_factory=list, kw_only=True)
+    parse_loc    : None|tuple[int, int] = field(default=None, kw_only=True)
+
+    current_parse_source : ClassVar[None|str] = None
+
+    def __post_init__(self):
+        if InstalAST.current_parse_source is not None:
+            self.parse_source.append(InstalAST.current_parse_source)
 
     @property
     def sources_str(self):
