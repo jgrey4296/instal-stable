@@ -57,20 +57,49 @@ class TestCheck(unittest.TestCase):
         self.assertIsInstance(runner, checker.InstalCheckRunner)
         self.assertIsNotNone(runner.checkers)
 
-    @unittest.skip
     def test_basic_pass(self):
         """
-        Check no reports are generated on proper use of events
+        Check a basic bridge + source + sink doesn't report
         """
-        file_name = "event_check_pass.ial"
-        runner    = checker.InstalCheckRunner([ EventCheck() ])
+        bridge_file_name = "bridge_structure_basic.iab"
+        insts_file_name  = "bridge_structure_insts.ial"
+        runner           = checker.InstalCheckRunner([ BridgeStructureChecker() ])
+        parser           = InstalPyParser()
 
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
-        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+        bridge_text = data_path.joinpath(bridge_file_name).read_text()
+        bridge_data = parser.parse_bridge(bridge_text, parse_source=bridge_file_name)
 
-        result = runner.check(data)
+        insts_text  = data_path.joinpath(insts_file_name).read_text()
+        insts_data  = parser.parse_institution(insts_text, parse_source=insts_file_name)
+
+        self.assertEqual(len(bridge_data), 1)
+        self.assertEqual(len(insts_data), 2)
+
+        result = runner.check(bridge_data + insts_data)
         self.assertFalse(result)
+
+    def test_basic_fail(self):
+        """
+        Check a basic bridge + source + sink doesn't report
+        """
+        bridge_file_name = "bridge_structure_basic.iab"
+        runner           = checker.InstalCheckRunner([ BridgeStructureChecker() ])
+        parser           = InstalPyParser()
+
+        bridge_text = data_path.joinpath(bridge_file_name).read_text()
+
+        bridge_data = parser.parse_bridge(bridge_text, parse_source=bridge_file_name)
+
+        self.assertEqual(len(bridge_data), 1)
+
+        result = runner.check(bridge_data)
+        self.assertTrue(result)
+        self.assertIn(logmod.WARNING, result)
+        self.assertEqual(len(result[logmod.WARNING]), 2)
+        msgs = {x.msg for x in result[logmod.WARNING]}
+        self.assertIn("Bridge Source declared but not defined", msgs)
+        self.assertIn("Bridge Sink declared but not defined", msgs)
+
 
 
 if __name__ == '__main__':

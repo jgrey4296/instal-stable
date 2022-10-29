@@ -41,7 +41,7 @@ class InstalPyParser(InstalParser_i):
         logging.debug("Parsing Institution, parse_source: %s", parse_source)
         ASTs.InstalAST.current_parse_source = parse_source
         try:
-            result = IPF.top_institution.parse_string(text, parse_all=True)[:]
+            result = IPF.top_institution.parse_string(text.strip(), parse_all=True)[:]
         except pp.ParseException as err:
             logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
             if SUPPRESS_PARSER_EXCEPTION_TRACE:
@@ -56,7 +56,7 @@ class InstalPyParser(InstalParser_i):
         logging.debug("Parsing Bridge, parse_source: %s", parse_source)
         ASTs.InstalAST.current_parse_source = parse_source
         try:
-            result = IPF.top_bridge.parse_string(text, parse_all=True)[:]
+            result = IPF.top_bridge.parse_string(text.strip(), parse_all=True)[:]
         except pp.ParseException as err:
             logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
             if SUPPRESS_PARSER_EXCEPTION_TRACE:

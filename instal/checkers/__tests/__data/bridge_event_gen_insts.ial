@@ -1,0 +1,7 @@
+institution sourceInst.
+
+inst event sourceInstEvent.
+
+institution sinkInst.
+
+inst event sinkInstEvent.

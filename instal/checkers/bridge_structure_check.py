@@ -19,22 +19,22 @@ class BridgeStructureChecker(InstalChecker_i):
     """
 
     def check(self, asts):
-        sources = set()
-        sinks   = set()
-        institutions   = set()
+        sources      = dict()
+        sinks        = dict()
+        institutions = set()
 
         ##-- loop all institutions: record sources and sinks
         for ast in asts:
             if not isinstance(ast, iAST.InstitutionDefAST):
-                pass
+                continue
 
-            institutions.add(ast.head)
+            institutions.add(ast.head.signature)
 
             if not isinstance(ast, iAST.BridgeDefAST):
-                pass
+                continue
 
-            sources.update(ast.sources)
-            sinks.update(ast.sinks)
+            sources.update({x.signature: x for x in ast.sources})
+            sinks.update({x.signature: x for x in ast.sinks})
 
             if not bool(ast.sources):
                 self.warning("Bridge has no sources", ast)
@@ -45,13 +45,13 @@ class BridgeStructureChecker(InstalChecker_i):
         ##-- end loop all institutions: record sources and sinks
 
         ##-- report sources/sinks that arent defined
-        missing_sources = {x for x in sources if x not in institutions}
-        missing_sinks   = {x for x in sinks   if x not in institutions}
+        missing_sources = {y for x,y in sources.items() if x not in institutions}
+        missing_sinks   = {y for x,y in sinks.items()   if x not in institutions}
 
-        if bool(missing_sources):
-            self.warning("Bridge Sources were declared but not defined", missing_sources)
+        for source in missing_sources:
+            self.warning("Bridge Source declared but not defined", source)
 
-        if bool(missing_sinks):
-            self.warning("Bridge Sinks were declared but not defined", missing_sinks)
+        for sink in missing_sinks:
+            self.warning("Bridge Sink declared but not defined", sink)
 
         ##-- end report sources/sinks that arent defined

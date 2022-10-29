@@ -45,10 +45,10 @@ class FluentEnum(Enum):
 class RuleEnum(Enum):
     # Event:
     generates   = auto()
+    xgenerates  = auto()
     # Inertial:
     initiates   = auto()
     terminates  = auto()
-    xgenerates  = auto()
     xinitiates  = auto()
     xterminates = auto()
     # Transient:

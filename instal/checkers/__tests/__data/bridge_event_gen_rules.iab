@@ -1,0 +1,6 @@
+bridge testCrossEventGen.
+
+source sourceInst.
+sink   sinkInst.
+
+sourceInstEvent xgenerates sinkInstEvent.

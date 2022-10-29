@@ -27,36 +27,36 @@ class NameDuplicationCheck(InstalChecker_i):
 
             ##-- record fluent declarations
             for fluent in inst.fluents:
-                if str(fluent.head) in fluents:
+                if str(fluent.head.signature) in fluents:
                     self.error(f"Duplicate Fluent Declaration", fluent)
 
-                fluents.append(str(fluent.head))
+                fluents.append(str(fluent.head.signature))
 
             ##-- end record fluent declarations
 
             ##-- record event declarations
             for event in inst.events:
-                if str(event.head) in events:
+                if str(event.head.signature) in events:
                     self.error(f"Duplicate Event Declaration", event)
 
-                if str(event.head) in fluents:
+                if str(event.head.signature) in fluents:
                     self.error(f"Event-Fluent Name Conflict", event)
 
-                events.append(str(event.head))
+                events.append(str(event.head.signature))
 
             ##-- end record event declarations
 
             ##-- record type declarations
             for typeDec in inst.types:
-                if str(typeDec.head) in typeDecs:
+                if str(typeDec.head.signature) in typeDecs:
                     self.error(f"Duplicate TypeDec Declaration", typeDec)
 
-                if str(typeDec.head) in fluents:
+                if str(typeDec.head.signature) in fluents:
                     self.error(f"TypeDec-Fluent Name Conflict", typeDec)
 
-                if str(typeDec.head) in events:
+                if str(typeDec.head.signature) in events:
                     self.error(f"TypeDec-Event Name Conflict", typeDec)
 
-                typeDecs.append(str(typeDec.head))
+                typeDecs.append(str(typeDec.head.signature))
 
             ##-- end record type declarations
