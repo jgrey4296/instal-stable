@@ -58,11 +58,15 @@ class TestCheck(unittest.TestCase):
         self.assertIsInstance(runner, checker.InstalCheckRunner)
         self.assertIsNotNone(runner.checkers)
 
-    def test_fluent_conflict(self):
+    def test_fluent_duplicate(self):
+        """
+        Check an error report is raised when a fluent is duplicated
+        """
+        test_file = "name_duplication_test1.ial"
         runner = checker.InstalCheckRunner([ NameDuplicationCheck() ])
 
-        text = data_path.joinpath("name_duplication_test1.ial").read_text()
-        data = InstalPyParser().parse_institution(text, parse_source="name_duplication_test1.ial")
+        text = data_path.joinpath(test_file).read_text()
+        data = InstalPyParser().parse_institution(text, parse_source=test_file)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         with self.assertRaises(Exception) as cm:
@@ -71,8 +75,175 @@ class TestCheck(unittest.TestCase):
         the_exc = cm.exception
         self.assertIn(logmod.ERROR, the_exc.args[1])
         self.assertTrue(the_exc.args[1][logmod.ERROR])
-        self.assertEqual(the_exc.args[1][logmod.ERROR][0].msg,
-                         "Duplicate Fluent Declaration")
+        self.assertIn("Duplicate Fluent Declaration",
+                      {x.msg for x in the_exc.args[1][logmod.ERROR]})
+
+
+    def test_event_duplicate(self):
+        """
+        Check an event duplication report is generated
+        """
+        test_file = "name_duplication_test1.ial"
+        runner = checker.InstalCheckRunner([ NameDuplicationCheck() ])
+
+        text = data_path.joinpath(test_file).read_text()
+        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        with self.assertRaises(Exception) as cm:
+            runner.check(data)
+
+        the_exc = cm.exception
+        self.assertIn(logmod.ERROR, the_exc.args[1])
+        self.assertTrue(the_exc.args[1][logmod.ERROR])
+        self.assertIn("Duplicate Event Declaration",
+                      {x.msg for x in the_exc.args[1][logmod.ERROR]})
+
+
+    def test_fluent_event_conflict(self):
+        """
+        Check an event-fluent conflict is recognized
+        """
+        test_file = "name_duplication_test1.ial"
+        runner = checker.InstalCheckRunner([ NameDuplicationCheck() ])
+
+        text = data_path.joinpath(test_file).read_text()
+        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        with self.assertRaises(Exception) as cm:
+            runner.check(data)
+
+        the_exc = cm.exception
+        self.assertIn(logmod.ERROR, the_exc.args[1])
+        self.assertTrue(the_exc.args[1][logmod.ERROR])
+        self.assertIn("Event-Fluent Name Conflict",
+                      {x.msg for x in the_exc.args[1][logmod.ERROR]})
+
+    def test_type_duplicate(self):
+        """
+        Check a typedec duplication report is raised
+        """
+        test_file = "name_duplication_test1.ial"
+        runner = checker.InstalCheckRunner([ NameDuplicationCheck() ])
+
+        text = data_path.joinpath(test_file).read_text()
+        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        with self.assertRaises(Exception) as cm:
+            runner.check(data)
+
+        the_exc = cm.exception
+        self.assertIn(logmod.ERROR, the_exc.args[1])
+        self.assertTrue(the_exc.args[1][logmod.ERROR])
+        self.assertIn("Duplicate TypeDec Declaration",
+                      {x.msg for x in the_exc.args[1][logmod.ERROR]})
+
+    def test_type_fluent_conflict(self):
+        """
+        Check a typedec-fluent conflict report is raised
+        """
+        test_file = "name_duplication_test1.ial"
+        runner    = checker.InstalCheckRunner([ NameDuplicationCheck() ])
+
+        text = data_path.joinpath(test_file).read_text()
+        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        with self.assertRaises(Exception) as cm:
+            runner.check(data)
+
+        the_exc = cm.exception
+        self.assertIn(logmod.ERROR, the_exc.args[1])
+        self.assertTrue(the_exc.args[1][logmod.ERROR])
+        self.assertIn("TypeDec-Fluent Name Conflict",
+                      {x.msg for x in the_exc.args[1][logmod.ERROR]})
+
+    def test_type_event_conflict(self):
+        """
+        check typedec-event conflicts are recognized
+        """
+        test_file = "name_duplication_test1.ial"
+        runner    = checker.InstalCheckRunner([ NameDuplicationCheck() ])
+
+        text = data_path.joinpath(test_file).read_text()
+        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        with self.assertRaises(Exception) as cm:
+            runner.check(data)
+
+        the_exc = cm.exception
+        self.assertIn(logmod.ERROR, the_exc.args[1])
+        self.assertTrue(the_exc.args[1][logmod.ERROR])
+        self.assertIn("TypeDec-Event Name Conflict",
+                      {x.msg for x in the_exc.args[1][logmod.ERROR]})
+
+    def test_fluent_duplication_with_params(self):
+        """
+        Check exact fluent parameters can cause duplication reports
+        """
+        test_file = "name_params_duplication_test.ial"
+        runner    = checker.InstalCheckRunner([ NameDuplicationCheck() ])
+
+        text = data_path.joinpath(test_file).read_text()
+        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        with self.assertRaises(Exception) as cm:
+            runner.check(data)
+
+        the_exc = cm.exception
+        self.assertIn(logmod.ERROR, the_exc.args[1])
+        self.assertTrue(the_exc.args[1][logmod.ERROR])
+        self.assertEqual(len(the_exc.args[1][logmod.ERROR]), 1)
+        self.assertIn("Duplicate Fluent Declaration",
+                      {x.msg for x in the_exc.args[1][logmod.ERROR]})
+
+
+    def test_fluent_duplication_with_vars(self):
+        """
+        Check fluents with the same variables trigger duplication reports
+        """
+        test_file = "name_vars_duplication_test.ial"
+        runner    = checker.InstalCheckRunner([ NameDuplicationCheck() ])
+
+        text = data_path.joinpath(test_file).read_text()
+        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        with self.assertRaises(Exception) as cm:
+            runner.check(data)
+
+        the_exc = cm.exception
+        self.assertIn(logmod.ERROR, the_exc.args[1])
+        self.assertTrue(the_exc.args[1][logmod.ERROR])
+        self.assertIn("Duplicate Fluent Declaration",
+                      {x.msg for x in the_exc.args[1][logmod.ERROR]})
+
+    @unittest.expectedFailure
+    def test_fluent_duplication_with_numbered_vars(self):
+        """
+        TODO
+        Check fluent declaration with vars only differing by index number
+        generate duplication reports
+        """
+        runner = checker.InstalCheckRunner([ NameDuplicationCheck() ])
+
+        text = data_path.joinpath("name_vars_numbered_duplication_test.ial").read_text()
+        data = InstalPyParser().parse_institution(text, parse_source="name_params_duplication_test.ial")
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        with self.assertRaises(Exception) as cm:
+            runner.check(data)
+
+        the_exc = cm.exception
+        self.assertIn(logmod.ERROR, the_exc.args[1])
+        self.assertTrue(the_exc.args[1][logmod.ERROR])
+        self.assertIn("Duplicate Fluent Declaration",
+                      {x.msg for x in the_exc.args[1][logmod.ERROR]})
+
 
 if __name__ == '__main__':
     unittest.main()

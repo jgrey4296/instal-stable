@@ -85,6 +85,9 @@ class TermAST(InstalAST):
 
         return str(self.value)
 
+    def __hash__(self):
+        return hash(str(self))
+
     def __eq__(self, other):
         if not isinstance(other, TermAST):
             return False
@@ -118,7 +121,7 @@ class BridgeDefAST(InstitutionDefAST):
 
 ##-- end institutions and bridges
 
-##-- domain, query, facts
+##-- components
 @dataclass(frozen=True)
 class DomainSpecAST(InstalAST):
     """
@@ -140,9 +143,6 @@ class InitiallyAST(InstalAST):
     conditions : list[ConditionAST] = field(default_factory=list)
     inst       : None|TermAST       = field(default=None)
     negated    : bool               = field(default=False)
-##-- end domain, query, facts
-
-##-- specialised asts
 @dataclass(frozen=True)
 class TypeAST(DomainSpecAST):
     pass
@@ -166,7 +166,7 @@ class SinkAST(InstalAST):
 class SourceAST(InstalAST):
     head : TermAST = field()
 
-##-- end specialised asts
+##-- end components
 
 ##-- Rules
 @dataclass(frozen=True)
@@ -197,6 +197,10 @@ class InertialRuleAST(RuleAST):
 class TransientRuleAST(RuleAST):
     """
     transient fluent consequence rules
+
+    NOTE: Unlike Generation and Inertial Rules,
+    Transient Rules are *not* head -> [body],
+    but [conditions] -> head
     """
     pass
 

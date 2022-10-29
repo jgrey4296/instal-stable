@@ -1,0 +1,7 @@
+institution fluentCheckInitateFail.
+
+inst event blah.
+
+fluent testFluent.
+
+blah terminates testFluent.

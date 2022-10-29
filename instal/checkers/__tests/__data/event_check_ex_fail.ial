@@ -1,0 +1,8 @@
+institution eventCheckExFail.
+
+external event exEv.
+external event badEv.
+
+institutional event inEv.
+
+exEv generates inEv.

@@ -23,6 +23,7 @@ class BridgeStructureChecker(InstalChecker_i):
         sinks   = set()
         institutions   = set()
 
+        ##-- loop all institutions: record sources and sinks
         for ast in asts:
             if not isinstance(ast, iAST.InstitutionDefAST):
                 pass
@@ -41,7 +42,9 @@ class BridgeStructureChecker(InstalChecker_i):
             if not bool(ast.sinks):
                 self.warning("Bridge has not sinks", ast)
 
+        ##-- end loop all institutions: record sources and sinks
 
+        ##-- report sources/sinks that arent defined
         missing_sources = {x for x in sources if x not in institutions}
         missing_sinks   = {x for x in sinks   if x not in institutions}
 
@@ -50,3 +53,5 @@ class BridgeStructureChecker(InstalChecker_i):
 
         if bool(missing_sinks):
             self.warning("Bridge Sinks were declared but not defined", missing_sinks)
+
+        ##-- end report sources/sinks that arent defined

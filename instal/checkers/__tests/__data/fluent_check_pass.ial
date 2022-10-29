@@ -1,0 +1,10 @@
+institution fluentCheckPass.
+
+inst event blah.
+
+fluent testFluent.
+transient fluent trans.
+
+blah initiates testFluent.
+blah terminates testFluent.
+trans when testFluent.

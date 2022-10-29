@@ -40,14 +40,25 @@ class InstalCheckReport:
     msg     : str             = field()
     level   : int             = field(kw_only=True)
     checker : InstalChecker_i = field(kw_only=True)
-    source  : str             = field(kw_only=True)
 
-    fmt     : str             = field(kw_only=True, default="({level}) Source: {source} : {msg}")
+    fmt     : str             = field(kw_only=True, default="({level}) {source}{loc} {msg}")
+
+    def __repr__(self):
+        return str(self) + f" AST: {self.ast}"
 
     def __str__(self):
-        return self.fmt.format_map({"msg"    :self.msg,
-                                    "level"  :self.level,
-                                    "source" :self.source or "No File"})
+        loc    = ""
+        source = ""
+        if self.ast and bool(self.ast.parse_source):
+            source = f"Source: {self.ast.parse_source[0]}: "
+
+        if self.ast and self.ast.parse_loc is not None:
+            loc = f"L:{self.ast.parse_loc[0]}, C:{self.ast.parse_loc[1]}: "
+
+        return self.fmt.format_map({"msg"    : self.msg,
+                                    "level"  : logmod.getLevelName(self.level),
+                                    "source" : source,
+                                    "loc"    : loc})
 
 @dataclass
 class InstalChecker_i(metaclass=abc.ABCMeta):
@@ -58,6 +69,10 @@ class InstalChecker_i(metaclass=abc.ABCMeta):
     parsers return list[InstalAST],
     so a checker takes a heterogenous collection of InstalAST's,
     and checks they make sense
+
+    NOTE: checkers use an internal trio of debug/info/warning methods
+    instead of just logging, or raising an error,
+    so that *all* checks can be run, instead of throwing up to the runner on the first error.
     """
 
     current_reports : list[InstalCheckReport] = field(init=False, default_factory=list)
@@ -80,10 +95,15 @@ class InstalChecker_i(metaclass=abc.ABCMeta):
     def build_note(self, ast, msg, level):
         self.current_reports.append(InstalCheckReport(ast, msg,
                                                       level=level,
-                                                      checker=self.__class__,
-                                                      source=ast.sources_str if hasattr(ast, 'sources_str') else "No Source File"))
+                                                      checker=self.__class__))
+
 
     def __call__(self, asts:list[InstalAST]) -> list[InstalCheckReport]:
+        """
+        The access point used by InstalCheckRunner.
+        Clears the log of reports generated, runs the .check method,
+        and returns the new list of reports.
+        """
         assert(isinstance(asts, list))
         self.clear()
         self.check(asts)
@@ -150,6 +170,7 @@ class InstalCheckRunner:
                     error_count += 1 if note.level >= logmod.ERROR else 0
 
             except Exception as err:
+                # If a checker actually *errors*, record that but keep going
                 hard_fails.append(err)
                 error_count += 1
 
@@ -157,11 +178,11 @@ class InstalCheckRunner:
         if bool(error_count):
             just_errors = {x:y for x,y in total_results.items() if x >= logmod.ERROR}
             just_errors.update({101:hard_fails})
-            raise Exception(f"Checking produced {error_count} errors", just_errors)
+            raise Exception(f"Checking produced Errors: {error_count}", just_errors)
 
         # warning if theres any
         warnings = [report for x,y in total_results.items() for report in y if logmod.INFO < x <= logmod.ERROR]
         for report in sorted(warnings, key=lambda x:x.level):
             logging.warning(str(report))
 
-        return total_results
+        return dict(total_results)
