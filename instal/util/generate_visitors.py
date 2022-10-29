@@ -1,5 +1,13 @@
 #/usr/bin/env python3
 """
+This uses the python ast module to walk the instal.interfaces.ast
+module, grab any class with AST in the name,
+and create a stub AST walker with visit_X methods for all those ASTs.
+
+if it's given a class which already implemented *some*
+of those methods it only generates the missing methods.
+
+TODO make it so the output is a subclass of a partially implemented class, instead of copying everything
 
 """
 ##-- imports
@@ -49,7 +57,7 @@ class ASTVisitGenerator(pyAST.NodeTransformer):
     asts : set[str] = field(default_factory=set)
 
     def visit_ClassDef(self, node):
-        existing = {x.name for x in node.body}
+        existing = {x.name for x in node.body if isinstance(x, pyAST.FunctionDef)}
         to_generate = {f"visit_{x}" for x in self.asts} - existing
         for func_name in sorted(to_generate):
             visit_method = pyAST.FunctionDef(func_name,
@@ -76,8 +84,9 @@ def main():
     else:
         base_module = pyAST.parse(data_text)
 
-    transformer = ASTVisitGenerator({x for x in dir(iAST)
-                                     if "AST" in x and issubclass(getattr(iAST, x), iAST.InstalAST)})
+    to_generate = {x for x in dir(iAST)
+                   if "AST" in x and issubclass(getattr(iAST, x), iAST.InstalAST)}
+    transformer = ASTVisitGenerator(to_generate)
 
     # Run the generator
     transformed_visitor = transformer.visit(base_module)
