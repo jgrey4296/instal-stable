@@ -3,7 +3,7 @@ class InstalBaseASTVisitor:
     """
     A Base AST Visitor
     to generate visitor methods onto using
-    instal.util.generator_visitors
+    instal.util.genetate_visitors
     """
 
     def visit(self, node):
