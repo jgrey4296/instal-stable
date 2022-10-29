@@ -1,0 +1,40 @@
+%%
+%% Example bridge institution from p197:
+%% @thesis{li14_normat_confl_detec_resol_cooper_instit_,
+%%   author = {Li, TingTing},
+%%   school = {University of Bath},
+%%   title  = {Normative Conflict Detection and Resolution in Cooperating Institutions},
+%%   year   = {2014},
+%% }
+%%
+institution bridge;
+
+type TypeA;
+type TypeB;
+type Inst;
+
+exogenous event exevent1(TypeA); %% inst I
+exogenous event exevent2(TypeB); %% inst I
+exogenous event exevent3(TypeB); %% inst J , K
+exogenous event exevent4(TypeA); %% inst J
+exogenous event exevent5(TypeB); %% inst K
+
+inst event intevent1(TypeA);     %% inst I
+inst event intevent3(TypeB);     %% inst J
+inst event intevent4(TypeA);     %% inst K
+
+cross fluent gpow(Inst, exevent4(TypeA), Inst);
+cross fluent ipow(Inst, perm(exevent4(TypeA)), Inst);
+cross fluent tpow(Inst, perm(exevent2(TypeB)), Inst);
+
+fluent dfluent1(TypeA, TypeB);   %% inst I
+fluent dfluent3(TypeA, TypeB);   %% inst J
+fluent dfluent4(TypeA, TypeB);   %% inst K
+
+intevent1(TypeA) xgenerates exevent4(TypeA);
+intevent1(TypeA) xinitiates perm(exevent4(TypeA));
+intevent3(TypeB) xterminates perm(exevent2(TypeB));
+
+initially gpow(instI, exevent4(TypeA), instJ);
+initially ipow(instI, perm(exevent4(TypeA)), instJ);
+initially tpow(instK, perm(exevent2(TypeB)), instI);

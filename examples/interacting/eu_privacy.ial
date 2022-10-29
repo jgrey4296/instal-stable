@@ -1,0 +1,45 @@
+%%
+%% EU privacy law from p180:
+%% @thesis{li14_normat_confl_detec_resol_cooper_instit_,
+%%   author = {Li, TingTing},
+%%   school = {University of Bath},
+%%   title  = {Normative Conflict Detection and Resolution in Cooperating Institutions},
+%%   year   = {2014},
+%% }
+%%
+institution eu;
+
+type Data;
+type User;
+type Party;
+
+exogenous event dataExportRequest(User, Data, Party);
+exogenous event dataExport(User, Data, Party);
+exogenous event share(User, Data, Party);
+
+inst event intDataExportRequest(User, Data, Party);
+inst event intDataExport(User, Data, Party);
+inst event intShare(User, Data, Party);
+
+fluent protected(Data, Party);
+fluent interested(User, Data);
+
+dataExportRequest(User, Data, Party) generates intDataExportRequest(User, Data, Party);
+dataExport(User,Data,Party) generates intDataExport(User,Data,Party);
+share(User,Data,Party) generates intShare(User,Data,Party);
+
+intDataExportRequest(User,Data,Party) initiates perm(dataExport(User, Data, Party)),
+                                      perm(intDataExport(User, Data, Party)),
+                                      pow(intDataExport(User, Data, Party))
+                                      if protected(Data, Party);
+
+intDataExportRequest(User,Data,Party) initiates perm(share(User, Data, Party)),
+                                      perm(intShare(User, Data, Party)),
+                                      pow(intShare(User, Data, Party))
+                                      if protected(Data, Party);
+
+initially perm(dataExportRequest(User, Data, Party)),
+          perm(intDataExportRequest(User, Data, Party)),
+          pow(intDataExportRequest(User, Data, Party));
+
+initially interested(bob, bob_data);

@@ -1,0 +1,54 @@
+%%
+%% Example merged institution from p143:
+%% @thesis{li14_normat_confl_detec_resol_cooper_instit_,
+%%   author = {Li, TingTing},
+%%   school = {University of Bath},
+%%   title  = {Normative Conflict Detection and Resolution in Cooperating Institutions},
+%%   year   = {2014},
+%% }
+%%
+institution instIJK;
+
+type TypeA;
+type TypeB;
+
+exogenous event exEvent1(TypeA); %% inst_I
+exogenous event exEvent2(TypeB); %% inst_I
+exogenous event exEvent3(TypeB); %% inst_J,K
+exogenous event exEvent4(TypeA); %% inst_J
+exogenous event exEvent5(TypeB); %% inst_K
+
+inst event intevent1(TypeA); %% inst_I
+inst event intevetn3(TypeB); %% inst_J
+inst event intevent4(TypeA); %% inst_K
+
+fluent dfluent1(TypeA, TypeB); %% inst_I
+fluent dfluent3(TypeA, TypeB); %% inst_J
+fluent dfluent4(TypeA, TypeB); %% inst_K
+
+exevent1(TypeA) generates intevent1(TypeA); %% inst_I
+exevent3(TypeB) generates intevent3(TypeB); %% inst_J
+exevent3(TypeB) generates intevent4(TypeA); %% inst_K
+
+intevent1(TypeA) initiates perm(exevent2(TypeB)) %% inst_I
+                           if dfluent1(TypeA, TypeB);
+
+intevent3(TypeB) initiates perm(exevent4(TypeA)) %% inst_J
+                           if dfluent3(TypeA, TypeB);
+
+intevent4(TypeA) initiates perm(exevent5(TypeB)) %% inst_K
+                           if dfluent4(TypeA, TypeB);
+
+initially perm(exevent1(TypeA)),
+          perm(intevent1(TypeA)),
+          pow(intevent1(TypeA)),
+          dfluent1(a1, b1);
+
+initially perm(exevent3(TypeB)),
+          perm(intevent3(TypeB)),
+          pow(intevent3(TypeB));
+
+initially perm(exevent3(TypeB)),
+          perm(intevent4(TypeB)),
+          pow(intevent4(TypeB)),
+          dfluent4(a1, b1);

@@ -1,0 +1,65 @@
+%%
+%% facebook institution from p177:
+%% @thesis{li14_normat_confl_detec_resol_cooper_instit_,
+%%   author = {Li, TingTing},
+%%   school = {University of Bath},
+%%   title  = {Normative Conflict Detection and Resolution in Cooperating Institutions},
+%%   year   = {2014},
+%% }
+%%
+institution fb;
+
+type Data;
+type User;
+type Party;
+
+exogenous event shareRequest(User, Data, Party);
+exogenous event approveRequest(User,Data,Party);
+exogenous event approve(User, Data, Party);
+exogenous event share(User, Data, Party);
+exogenous event deadline;
+
+inst event intShare(User, Data, Party);
+inst event intApproveRequest(User,Data,Party);
+inst event intShareRequest(User, Data, Party);
+inst event intApprove(User, Data, Party);
+
+violation event noncompliance(User);
+
+fluent trusted(Party);
+fluent consented(User,Data, Party);
+fluent protected(Data, Party);
+
+obligation fluent obl(share(User, Data, Party), deadline, noncompliance(User));
+
+share(User, Data, Party) generates intShare(User, Data, Party);
+
+approveRequest(User,Data,Party) generates intApproveRequest(User,Data,Party);
+shareRequest(User, Data, Party) generates intShareRequest(User, Data, Party);
+approve(User, Data, Party) generates intApprove(User, Data, Party);
+
+intShareRequest(User, Data, Party) initiates perm(approveRequest(User, Data, Party)),
+                                             perm(intApproveRequest(User, Data, Party)),
+                                             pow(intApproveRequest(User, Data, Party));
+
+intApproveRequest(User, Data, Party) initiates perm(approve(User, Data, Party)),
+                                               perm(intApprove(User, Data, Party)),
+                                               pow(intApprove(User, Data, Party));
+
+intApprove(User, Data, Party) initiates perm(share(User, Data, Party)),
+                                        perm(intShare(User, Data, Party)),
+                                        pow(intShare(User, Data, Party));
+
+intShareRequest(User, Data, Party) initiates perm(share(User, Data, Party)),
+                                             perm(intShare(User, Data, Party)),
+                                             pow(intShare(User, Data, Party))
+                                             if trusted(Party);
+
+intApprove(User,Data,Party) initiates consented(User,Data,Party);
+
+initially perm(shareRequest(User, Data, Party)),
+          perm(intShareRequest(User, Data, Party)),
+          pow(intShareRequest(User, Data, Party));
+
+initially perm(deadline);
+initially trusted(nsa);

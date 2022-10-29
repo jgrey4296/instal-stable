@@ -1,0 +1,59 @@
+%%
+%% US Surveillance Institution from p179:
+%% @thesis{li14_normat_confl_detec_resol_cooper_instit_,
+%%   author = {Li, TingTing},
+%%   school = {University of Bath},
+%%   title  = {Normative Conflict Detection and Resolution in Cooperating Institutions},
+%%   year   = {2014},
+%% }
+%%
+institution us;
+
+type Data;
+type User;
+type Party;
+
+exogenous event dataCollectRequest(User, Data, Party);
+exogenous event dataCollect(User, Data, Party);
+exogenous event deadline;
+exogenous event share(User, Data, Party);
+
+inst event intDataCollectRequest(User, Data, Party);
+inst event intDataCollect(User, Data, Party);
+inst event intShare(User, Data, Party);
+
+violation event noncompliance(User);
+
+fluent interested(User, Data);
+fluent securityDep(Party);
+fluent protected(Data, Party);
+
+obligation fluent obl(dataCollect(User, Data, Party), deadline, noncompliance(User));
+obligation fluent obl(share(User, Data, Party), deadline, noncompliance(User));
+
+dataCollectRequest(User, Data, Party) generates intDataCollectRequest(User, Data, Party);
+dataCollect(User, Data, Party) generates intDataCollect(User, Data, Party);
+share(User,Data,Party) generates intShare(User,Data,Party);
+
+intDataCollectRequest(User, Data, Party) initiates perm(dataCollect(User, Data, Party)),
+                                                   obl(dataCollect(User, Data, Party), deadline, noncompliance(User))
+                                                   if interested(User, Data), securityDep(Party);
+
+intDataCollectRequest(User, Data, Party) initiates perm(share(User, Data, Party)),
+                                                   obl(share(User, Data, Party), deadline, noncompliance(User))
+                                                   if interested(User, Data), securityDep(Party);
+
+intDataCollectRequest(User, Data, Party) initiates perm(intShare(User, Data, Party)),
+                                                   perm(intDataCollect(User, Data, Party)),
+                                                   pow(intDataCollect(User, Data, Party)),
+                                                   pow(intShare(User, Data, Party))
+                                                   if interested(User, Data), securityDep(Party);
+
+initially perm(dataCollectRequest(User, Data, Party)),
+          perm(intDataCollectRequest(User, Data, Party)),
+          pow(intDataCollectRequest(User, Data, Party));
+
+initially perm(deadline);
+
+initially securityDep(nsa);
+initially interested(bob, bob_data);
