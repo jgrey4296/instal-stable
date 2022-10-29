@@ -1,0 +1,8 @@
+institution termDeclUseFail.
+
+type Test.
+
+external event exEv.
+institutional event simpleEv.
+
+exEv generates simpleEv(Test).

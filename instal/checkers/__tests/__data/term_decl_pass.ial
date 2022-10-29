@@ -1,0 +1,7 @@
+institution termDeclPass.
+
+external event exEv.
+
+institutional event inEv.
+
+exEv generates inEv.

@@ -63,6 +63,7 @@ at_time.set_parse_action(lambda s, l, t: t['time'] if 'time' in t else [0])
 ##-- end util
 
 ##-- term parser
+# TODO handle strong negation
 name = pp.Word(pp.alphas.lower() + "_", pp.alphanums + "_")
 name.set_parse_action(lambda s, l, t: (False, t[0]))
 name.set_name("name")
@@ -98,8 +99,9 @@ CONDITION   = op(kw("not"))("not") + TERM("head")
 CONDITION.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['head'], True if 'not' in t else False, parse_loc=(pp.lineno(l, s), pp.col(l, s))))
 CONDITION.set_name("condition")
 
-COMPARISON  = TERM("lhs") + op_lits("op") + TERM("rhs")
-COMPARISON.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['lhs'], False, operator=t['op'], rhs=t['rhs'], parse_loc=(pp.lineno(l, s), pp.col(l, s))))
+# TODO maybe compare to consts
+COMPARISON  = TERM("head") + op_lits("op") + TERM("rhs")
+COMPARISON.set_parse_action(lambda s, l, t: ASTs.ConditionAST(t['head'], False, operator=t['op'], rhs=t['rhs'], parse_loc=(pp.lineno(l, s), pp.col(l, s))))
 COMPARISON.set_name("comparison")
 
 CONDITIONS  = pp.delimited_list(op(ln) + (COMPARISON | CONDITION))

@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging as logmod
 from enum import Enum, auto
 from dataclasses import InitVar, dataclass, field
-from re import Pattern
+import re
 from typing import (TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
                     Iterable, Iterator, Mapping, Match, MutableMapping,
                     Protocol, Sequence, Tuple, TypeAlias, TypeGuard, TypeVar,
@@ -26,6 +26,9 @@ __all__ = [
     "TransientRuleAST", "SinkAST", "SourceAST",
 ]
 logging = logmod.getLogger(__name__)
+
+
+VAR_SIG_REG = re.compile(r"\d+$")
 
 ##-- enums
 class EventEnum(Enum):
@@ -85,6 +88,9 @@ class TermAST(InstalAST):
 
         return str(self.value)
 
+    def __repr__(self):
+        return str(self)
+
     def __hash__(self):
         return hash(str(self))
 
@@ -97,6 +103,15 @@ class TermAST(InstalAST):
 
         return all(x == y for x,y in zip(self.params, other.params))
 
+
+
+    @property
+    def signature(self):
+        if not self.is_var:
+            return f"{self.value}/{len(self.params)}"
+
+        chopped = VAR_SIG_REG.sub("", self.value)
+        return f"{chopped}/{len(self.params)}"
 
     @property
     def has_var(self) -> bool:

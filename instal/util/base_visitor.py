@@ -18,3 +18,7 @@ class InstalBaseASTVisitor:
 
     def generic_visit(self, node):
         logging.info("Generic Visit Called, doing nothing: %s", node)
+
+    def visit_all(self, nodes:list[iAST.InstalAST]):
+        for x in nodes:
+            self.visit(x)
