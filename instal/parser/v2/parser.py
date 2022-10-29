@@ -22,6 +22,7 @@ from instal.interfaces.parser import InstalParser_i
 import instal.interfaces.ast as ASTs
 import instal.parser.v2.parse_funcs as PF
 import instal.parser.v2.institution_parse_funcs as IPF
+from instal.defaults import SUPPRESS_PARSER_EXCEPTION_TRACE
 
 if TYPE_CHECKING:
     # tc only imports
@@ -39,7 +40,14 @@ class InstalPyParser(InstalParser_i):
         """ Mainly for .ial's """
         logging.debug("Parsing Institution, parse_source: %s", parse_source)
         ASTs.InstalAST.current_parse_source = parse_source
-        result = IPF.top_institution.parse_string(text, parse_all=True)[:]
+        try:
+            result = IPF.top_institution.parse_string(text, parse_all=True)[:]
+        except pp.ParseException as err:
+            logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
+            if SUPPRESS_PARSER_EXCEPTION_TRACE:
+                err.__traceback__ = None
+            raise err from err
+
         ASTs.InstalAST.current_parse_source = None
         return result
 
@@ -47,7 +55,14 @@ class InstalPyParser(InstalParser_i):
         """ Mainly for .iab's """
         logging.debug("Parsing Bridge, parse_source: %s", parse_source)
         ASTs.InstalAST.current_parse_source = parse_source
-        result = IPF.top_bridge.parse_string(text, parse_all=True)[:]
+        try:
+            result = IPF.top_bridge.parse_string(text, parse_all=True)[:]
+        except pp.ParseException as err:
+            logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
+            if SUPPRESS_PARSER_EXCEPTION_TRACE:
+                err.__traceback__ = None
+            raise err
+
         ASTs.InstalAST.current_parse_source = None
         return result
 
@@ -55,7 +70,14 @@ class InstalPyParser(InstalParser_i):
         """ For .idc's """
         logging.debug("Parsing Domain, parse_source: %s", parse_source)
         ASTs.InstalAST.current_parse_source = parse_source
-        result = PF.top_domain.parse_string(text, parse_all=True)[:]
+        try:
+            result = PF.top_domain.parse_string(text, parse_all=True)[:]
+        except pp.ParseException as err:
+            logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
+            if SUPPRESS_PARSER_EXCEPTION_TRACE:
+                err.__traceback__ = None
+            raise err
+
         ASTs.InstalAST.current_parse_source = None
         return result
 
@@ -63,7 +85,14 @@ class InstalPyParser(InstalParser_i):
         """ Mainly for .iaf's """
         logging.debug("Parsing Situation, parse_source: %s", parse_source)
         ASTs.InstalAST.current_parse_source = parse_source
-        result = PF.top_fact.parse_string(text, parse_all=True)[:]
+        try:
+            result = PF.top_fact.parse_string(text, parse_all=True)[:]
+        except pp.ParseException as err:
+            logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
+            if SUPPRESS_PARSER_EXCEPTION_TRACE:
+                err.__traceback__ = None
+            raise err
+
         ASTs.InstalAST.current_parse_source = None
         return result
 
@@ -71,7 +100,14 @@ class InstalPyParser(InstalParser_i):
         """ Mainly for .iaq's """
         logging.debug("Parsing Query, parse_source: %s", parse_source)
         ASTs.InstalAST.current_parse_source = parse_source
-        result = PF.top_query.parse_string(text, parse_all=True)[:]
+        try:
+            result = PF.top_query.parse_string(text, parse_all=True)[:]
+        except pp.ParseException as err:
+            logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
+            if SUPPRESS_PARSER_EXCEPTION_TRACE:
+                err.__traceback__ = None
+            raise err
+
         ASTs.InstalAST.current_parse_source = None
         return result
 

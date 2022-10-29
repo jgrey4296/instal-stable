@@ -29,7 +29,6 @@ if TYPE_CHECKING:
 logging = logmod.getLogger(__name__)
 ##-- end logging
 
-
 ##-- constructors
 def institution(string, loc, toks):
     inst = toks['head']

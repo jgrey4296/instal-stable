@@ -31,3 +31,6 @@ TEX_loc              = "instal.__data.tex"
 
 # Default groupings of holdsat in instal.interfaces.trace.State_i
 STATE_HOLDSAT_GROUPS = ["fluent", "gpow", "ipow", "obl", "other", "perm", "pow", "tpow"]
+
+# DEBUG controls:
+SUPPRESS_PARSER_EXCEPTION_TRACE = True
