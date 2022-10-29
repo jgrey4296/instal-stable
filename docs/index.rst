@@ -3,12 +3,73 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to InstAL's documentation!
+InstAL : The Institutional Action Language
 ================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+.. contents::
+   :local:
+
+Introduction
+------------
+
+Institutions!::
+
+   institution basic
+
+   type Alpha
+
+   exogenous event ex_blue(Alpha)
+   exogenous event ex_green(Alpha)
+   exogenous event ex_red(Alpha)
+
+   inst event in_blue(Alpha)
+   inst event in_green(Alpha)
+   inst event in_red(Alpha)
+
+   fluent in_fact(Alpha)
+   fluent in_fact_a(Alpha)
+   fluent in_fact_b(Alpha)
+
+   obligation fluent obl(ex_red(Alpha),ex_blue(Alpha),ex_green(Alpha), oneshot)
+   obligation fluent obl(in_fact_a(Alpha),in_fact_b(Alpha),ex_green(Alpha), oneshot)
+
+   transient fluent ni_fact(Alpha)
+
+   ni_fact(Alpha) when in_fact(Alpha)
+   %% perm(ex_green(Alpha)) when in_fact(Alpha)
+
+   ex_red(Alpha) generates in_red(Alpha)
+   in_red(Alpha) initiates
+      in_fact(Alpha),
+      perm(in_blue(Alpha)),
+      pow(in_blue(Alpha)),
+      obl(ex_red(Alpha),ex_blue(Alpha),ex_green(Alpha))
+
+   %% in_red(Alpha) terminates perm(in_red(Alpha)), pow(in_red(Alpha))
+
+   ex_blue(Alpha) generates in_blue(Alpha)
+   in_blue(Alpha) initiates
+      %% in_fact(Alpha),
+      perm(in_green(Alpha)),
+      pow(in_green(Alpha))
+
+   in_blue(Alpha) terminates in_fact(Alpha)
+
+
+
+:ref:`concepts`
+
+:ref:`installation`
+
+:ref:`cli`
+
+:ref:`system`
+
+:ref:`examples`
+
+
+API Reference
+-------------
 
 .. autosummary::
    :recursive:

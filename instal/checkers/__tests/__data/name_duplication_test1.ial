@@ -1,0 +1,18 @@
+institution nameDuplicationTest.
+
+fluent fluentDuplicate.
+fluent fluentDuplicate.
+
+external event eventDuplicate.
+external event eventDuplicate.
+
+institutional event instDuplicate.
+institutional event instDuplicate.
+
+fluent nameConflict.
+external event nameConflict.
+institutional event nameConflict.
+type nameConflict.
+
+type TypeDuplicate.
+type TypeDuplicate.

@@ -82,7 +82,7 @@ RULE = GEN_RULE | INERTIAL_RULE | TRANSIENT_RULE
 ##-- types, fluents, events
 type_vals = s_lit(":") + orm(TERM)("body")
 TYPE_DEC    = s_kw("type") + TERM('head') + op(type_vals) + semi
-TYPE_DEC.add_parse_action(lambda s, l, t: ASTs.DomainSpecAST(t['head'], t['body'][:] if 'body' in t else []))
+TYPE_DEC.add_parse_action(lambda s, l, t: ASTs.DomainSpecAST(t['head'], t['body'][:] if 'body' in t else [], parse_loc=(pp.lineno(l, s), pp.col(l, s))))
 TYPE_DEC.set_name("type_dec")
 
 FLUENT      = op(fluent_kws)("annotation") + s_kw("fluent") + TERM("head") + semi
@@ -94,25 +94,25 @@ EVENT.set_parse_action(construct.event)
 EVENT.set_name("event")
 
 INITIALLY   = s_kw("initially") + term_list("body") + if_conds("conditions") + semi
-INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST(t['body'][:], t.conditions[:]))
+INITIALLY.set_parse_action(lambda s, l, t: ASTs.InitiallyAST(t['body'][:], t.conditions[:], parse_loc=(pp.lineno(l, s), pp.col(l, s))))
 INITIALLY.set_name("initially")
 ##-- end types, fluents, events
 
 ##-- institution head
 INSTITUTION = s_kw("institution") + TERM("head") + semi
-INSTITUTION.set_parse_action(lambda s, l, t: ASTs.InstitutionDefAST(t['head'][0]))
+INSTITUTION.set_parse_action(lambda s, l, t: ASTs.InstitutionDefAST(t['head'][0], parse_loc=(pp.lineno(l, s), pp.col(l, s))))
 INSTITUTION.set_name("institution head")
 ##-- end institution head
 
 ##-- bridge specific
 BRIDGE      = s_kw("bridge") + TERM("head") + semi
-BRIDGE.set_parse_action(lambda s, l, t: ASTs.BridgeDefAST(t['head'][0]))
+BRIDGE.set_parse_action(lambda s, l, t: ASTs.BridgeDefAST(t['head'][0], parse_loc=(pp.lineno(l, s), pp.col(l, s))))
 
 SINK        = s_kw("sink") + TERM("head") + semi
-SINK.set_parse_action(lambda s, l, t: ASTs.SinkAST(t['head']))
+SINK.set_parse_action(lambda s, l, t: ASTs.SinkAST(t['head'], parse_loc=(pp.lineno(l, s), pp.col(l, s))))
 
 SOURCE      = s_kw("source") + TERM("head") + semi
-SOURCE.set_parse_action(lambda s, l, t: ASTs.SourceAST(t['head']))
+SOURCE.set_parse_action(lambda s, l, t: ASTs.SourceAST(t['head'], parse_loc=(pp.lineno(l, s), pp.col(l, s))))
 ##-- end bridge specific
 
 ##-- top level parser entry points

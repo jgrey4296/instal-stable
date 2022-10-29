@@ -1,0 +1,6 @@
+institution nameDuplicationWithParams.
+
+type Test.
+
+fluent testFluent(first, second, third).
+fluent testFluent(first, second, third).

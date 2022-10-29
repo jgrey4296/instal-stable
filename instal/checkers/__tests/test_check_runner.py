@@ -31,7 +31,7 @@ class SimpleChecker(checker.InstalChecker_i):
     def check(self, data):
         match data[0]:
             case None:
-                raise Exception()
+                raise Exception("SimpleChecker got None")
             case True:
                 self.info("A Simple Report")
             case "warning":
@@ -84,11 +84,19 @@ class TestCheckRunner(unittest.TestCase):
         self.assertIsNotNone(runner.checkers)
 
     def test_initial_failure(self):
+        """
+        Verify a checker throwing an error is recorded as level 101
+        """
         runner = checker.InstalCheckRunner([ SimpleChecker() ])
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception) as cm:
             runner.check(None)
 
+        self.assertEqual(cm.exception.args[1][101][0].args[0], "SimpleChecker got None")
+
     def test_simple_info_report(self):
+        """
+        Verify a checker reporting at INFO level is recorded
+        """
         runner = checker.InstalCheckRunner([ SimpleChecker() ])
         results = runner.check(True)
         self.assertIsInstance(results, dict)
@@ -97,15 +105,21 @@ class TestCheckRunner(unittest.TestCase):
         self.assertEqual(results[logmod.INFO][0].msg, "A Simple Report")
 
     def test_simple_warning_report(self):
+        """
+        Verify a checker reporting at WARNING level is recorded
+        """
         runner = checker.InstalCheckRunner([ SimpleChecker() ])
         results = runner.check("warning")
         self.assertIsInstance(results, dict)
-        self.assertIn(logmod.WARN, results)
-        self.assertEqual(len(results[logmod.WARN]), 1)
-        self.assertEqual(results[logmod.WARN][0].msg, "A Simple Warning")
+        self.assertIn(logmod.WARNING, results)
+        self.assertEqual(len(results[logmod.WARNING]), 1)
+        self.assertEqual(results[logmod.WARNING][0].msg, "A Simple Warning")
 
 
     def test_multi_checkers(self):
+        """
+        Verify multiple checkers can run without interference
+        """
         runner = checker.InstalCheckRunner([ SimpleChecker(), SecondChecker() ])
         results = runner.check(True)
         self.assertIsInstance(results, dict)
@@ -116,6 +130,9 @@ class TestCheckRunner(unittest.TestCase):
         self.assertIn("Second Check Report", msgs)
 
     def test_multi_checkers_all_run(self):
+        """
+        Verify multiple checkers can report at different levels
+        """
         runner = checker.InstalCheckRunner([ SimpleChecker(), SecondChecker() ])
         results = runner.check("warning")
         self.assertIsInstance(results, dict)
@@ -131,6 +148,9 @@ class TestCheckRunner(unittest.TestCase):
 
 
     def test_simple_extractor(self):
+        """
+        Verify extractors can process input to provide lower level details
+        """
         simple_ast = iAST.InitiallyAST([TERM.parse_string("test")[0],
                                         TERM.parse_string("blah(bloo,bloo)")[0]])
 

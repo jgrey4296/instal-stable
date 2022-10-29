@@ -1,6 +1,6 @@
 #/usr/bin/env python3
 """
-AST representations from parsed instal -> compiled clingo
+AST representations bridging parsed instal -> compiled clingo
 """
 ##-- imports
 from __future__ import annotations
@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging as logmod
 from enum import Enum, auto
 from dataclasses import InitVar, dataclass, field
-from re import Pattern
+import re
 from typing import (TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
                     Iterable, Iterator, Mapping, Match, MutableMapping,
                     Protocol, Sequence, Tuple, TypeAlias, TypeGuard, TypeVar,
@@ -26,6 +26,9 @@ __all__ = [
     "TransientRuleAST", "SinkAST", "SourceAST",
 ]
 logging = logmod.getLogger(__name__)
+
+
+VAR_SIG_REG = re.compile(r"\d+$")
 
 ##-- enums
 class EventEnum(Enum):
@@ -56,7 +59,14 @@ class RuleEnum(Enum):
 ##-- core base asts
 @dataclass(frozen=True)
 class InstalAST:
-    parse_source : list[str] = field(default_factory=list, kw_only=True)
+    parse_source : list[str]            = field(default_factory=list, kw_only=True)
+    parse_loc    : None|tuple[int, int] = field(default=None, kw_only=True)
+
+    current_parse_source : ClassVar[None|str] = None
+
+    def __post_init__(self):
+        if InstalAST.current_parse_source is not None:
+            self.parse_source.append(InstalAST.current_parse_source)
 
     @property
     def sources_str(self):
@@ -78,6 +88,12 @@ class TermAST(InstalAST):
 
         return str(self.value)
 
+    def __repr__(self):
+        return str(self)
+
+    def __hash__(self):
+        return hash(str(self))
+
     def __eq__(self, other):
         if not isinstance(other, TermAST):
             return False
@@ -87,6 +103,15 @@ class TermAST(InstalAST):
 
         return all(x == y for x,y in zip(self.params, other.params))
 
+
+
+    @property
+    def signature(self):
+        if not self.is_var:
+            return f"{self.value}/{len(self.params)}"
+
+        chopped = VAR_SIG_REG.sub("", self.value)
+        return f"{chopped}/{len(self.params)}"
 
     @property
     def has_var(self) -> bool:
@@ -111,7 +136,7 @@ class BridgeDefAST(InstitutionDefAST):
 
 ##-- end institutions and bridges
 
-##-- domain, query, facts
+##-- components
 @dataclass(frozen=True)
 class DomainSpecAST(InstalAST):
     """
@@ -133,9 +158,6 @@ class InitiallyAST(InstalAST):
     conditions : list[ConditionAST] = field(default_factory=list)
     inst       : None|TermAST       = field(default=None)
     negated    : bool               = field(default=False)
-##-- end domain, query, facts
-
-##-- specialised asts
 @dataclass(frozen=True)
 class TypeAST(DomainSpecAST):
     pass
@@ -159,7 +181,7 @@ class SinkAST(InstalAST):
 class SourceAST(InstalAST):
     head : TermAST = field()
 
-##-- end specialised asts
+##-- end components
 
 ##-- Rules
 @dataclass(frozen=True)
@@ -190,6 +212,10 @@ class InertialRuleAST(RuleAST):
 class TransientRuleAST(RuleAST):
     """
     transient fluent consequence rules
+
+    NOTE: Unlike Generation and Inertial Rules,
+    Transient Rules are *not* head -> [body],
+    but [conditions] -> head
     """
     pass
 

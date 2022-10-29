@@ -1,0 +1,6 @@
+institution nameDuplicationWithParams.
+
+type Test.
+
+fluent fluentWithVar(Test1).
+fluent fluentWithVar(Test2).

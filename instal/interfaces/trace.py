@@ -1,6 +1,6 @@
 #/usr/bin/env python3
 """
-
+How model results are represented and manipulated
 """
 ##-- imports
 from __future__ import annotations

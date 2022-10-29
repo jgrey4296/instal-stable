@@ -1,4 +1,6 @@
-
+"""
+How an external solver (eg: Clingo, but could be Z3 etc) integrates into Instal
+"""
 ##-- imports
 from __future__ import annotations
 

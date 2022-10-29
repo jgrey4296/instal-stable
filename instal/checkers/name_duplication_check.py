@@ -8,6 +8,7 @@ import networkx
 from instal.errors import (InstalParserArgumentError, InstalParserError,
                            InstalParserNotDeclaredError, InstalParserTypeError)
 from instal.interfaces.checker import InstalChecker_i
+from instal.interfaces import ast as iAST
 
 ##-- end imports
 
@@ -16,19 +17,24 @@ class NameDuplicationCheck(InstalChecker_i):
     """" warn on event/fluent name duplication """
 
     def check(self, asts):
+        fluents  = []
+        events   = []
+        typeDecs = []
+
         for inst in asts:
             if not isinstance(inst, iAST.InstitutionDefAST):
                 continue
 
-            fluents  = []
-            events   = []
-            typeDecs = []
+            ##-- record fluent declarations
             for fluent in inst.fluents:
                 if str(fluent.head) in fluents:
                     self.error(f"Duplicate Fluent Declaration", fluent)
 
                 fluents.append(str(fluent.head))
 
+            ##-- end record fluent declarations
+
+            ##-- record event declarations
             for event in inst.events:
                 if str(event.head) in events:
                     self.error(f"Duplicate Event Declaration", event)
@@ -38,6 +44,9 @@ class NameDuplicationCheck(InstalChecker_i):
 
                 events.append(str(event.head))
 
+            ##-- end record event declarations
+
+            ##-- record type declarations
             for typeDec in inst.types:
                 if str(typeDec.head) in typeDecs:
                     self.error(f"Duplicate TypeDec Declaration", typeDec)
@@ -49,3 +58,5 @@ class NameDuplicationCheck(InstalChecker_i):
                     self.error(f"TypeDec-Event Name Conflict", typeDec)
 
                 typeDecs.append(str(typeDec.head))
+
+            ##-- end record type declarations

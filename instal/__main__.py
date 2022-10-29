@@ -27,6 +27,7 @@ def main():
     print("instalq: Run a Query, generating traces.")
     print("instalf: Filter a trace.")
     print("instalr: Generate a Trace Report.")
+    print("instalv: Generate a stub AST Walker.")
 
 
 if __name__ == "__main__":
