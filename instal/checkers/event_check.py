@@ -31,10 +31,12 @@ class EventCheck(InstalChecker_i):
         ##-- loop over everything, record declarations and uses
         for ast in asts:
             if not isinstance(ast, iAST.InstitutionDefAST):
-                pass
+                continue
 
             for event in ast.events:
                 match event.annotation:
+                    case iAST.EventEnum.exogenous if isinstance(ast, iAST.BridgeDefAST):
+                        self.warning("Bridge Institutions should not have external events")
                     case iAST.EventEnum.exogenous:
                         ex_events.add(event.head)
                     case iAST.EventEnum.institutional:
@@ -44,7 +46,7 @@ class EventCheck(InstalChecker_i):
 
             for rule in ast.rules:
                 if not isinstance(rule, iAST.GenerationRuleAST):
-                    pass
+                    continue
 
                 ex_events.discard(rule.head)
                 in_events.difference_update(rule.body)

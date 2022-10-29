@@ -45,7 +45,7 @@ s_lit   = lambda x: pp.Literal(x).suppress()
 ln      = orm(pp.White("\n\r").set_whitespace_chars("\t ")).suppress()
 ln.set_name("ln")
 comment = pp.Regex(r"%.+?\n")
-semi    = s(op(lit(";") | lit(".")) + pp.line_end)
+semi    = s(op(lit(";") | lit(".")) + orm(pp.lineEnd))
 semi.set_name(";")
 
 # TODO: shift these lists into defaults, as dicts to use in constructors as well

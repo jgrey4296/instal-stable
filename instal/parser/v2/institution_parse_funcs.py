@@ -126,7 +126,7 @@ institution_structure = (INSTITUTION('head')
 institution_structure.set_parse_action(construct.institution)
 institution_structure.set_name("Institution Structure")
 
-top_institution = orm(institution_structure)
+top_institution = orm(institution_structure + zrm(ln))
 top_institution.ignore(comment)
 top_institution.set_name("Institutions")
 
@@ -142,7 +142,7 @@ bridge_structure = (BRIDGE('head')
 bridge_structure.set_parse_action(construct.institution)
 bridge_structure.set_name("Bridge Structure")
 
-top_bridge = orm(bridge_structure)
+top_bridge = orm(bridge_structure + zrm(ln))
 top_bridge.ignore(comment)
 top_bridge.set_name("Bridges")
 

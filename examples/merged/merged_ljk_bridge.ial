@@ -1,0 +1,61 @@
+%%
+%% Example merged bridge from p150:
+%% @thesis{li14_normat_confl_detec_resol_cooper_instit_,
+%%   author = {Li, TingTing},
+%%   school = {University of Bath},
+%%   title  = {Normative Conflict Detection and Resolution in Cooperating Institutions},
+%%   year   = {2014},
+%% }
+%%
+institution instIJK;
+
+type TypeA;
+
+type TypeB;
+
+
+exogenous event exevent1(TypeA); % inst I
+exogenous event exevent2(TypeB); % inst I
+exogenous event exevent3(TypeB); % inst J
+exogenous event exevent4(TypeA); % inst J
+exogenous event exevent5(TypeB); % inst K
+
+inst event intevent1(TypeA); % inst I
+inst event intevent3(TypeB); % inst J
+inst event intevent4(TypeA); % inst K, J
+
+fluent dfluent1(TypeA, TypeB); % inst I
+fluent dfluent3(TypeA, TypeB); % inst J
+fluent dfluent4(TypeA, TypeB); % inst K
+
+exevent1(TypeA) generates intevent1(TypeA); % inst I
+exevent3(TypeB) generates intevent3(TypeB); % inst J
+exevent3(TypeB) generates intevent4(TypeA); % inst K
+exevent4(TypeA) generates intevent4(TypeA); % inst J
+intevent1(TypeA) generates intevent4(TypeA); % bridge
+intevent1(TypeA) initiates perm(exevent2(TypeB)) % inst I
+                           if dfluent1(TypeA, TypeB);
+intevent3(TypeB) initiates perm(exevent4(TypeA)) % inst J
+                           if dfluent3(TypeA, TypeB);
+
+intevent4(TypeA) initiates perm(exevent5(TypeB)) % inst K
+                           if dfluent4(TypeA, TypeB);
+
+intevent1(TypeA) initiates perm(exevent4(TypeA)); % bridge
+intevent3(TypeB) terminates perm(exevent2(TypeB)); % bridge
+
+initially perm(exevent1(TypeA)), % inst I
+          perm(intevent1(TypeA)),
+          pow(intevent1(TypeA));
+
+initially dfluent1(a1, b1); % inst I
+
+initially perm(exevent3(TypeB)), % inst J
+          perm(intevent3(TypeB)),
+          pow(intevent3(TypeB));
+
+initially perm(exevent3(TypeB)), % inst K
+          perm(intevent4(TypeB)),
+          pow(intevent4(TypeB));
+
+ initially dfluent4(a1, b1); % inst K

@@ -15,7 +15,7 @@ from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     TypeVar, cast)
 from unittest import mock
 
-from instal.checkers.bridge_connections_check import BridgeConnectionCheck
+from instal.checkers.bridge_fluent_gen_check import BridgeFluentGenCheck
 from instal.interfaces import ast as iAST
 from instal.interfaces import checker
 from instal.parser.v2.parser import InstalPyParser
@@ -53,9 +53,23 @@ class TestCheck(unittest.TestCase):
         logging.removeHandler(cls.file_h)
 
     def test_initial_ctor_with_checker(self):
-        runner = checker.InstalCheckRunner([ BridgeConnectionCheck() ])
+        runner = checker.InstalCheckRunner([ BridgeFluentGenCheck() ])
         self.assertIsInstance(runner, checker.InstalCheckRunner)
         self.assertIsNotNone(runner.checkers)
+
+    def test_basic_pass(self):
+        """
+        Check no reports are generated on proper use of events
+        """
+        file_name = "bridge_fluent_gen_rules.iab"
+        runner    = checker.InstalCheckRunner([ BridgeFluentGenCheck() ])
+
+        text = data_path.joinpath(file_name).read_text()
+        data = InstalPyParser().parse_bridge(text, parse_source=file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        result = runner.check(data)
+        self.assertFalse(result)
 
 
 if __name__ == '__main__':

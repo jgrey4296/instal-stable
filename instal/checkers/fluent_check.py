@@ -26,7 +26,7 @@ class FluentCheck(InstalChecker_i):
         ##-- loop asts and record what exists/is used
         for ast in asts:
             if not isinstance(ast, iAST.InstitutionDefAST):
-                pass
+                continue
 
             for fluent in ast.fluents:
                 match fluent.annotation:

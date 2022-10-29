@@ -222,7 +222,6 @@ class TestCheck(unittest.TestCase):
         self.assertIn("Duplicate Fluent Declaration",
                       {x.msg for x in the_exc.args[1][logmod.ERROR]})
 
-    @unittest.expectedFailure
     def test_fluent_duplication_with_numbered_vars(self):
         """
         TODO

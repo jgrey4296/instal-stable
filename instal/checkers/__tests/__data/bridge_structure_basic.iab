@@ -1,0 +1,4 @@
+bridge testBridgeStructurePass.
+
+source sourceInst.
+sink   sinkInst.

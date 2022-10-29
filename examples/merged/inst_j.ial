@@ -1,0 +1,32 @@
+%%
+%% inst j from p196:
+%% @thesis{li14_normat_confl_detec_resol_cooper_instit_,
+%%   author = {Li, TingTing},
+%%   school = {University of Bath},
+%%   title  = {Normative Conflict Detection and Resolution in Cooperating Institutions},
+%%   year   = {2014},
+%% }
+%%
+
+institution instJ;
+
+type TypeA;
+type TypeB;
+
+exogenous event exevent1(TypeA);
+exogenous event exevent2(TypeB);
+
+inst event intevent1(TypeA);
+
+fluent dfluent1(TypeA, TypeB);
+
+exevent1(TypeA) generates intevent1(TypeA);
+
+intevent1(TypeA) initiates perm(exevent2(TypeB))
+                           if dfluent1(TypeA, TypeB);
+
+initially perm(exevent1(TypeA)),
+          perm(intevent1(TypeA)),
+          pow(intevent1(TypeA));
+
+initially dfluent1(a1, b1);

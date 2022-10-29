@@ -1,0 +1,70 @@
+%%
+%% Example bridge institution from p121:
+%% @thesis{li14_normat_confl_detec_resol_cooper_instit_,
+%%   author = {Li, TingTing},
+%%   school = {University of Bath},
+%%   title  = {Normative Conflict Detection and Resolution in Cooperating Institutions},
+%%   year   = {2014},
+%% }
+%%
+institution bridge;
+
+type Data;
+type User;
+type Party;
+type Inst;
+
+exogenous event shareRequest(User, Data, Party);
+exogenous event share(User, Data, Party);
+exogenous event dataExportRequest(User, Data, Party);
+exogenous event dataCollectRequest(User, Data, Party);
+exogenous event deadline;
+exogenous event dataExport(User, Data, Party);
+exogenous event dataCollect(User, Data, Party);
+
+inst event intShare(User, Data, Party);
+inst event intShareRequest(User, Data, Party);
+inst event intDataExportRequest(User, Data, Party);
+inst event intDataCollectRequest(User, Data, Party);
+
+violation event noncompliance(User);
+
+fluent protected(Data, Party);
+fluent interested(User,Data);
+fluent securityDep(Party);
+fluent trusted(Party);
+
+cross fluent gpow(Inst,dataExportRequest(User,Data,Party),Inst);
+cross fluent gpow(Inst,dataCollectRequest(User,Data,Party),Inst);
+cross fluent gpow(Inst,dataExport(User,Data,Party),Inst);
+cross fluent gpow(Inst,dataCollect(User,Data,Party),Inst);
+cross fluent tpow(Inst,perm(share(User,Data,Party)),Inst);
+cross fluent ipow(Inst,perm(share(User,Data,Party)),Inst);
+cross fluent ipow(Inst,obl(share(User,Data,Party),deadline, noncompliance(User)),Inst);
+
+obligation fluent obl(share(User, Data, Party), deadline, noncompliance(User));
+
+intShareRequest(User, Data, Party) xgenerates dataExportRequest(User, Data, Party);
+intShareRequest(User, Data, Party) xgenerates dataCollectRequest(User, Data, Party);
+intShare(User, Data, Party) xgenerates dataExport(User, Data, Party);
+intShare(User, Data, Party) xgenerates dataCollect(User, Data, Party);
+
+intDataExportRequest(User,Data,Party) xterminates perm(share(User, Data, Party))
+                                      if not protected(Data, Party);
+
+intDataCollectRequest(User,Data,Party) xinitiates perm(share(User, Data, Party)),
+                                                  obl(share(User, Data, Party), deadline,
+                                                  noncompliance(User))
+                                                  if interested(User, Data), securityDep(Party);
+
+initially gpow(fb, dataExportRequest(User, Data, Party), eu);
+initially gpow(fb, dataCollectRequest(User, Data, Party) , us);
+initially gpow(fb, dataExport(User, Data, Party), eu);
+initially gpow(fb, dataCollect(User, Data, Party) , us);
+initially tpow(eu, perm(share(User, Data, Party)), fb);
+initially ipow(us, perm(share(User, Data, Party)), fb);
+initially ipow(us, obl(share(User, Data, Party), deadline, noncompliance(User)), fb);
+
+initially securityDep(nsa);
+initially trusted(nsa);
+initially interested(bob, bob_data);
