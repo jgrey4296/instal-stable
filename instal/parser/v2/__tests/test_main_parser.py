@@ -36,25 +36,6 @@ class TestInstitutionParser(InstalParserTestCase):
                                           ("institution simple;\ntype Test;", ASTs.InstitutionDefAST),
                                           )
 
-    def test_simple_bridge(self):
-        self.assertParseResultsIsInstance(i_dsl.top_bridge,
-                                          ("bridge test;\ntype Test;\nsink blah;", ASTs.BridgeDefAST),
-                                          )
-
-    def test_sources(self):
-        for result, data in self.yieldParseResults(i_dsl.top_bridge,
-                                                   ("bridge test;\ntype Test;\nsource bloo;\nsource other;", ["bloo", "other"]),
-                                                   ):
-            sources = (x.value for x in result[0].sources)
-            self.assertAllIn(sources, data[1])
-
-    def test_sinks(self):
-        for result, data in self.yieldParseResults(i_dsl.top_bridge,
-                                                   ("bridge test;\ntype Test;\nsource bloo;\nsource other;", ["bloo", "other"]),
-                                                   ):
-            sinks = (x.value for x in result[0].sinks)
-            self.assertAllIn(sinks, data[1])
-
     def test_types(self):
         for result, data in self.yieldParseResults(i_dsl.top_institution,
                                                    ("institution test;\ntype Test;\ntype Other;", ["Test", "Other"])

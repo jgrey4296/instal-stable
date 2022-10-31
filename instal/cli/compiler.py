@@ -26,7 +26,6 @@ from typing import IO, List, Optional
 from instal import defaults
 
 from instal.interfaces.parser import InstalParser_i
-from instal.checkers.institution_checker import InstitutionChecker
 from instal.compiler.bridge_compiler import InstalBridgeCompiler
 from instal.compiler.domain_compiler import InstalDomainCompiler
 from instal.compiler.institution_compiler import InstalInstitutionCompiler
@@ -98,7 +97,6 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, 
         match target.suffix:
             case defaults.INST_EXT:
                 parse_fn = parser.parse_institution
-                checker  = InstitutionChecker()
                 compiler = InstalInstitutionCompiler()
             case defaults.BRIDGE_EXT:
                 parse_fn = parser.parse_bridge

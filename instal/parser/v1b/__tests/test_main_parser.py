@@ -41,19 +41,14 @@ class TestInstitutionParser(InstalParserTestCase):
                                           ("bridge test;\ntype Test;\nsink blah;", ASTs.BridgeDefAST),
                                           )
 
-    def test_sources(self):
+    def test_bridge_links(self):
         for result, data in self.yieldParseResults(dsl.top_bridge,
-                                                   ("bridge test;\ntype Test;\nsource bloo;\nsource other;", ["bloo", "other"]),
+                                                   ("bridge test;\ntype Test;\nsink   bloo;\nsource other;", [("bloo", ASTs.BridgeLinkEnum.sink),
+                                                                                                              ("other", ASTs.BridgeLinkEnum.source)]),
                                                    ):
-            sources = (x.value for x in result[0].sources)
-            self.assertAllIn(sources, data[1])
-
-    def test_sinks(self):
-        for result, data in self.yieldParseResults(dsl.top_bridge,
-                                                   ("bridge test;\ntype Test;\nsource bloo;\nsource other;", ["bloo", "other"]),
-                                                   ):
-            sinks = (x.value for x in result[0].sinks)
-            self.assertAllIn(sinks, data[1])
+            for link, desc in zip(sorted(result[0].links, key=lambda x: x.head.value), data[1]):
+                self.assertEqual(link.head.value, desc[0])
+                self.assertEqual(link.link_type, desc[1])
 
     def test_types(self):
         for result, data in self.yieldParseResults(dsl.top_institution,

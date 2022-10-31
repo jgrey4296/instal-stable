@@ -190,7 +190,7 @@ class TestInstitutionCompiler(unittest.TestCase):
     def test_events_with_types_compilation(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
         inst.events.append(ASTs.EventAST(ASTs.TermAST("greet",
                                                       [ASTs.TermAST("Person_1",
                                                                     is_var=True),
@@ -214,7 +214,7 @@ class TestInstitutionCompiler(unittest.TestCase):
     def test_fluent_compilation(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
         inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("alive"),
                                            ASTs.FluentEnum.inertial))
 
@@ -233,7 +233,7 @@ class TestInstitutionCompiler(unittest.TestCase):
     def test_fluent_with_types_compilation(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
         inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("alive",
                                                         [ASTs.TermAST("Person",
                                                                       is_var=True)]),
@@ -255,7 +255,7 @@ class TestInstitutionCompiler(unittest.TestCase):
     def test_fluent_obligation(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
         inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("avenge",
                                                         [ASTs.TermAST("oblTest"),
                                                          ASTs.TermAST("deadTest"),
@@ -324,7 +324,7 @@ class TestInstitutionCompiler(unittest.TestCase):
     def test_fluent_non_inertial(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
         inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("alive"),
                                            ASTs.FluentEnum.transient))
 
@@ -343,7 +343,7 @@ class TestInstitutionCompiler(unittest.TestCase):
     def test_generation_compilation(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
         inst.rules.append(ASTs.GenerationRuleAST(ASTs.TermAST("alive"),
                                                  [ASTs.TermAST("breathing")],
                                                  annotation=ASTs.RuleEnum.generates,
@@ -399,7 +399,7 @@ class TestInstitutionCompiler(unittest.TestCase):
     def test_generation_with_types(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
         inst.rules.append(ASTs.GenerationRuleAST(ASTs.TermAST("alive", [ASTs.TermAST("Person", is_var=True)]),
                                                  [ASTs.TermAST("breathing", [ASTs.TermAST("Person", is_var=True)])],
                                                  annotation=ASTs.RuleEnum.generates,
@@ -456,7 +456,7 @@ class TestInstitutionCompiler(unittest.TestCase):
     def test_generation_with_condition(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
         inst.rules.append(ASTs.GenerationRuleAST(ASTs.TermAST("alive", [ASTs.TermAST("Person", is_var=True)]),
                                                  [ASTs.TermAST("breathing", [ASTs.TermAST("Person_2", is_var=True)])],
                                                  conditions=[
@@ -517,7 +517,7 @@ class TestInstitutionCompiler(unittest.TestCase):
     def test_generation_initiates(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
         inst.rules.append(ASTs.InertialRuleAST(ASTs.TermAST("alive"),
                                                    [ASTs.TermAST("breathing")],
                                                    annotation=ASTs.RuleEnum.initiates,
@@ -545,7 +545,7 @@ class TestInstitutionCompiler(unittest.TestCase):
     def test_generation_terminates(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
         inst.rules.append(ASTs.InertialRuleAST(ASTs.TermAST("alive"),
                                                [ASTs.TermAST("breathing")],
                                                annotation=ASTs.RuleEnum.terminates,
@@ -572,7 +572,7 @@ class TestInstitutionCompiler(unittest.TestCase):
     def test_transient_compilation(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
         inst.rules.append(ASTs.TransientRuleAST(ASTs.TermAST("alive"),
                                                 [ASTs.TermAST("breathing")],
                                                 annotation=ASTs.RuleEnum.transient
@@ -597,7 +597,7 @@ class TestInstitutionCompiler(unittest.TestCase):
     def test_transient_with_types(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
         inst.rules.append(ASTs.TransientRuleAST(ASTs.TermAST("alive", [ASTs.TermAST("Person", is_var=True)]),
                                           [ASTs.TermAST("breathing", [ASTs.TermAST("Person", is_var=True)])],
                                           annotation=ASTs.RuleEnum.transient
@@ -624,8 +624,8 @@ class TestInstitutionCompiler(unittest.TestCase):
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
 
         ##-- types
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
         ##-- end types
 
         ##-- events

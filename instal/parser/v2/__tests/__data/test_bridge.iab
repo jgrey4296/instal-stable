@@ -1,4 +1,7 @@
-institution a.
+bridge testBridge.
+
+source aSource.
+sink   aSink.
 
 exogenous event b.
 % test

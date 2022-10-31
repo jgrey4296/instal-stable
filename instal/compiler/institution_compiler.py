@@ -37,16 +37,9 @@ INERTIAL_FLUENT    = Template((data_path / "inertial_fluent_pattern.lp").read_te
 TRANSIENT_FLUENT   = Template((data_path / "transient_fluent_pattern.lp").read_text())
 OB_FLUENT          = Template((data_path / "obligation_fluent_pattern.lp").read_text())
 
-CROSS_FLUENT       = Template((data_path / "cross_fluent.lp").read_text())
-GPOW_FLUENT        = Template((data_path / "gpow_cross_fluent.lp").read_text())
-
 GEN_PAT            = Template((data_path / "generate_rule_pattern.lp").read_text())
 INIT_PAT           = Template((data_path / "initiate_rule_pattern.lp").read_text())
 TERM_PAT           = Template((data_path / "terminate_rule_pattern.lp").read_text())
-
-X_GEN_PAT          = Template((data_path / "xgenerate_rule_pattern.lp").read_text())
-X_INIT_PAT         = Template((data_path / "xinitiate_rule_pattern.lp").read_text())
-X_TERM_PAT         = Template((data_path / "xterminate_rule_pattern.lp").read_text())
 
 TRANSIENT_RULE_PAT = Template((data_path / "transient_rule_pattern.lp").read_text())
 
@@ -145,10 +138,10 @@ class InstalInstitutionCompiler(InstalCompiler_i):
                         etype_full=event.annotation,
                         rhs=rhs)
 
-    def compile_fluents(self, inst):
+    def compile_fluents(self, inst, *, fluents=None):
         logging.debug("Compiling Fluents")
         inst_head : str = CompileUtil.compile_term(inst.head)
-        for fluent in inst.fluents:
+        for fluent in fluents or inst.fluents:
             rhs : str = ", ".join(sorted(CompileUtil.wrap_types(inst.types, fluent.head)))
 
             match fluent.annotation:
@@ -196,10 +189,11 @@ class InstalInstitutionCompiler(InstalCompiler_i):
 
 
 
-    def compile_rules(self, inst):
-        logging.debug("Compiling Rules")
+    def compile_rules(self, inst, *, rules=None):
+        logging.debug("Compiling Institution Rules")
         inst_head = CompileUtil.compile_term(inst.head)
-        for rule in inst.rules:
+
+        for rule in rules or inst.rules:
             assert(isinstance(rule, IAST.RuleAST))
             conditions  = CompileUtil.compile_conditions(inst, rule.conditions)
             type_guards = CompileUtil.wrap_types(inst.types,
@@ -234,36 +228,6 @@ class InstalInstitutionCompiler(InstalCompiler_i):
                                     state=CompileUtil.compile_term(state),
                                     inst=inst_head,
                                     rhs=rhs)
-                case IAST.RuleEnum.xgenerates:
-                    assert(isinstance(inst, IAST.BridgeDefAST))
-                    delay = "+{rule.delay}" if rule.delay > 0 else ""
-                    self.insert(X_GEN_PAT,
-                                event=CompileUtil.compile_term(rule.head),
-                                response=CompileUtil.compile_term(rule.body[0]),
-                                source=CompileUtil.compile_term(inst.sources[0]),
-                                sink=CompileUtil.compile_term(inst.sinks[0]),
-                                bridge=inst_head,
-                                delay=delay,
-                                rhs=rhs)
-                case IAST.RuleEnum.xinitiates:
-                    assert(isinstance(inst, IAST.BridgeDefAST))
-                    self.insert(X_INIT_PAT,
-                                source=CompileUtil.compile_term(inst.sources[0]),
-                                sink=CompileUtil.compile_term(inst.sinks[0]),
-                                bridge=inst_head,
-                                fluent=CompileUtil.compile_term(rule.head),
-                                response=CompileUtil.compile_term(rule.body[0]),
-                                rhs=rhs
-                                )
-                case IAST.RuleEnum.xterminates:
-                    assert(isinstance(inst, IAST.BridgeDefAST))
-                    self.insert(X_TERM_PAT,
-                                source=CompileUtil.compile_term(inst.sources[0]),
-                                sink=CompileUtil.compile_term(inst.sinks[0]),
-                                bridge=inst_head,
-                                fluent=CompileUtil.compile_term(rule.head),
-                                response=CompileUtil.compile_term(rule.body[0]),
-                                rhs=rhs)
 
                 case IAST.RuleEnum.transient:
                     self.insert(TRANSIENT_RULE_PAT,

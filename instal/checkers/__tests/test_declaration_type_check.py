@@ -57,13 +57,12 @@ class TestCheck(unittest.TestCase):
         self.assertIsInstance(runner, checker.InstalCheckRunner)
         self.assertIsNotNone(runner.checkers)
 
-    @unittest.skip
     def test_basic_pass(self):
         """
         Check no reports are generated on proper use of events
         """
-        file_name = "event_check_pass.ial"
-        runner    = checker.InstalCheckRunner([ EventCheck() ])
+        file_name = "term_type_check.ial"
+        runner    = checker.InstalCheckRunner([ DeclarationTypeCheck() ])
 
         text = data_path.joinpath(file_name).read_text()
         data = InstalPyParser().parse_institution(text, parse_source=file_name)

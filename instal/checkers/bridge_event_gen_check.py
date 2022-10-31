@@ -28,8 +28,7 @@ class BridgeEventGenCheck(InstalChecker_i):
         for ast in asts:
             match ast:
                 case iAST.BridgeDefAST():
-                    bridge_insts.update({x.signature for x in ast.sources})
-                    bridge_insts.update({x.signature for x in ast.sinks})
+                    bridge_insts.update({x.head.signature for x in ast.links})
                     # record cross generation events
                     for rule in ast.rules:
                         if rule.annotation is not iAST.RuleEnum.xgenerates:

@@ -18,14 +18,14 @@ from instal.interfaces import ast as ASTs
 
 logging = logmod.getLogger(__name__)
 
+@dataclass
 class InstalCompiler_i(metaclass=abc.ABCMeta):
     """
     Interface for compiling InstaASTR down to a
     specific solver format
     """
-    def __init__(self):
-        self._compiled_text : list[str] = []
-        # TODO add delayed registers
+    _compiled_text : list[str] = field(init=False, default_factory=list)
+    # TODO add delayed registers
 
     @property
     def compilation(self):

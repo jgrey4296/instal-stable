@@ -33,20 +33,17 @@ class BridgeStructureChecker(InstalChecker_i):
             if not isinstance(ast, iAST.BridgeDefAST):
                 continue
 
-            sources.update({x.signature: x for x in ast.sources})
-            sinks.update({x.signature: x for x in ast.sinks})
+            sources.update({x.head.signature: x for x in ast.links if x.link_type is iAST.BridgeLinkEnum.source})
+            sinks.update({x.head.signature: x for x in ast.links if x.link_type is iAST.BridgeLinkEnum.sink})
 
-            if not bool(ast.sources):
-                self.warning("Bridge has no sources", ast)
-
-            if not bool(ast.sinks):
-                self.warning("Bridge has not sinks", ast)
+            if not bool(ast.links):
+                self.warning("Bridge has no links", ast)
 
         ##-- end loop all institutions: record sources and sinks
 
         ##-- report sources/sinks that arent defined
-        missing_sources = {y for x,y in sources.items() if x not in institutions}
-        missing_sinks   = {y for x,y in sinks.items()   if x not in institutions}
+        missing_sources = [y for x,y in sources.items() if x not in institutions]
+        missing_sinks   = [y for x,y in sinks.items()   if x not in institutions]
 
         for source in missing_sources:
             self.warning("Bridge Source declared but not defined", source)

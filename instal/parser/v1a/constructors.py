@@ -39,16 +39,14 @@ def institution(string, loc, toks):
                 inst.fluents.append(elem)
             case ASTs.EventAST():
                 inst.events.append(elem)
-            case ASTs.TypeAST():
+            case ASTs.DomainSpecAST():
                 inst.types.append(elem)
             case ASTs.RuleAST():
                 inst.rules.append(elem)
             case ASTs.InitiallyAST():
                 inst.initial.append(elem)
-            case ASTs.SourceAST():
-                inst.sources.append(elem.head)
-            case ASTs.SinkAST():
-                inst.sinks.append(elem.head)
+            case ASTs.BridgeLinkAST():
+                inst.links.append(elem)
 
     return inst
 

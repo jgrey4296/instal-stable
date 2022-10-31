@@ -5,9 +5,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #program base.
 
-% bridge/3 (in standard prelude) is built from these:
+% bridge/3 (in standard prelude) is built from the bridge institution, and its links:
 institution(${bridge}).
-source(${source}, ${bridge}).
-sink(${sink}, ${bridge}).
 
 :- not _preludeLoaded.
