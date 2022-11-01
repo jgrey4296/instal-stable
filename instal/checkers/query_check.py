@@ -15,6 +15,6 @@ from instal.interfaces.checker import InstalChecker_i
 class QueryCheck(InstalChecker_i):
     """ ensure queries are of defined external events """
 
-    def check(self, ast):
+    def check(self):
 
         pass

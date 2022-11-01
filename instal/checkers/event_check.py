@@ -24,40 +24,39 @@ class EventCheck(InstalChecker_i):
     Could be improved to track generation in a graph, and detect cycles/islands
     """
 
-    def check(self, asts):
-        ex_events = set()
-        in_events = set()
+    declarations : dict[iAST.EventEnum, set[iAST.TermAST]] = field(init=False, default_factory=lambda: defaultdict(set))
+    usage        : set[iAST.TermAST]                       = field(init=False, default_factory=set)
 
-        ##-- loop over everything, record declarations and uses
-        for ast in asts:
-            if not isinstance(ast, iAST.InstitutionDefAST):
-                continue
+    def clear(self):
+        self.declarations = defaultdict(set)
+        self.usage        = set()
 
-            for event in ast.events:
-                match event.annotation:
-                    case iAST.EventEnum.exogenous if isinstance(ast, iAST.BridgeDefAST):
-                        self.warning("Bridge Institutions should not have external events")
-                    case iAST.EventEnum.exogenous:
-                        ex_events.add(event.head)
-                    case iAST.EventEnum.institutional:
-                        in_events.add(event.head)
-                    case _:
-                        pass
+    def get_actions(self):
+        return {
+            iAST.EventAST : {self.action_EventAST},
+            iAST.RuleAST  : {self.action_RuleAST}
+            }
 
-            for rule in ast.rules:
-                if not isinstance(rule, iAST.GenerationRuleAST):
-                    continue
 
-                ex_events.discard(rule.head)
-                in_events.difference_update(rule.body)
+    def check(self):
+        for event in (self.declarations[iAST.EventNum.exogenous] - self.usage):
+            self.warning("Unused External Event", event)
 
-        ##-- end loop over everything, record declarations and uses
+        for event in (self.declarations[iAST.EventNum.institutional] - self.usage):
+            self.warning("Institutional Event is not generated", event)
 
-        ##-- if anything remains: report it
-        for ex_event in ex_events:
-            self.warning("Unused External Event", ex_event)
 
-        for in_event in in_events:
-            self.warning("Non-Generated Institutional Event", in_event)
 
-        ##-- end if anything remains: report it
+    def action_EventAST(self, visitor, event):
+        match event.annotation:
+            case iAST.EventEnum.exogenous | iAST.EventEnum.institution:
+                self.declarations[event.annotation].add(event.head)
+            case _:
+                pass
+
+    def action_RuleAST(self, visitor, rule):
+        if not isinstance(rule, iAST.GenerationRuleAST):
+            return
+
+        self.usage.add(rule.head)
+        self.usage.update(rule.body)

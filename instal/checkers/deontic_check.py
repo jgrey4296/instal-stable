@@ -15,6 +15,6 @@ from instal.interfaces.checker import InstalChecker_i
 class DeonticCheck(InstalChecker_i):
     """ check perm/pow/obl/viol only apply to institutional events """
 
-    def check(self, ast):
+    def check(self):
 
         pass

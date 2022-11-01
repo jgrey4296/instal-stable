@@ -15,5 +15,5 @@ from instal.interfaces.checker import InstalChecker_i
 class BridgeDeonticsCheck(InstalChecker_i):
     """ check bridge deontics are consistent """
 
-    def check(self, ast):
+    def check(self):
         pass

@@ -16,22 +16,24 @@ from instal.interfaces import ast as iAST
 class InstitutionStructureChecker(InstalChecker_i):
     """ Check components of institutions are defined """
 
-    def check(self, asts):
-        for inst in asts:
-            if not isinstance(inst, iAST.InstitutionDefAST):
-                continue
+    def get_actions(self):
+        return {
+            iAST.InstitutionDefAST: {self.action_InstitutionDefAST}
+            }
 
-            if not bool(inst.fluents):
-                self.warning("Institution has no fluents", inst)
 
-            if not bool(inst.events):
-                self.warning("Institution has no events", inst)
+    def action_InstitutionDefAST(self, visitor, node):
+        if not bool(node.fluents):
+            self.warning("Institution has no fluents", node)
 
-            if not bool(inst.types):
-                self.warning("Institution has no types", inst)
+        if not bool(node.events):
+            self.warning("Institution has no events", node)
 
-            if not bool(inst.rules):
-                self.warning("Institution has no rules", inst)
+        if not bool(node.types):
+            self.warning("Institution has no types", node)
 
-            if not bool(inst.initial):
-                self.warning("Institution has no initial facts", inst)
+        if not bool(node.rules):
+            self.warning("Institution has no rules", node)
+
+        if not bool(node.initial):
+            self.warning("Instiitution has no initial facts", node)

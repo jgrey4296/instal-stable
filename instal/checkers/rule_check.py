@@ -25,5 +25,5 @@ class RuleCheck(InstalChecker_i):
     transient rules  : only states set transient state
     """
 
-    def check(self, ast):
+    def check(self):
         pass

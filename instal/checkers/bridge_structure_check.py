@@ -18,10 +18,21 @@ class BridgeStructureChecker(InstalChecker_i):
     and those sources and sinks are defined
     """
 
-    def check(self, asts):
-        sources      = dict()
-        sinks        = dict()
-        institutions = set()
+    sources      = dict()
+    sinks        = dict()
+    institutions = set()
+
+    def clear(self):
+        self.declarations = defaultdict(set)
+        self.usage        = set()
+
+    def get_actions(self):
+        return {
+            iAST.EventAST : {self.action_EventAST},
+            iAST.RuleAST  : {self.action_RuleAST}
+            }
+
+    def check(self):
 
         ##-- loop all institutions: record sources and sinks
         for ast in asts:

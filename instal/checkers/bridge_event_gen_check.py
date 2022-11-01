@@ -18,7 +18,7 @@ class BridgeEventGenCheck(InstalChecker_i):
     Check cross institution event generation connections
     """
 
-    def check(self, asts):
+    def check(self):
 
         bridge_events = {}
         bridge_insts  = set()
@@ -48,6 +48,8 @@ class BridgeEventGenCheck(InstalChecker_i):
 
         ##-- end accumulate
 
+        # case iAST.EventEnum.exogenous if isinstance(ast, iAST.BridgeDefAST):
+        #     self.warning("Bridge Institutions should not have external events")
         # verify all cross generation
         missing_events = set(bridge_events.keys())
         for sig in bridge_insts.intersection(inst_events.keys()):

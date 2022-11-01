@@ -18,7 +18,7 @@ class BridgeFluentGenCheck(InstalChecker_i):
     Check cross institution fluent generation connections
     """
 
-    def check(self, asts):
+    def check(self):
         bridge_fluents = {}
         bridge_insts   = set()
         inst_fluents   = defaultdict(dict)

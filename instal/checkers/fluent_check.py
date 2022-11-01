@@ -14,48 +14,54 @@ from instal.interfaces import ast as iAST
 
 @dataclass
 class FluentCheck(InstalChecker_i):
-    """ ensure inertial fluents have associated initiation and terminations,
-    and transients don't.
+    """ ensure inertial fluents have associated initiation and self.terminations,
+    and self.transients don't.
     """
 
-    def check(self, asts):
-        initiations  = set()
-        terminations = set()
-        transients   = set()
+    declarations : dict[iAST.FluentEnum, set[iAST.TermAST]] = field(init=False, default_factory=lambda: defaultdict(set))
+    usage        : dict[iAST.RuleEnum,   set[iAST.TermAST]] = field(init=False, default_factory=lambda: defaultdict(set))
 
-        ##-- loop asts and record what exists/is used
-        for ast in asts:
-            if not isinstance(ast, iAST.InstitutionDefAST):
-                continue
+    def clear(self):
+        self.declarations = defaultdict(set)
+        self.usage        = defaultdict(set)
 
-            for fluent in ast.fluents:
-                match fluent.annotation:
-                    case iAST.FluentEnum.inertial:
-                        initiations.add(fluent.head)
-                        terminations.add(fluent.head)
-                    case iAST.FluentEnum.transient:
-                        transients.add(fluent.head)
+    def get_actions(self):
+        return {
+            iAST.FluentAST: {self.action_FluentAST},
+            iAST.RuleAST  : {self.action_RuleAST}
+            }
 
-            for rule in ast.rules:
-                match rule:
-                    case iAST.InertialRuleAST(annotation=iAST.RuleEnum.initiates):
-                        initiations.difference_update(rule.body)
-                    case iAST.InertialRuleAST(annotation=iAST.RuleEnum.terminates):
-                        terminations.difference_update(rule.body)
-                    case iAST.TransientRuleAST(annotation=iAST.RuleEnum.transient):
-                        transients.discard(rule.head)
+    def check(self):
+        inertials   = self.declarations[iAST.FluentEnum.inertial]
+        initiated   = self.usage[iAST.RuleEnum.initiates]
+        terminated  = self.usage[iAST.RuleEnum.terminates]
 
-        ##-- end loop asts and record what exists/is used
+        for fluent in (inertials - initiated):
+            self.warning("Inertial Fluent Not Initiated Anywhere", fluent)
+        for fluent in (inertials - terminated):
+            self.warning("Inertial Fluent Not Terminated Anywhere", fluent)
 
 
-        ##-- if anything remains: report it
-        for x in initiations:
-            self.warning("Non-Initiated Inertial Fluent", x)
+        transient   = self.declarations[iAST.FluentEnum.transient]
+        consequents = self.usage[iAST.RuleEnum.transient]
 
-        for x in terminations:
-            self.warning("Non-Terminated Inertial Fluent", x)
+        for fluent in (transient - consequents):
+            self.warning("Transient Fluent Not Mentioned Anywhere", fluent)
 
-        for x in transients:
-            self.warning("Unmentioned Transient Fluent", x)
+        for fluent in (transient & (initiated | terminated)):
+            self.error("Transient Fluent treated as an Inertial Fluent", fluent)
 
-        ##-- end if anything remains: report it
+
+    def action_FluentAST(self, visitor, fluent):
+        match fluent.annotation:
+            case iAST.FluentEnum.inertial | iAST.FluentEnum.transient:
+                self.declarations[fluent.annotation].add(fluent.head)
+
+    def action_RuleAST(self, visitor, rule):
+        match rule:
+            case iAST.RuleAST(annotation=iAST.RuleEnum.initiates):
+                self.usage[rule.annotation].update(rule.body)
+            case iAST.RuleAST(annotation=iAST.RuleEnum.terminates):
+                self.usage[rule.annotation].update(rule.body)
+            case iAST.RuleAST(annotation=iAST.RuleEnum.transient):
+                self.usage[rule.annotation].add(rule.head)

@@ -34,7 +34,7 @@ instalc        = "instal.cli.compiler:main"
 instalq        = "instal.cli.query:main"
 instalf        = "instal.cli.filter:main"
 instalr        = "instal.cli.reporter:main"
-instalv        = "instal.util.generate_visitors:main"
+instalv        = "instal.cli.generate_visitors:main"
 
 [project.gui-scripts]
 # spam-gui      = "spam:main_gui"

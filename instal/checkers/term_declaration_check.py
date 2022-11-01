@@ -10,6 +10,7 @@ import networkx
 from instal.errors import (InstalParserArgumentError, InstalParserError,
                            InstalParserNotDeclaredError, InstalParserTypeError)
 from instal.interfaces.checker import InstalChecker_i
+from insta.checkers.visitor import InstalBaseASTVisitor
 ##-- end imports
 
 ##-- logging
@@ -28,12 +29,21 @@ class TermDeclarationCheck(InstalChecker_i):
     declarations : dict[str, iAST.TermAST]   = field(init=False, default_factory=dict)
     uses         : dict[str, [iAST.TermAST]] = field(init=False, default_factory=lambda: defaultdict(list))
 
-    def check(self, asts):
+    def get_actions(self):
+        visit_actions = {
+
+
+            }
+        return visit_actions
+
+
+    def check(self):
         """
         Check all Terms, by visiting every node.
         Declarations and uses are recorded as signatures in the classic prolog style of name/{numArgs}.
         Mismatches are then reported
         """
+
 
         ##-- record declarations and visit the asts
         self.visit_all(asts)
@@ -51,75 +61,14 @@ class TermDeclarationCheck(InstalChecker_i):
 
         ##-- end report on mismatches
 
-    def visit(self, node):
-        """Visit a node."""
-        assert(isinstance(node, iAST.InstalAST))
-        method = 'visit_' + node.__class__.__name__
-        visitor = getattr(self, method, self.generic_visit)
-        logging.debug("Visiting Node %s with %s", node, visitor)
-        return visitor(node)
 
-    def generic_visit(self, node):
-        logging.info("Generic Visit Called, doing nothing: %s", node)
 
-    def visit_all(self, nodes:list[iAST.InstalAST]):
-        for x in nodes:
-            self.visit(x)
-
-    def visit_TermAST(self, node):
+    def action_TermAST(self, visitor, node):
         self.uses[node.signature].append(node)
-        self.visit_all(node.params)
 
-    def visit_ConditionAST(self, node):
-        self.visit(node.head)
-        if node.rhs is not None:
-            self.users[node.rhs.signature].append(node)
-
-    def visit_InitiallyAST(self, node):
-        self.visit_all(node.body + node.conditions)
-
-    def visit_QueryAST(self, node):
-        self.visit(node.head)
-        self.visit_all(node.conditions)
-
-    def visit_DomainSpecAST(self, node):
-        self.visit(node.head)
-        self.visit_all(node.body)
-
-
-    ##-- inst visiting
-    def visit_InstitutionDefAST(self, node):
-        ##-- record declarations
+    def action_InstitutionDefAST(self, visitor, node):
         for declar in node.events + node.fluents:
             self.declarations[declar.head.signature] = declar
-            self.visit_all(declar.head.params)
 
         for typeDec in node.types:
             self.declarations[typeDec.head.signature] = typeDec
-
-
-        ##-- end record declarations
-
-        # Record uses
-        self.visit_all(node.initial + node.rules)
-
-    def visit_BridgeDefAST(self, node):
-        self.visit_InstitutionDefAST(node)
-
-    ##-- end inst visiting
-
-    ##-- rule visiting
-    def visit_RuleAST(self, node):
-        self.visit(node.head)
-        self.visit_all(node.body + node.conditions)
-
-    def visit_GenerationRuleAST(self, node):
-        self.visit_RuleAST(node)
-
-    def visit_InertialRuleAST(self, node):
-        self.visit_RuleAST(node)
-
-    def visit_TransientRuleAST(self, node):
-        self.visit_RuleAST(node)
-
-    ##-- end rule visiting

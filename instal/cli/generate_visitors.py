@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 ##-- end imports
 
 ##-- data
-data_file= files("instal.util").joinpath("base_visitor.py")
+data_file= files("instal.__data").joinpath("base_visitor.py")
 data_text = data_file.read_text()
 ##-- end data
 

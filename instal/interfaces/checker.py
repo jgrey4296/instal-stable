@@ -20,7 +20,9 @@ from uuid import UUID, uuid1
 from weakref import ref
 
 from instal.interfaces.ast import InstalAST
+from instal.interfaces.util import InstalASTVisitor_i
 
+from instal.util.generated_visitor import InstalBaseASTVisitor
 if TYPE_CHECKING:
     # tc only imports
     pass
@@ -40,6 +42,7 @@ class InstalCheckReport:
     msg     : str             = field()
     level   : int             = field(kw_only=True)
     checker : InstalChecker_i = field(kw_only=True)
+    data    : Any             = field(kw_only=True, default=None)
 
     fmt     : str             = field(kw_only=True, default="({level}) {source}{loc} {msg}")
 
@@ -67,57 +70,72 @@ class InstalChecker_i(metaclass=abc.ABCMeta):
     on an instal specification.
 
     parsers return list[InstalAST],
-    so a checker takes a heterogenous collection of InstalAST's,
-    and checks they make sense
+
+    the check runner triggers an AST walk, which a checker will
+    have registered actions on with `get_actions`
+
+    then `check` is called, and any data the checker's actions have stored
+    will be used to generate reports
 
     NOTE: checkers use an internal trio of debug/info/warning methods
     instead of just logging, or raising an error,
     so that *all* checks can be run, instead of throwing up to the runner on the first error.
+
     """
 
     current_reports : list[InstalCheckReport] = field(init=False, default_factory=list)
 
+    def get_actions(self) -> dict:
+        """
+        return a dictionary of visit actions for addition to the check walker
+        """
+        return {}
+
     def clear(self):
+        """
+        A Clear method for implementations to use
+        """
+        pass
+
+    def full_clear(self):
+        """
+        The full clear triggered by the check runner
+        """
         self.current_reports = []
+        self.clear()
 
-    def debug(self, msg, ast=None):
-        self.build_note(ast, msg, logmod.DEBUG)
+    def debug(self, msg, ast=None, data=None):
+        self.build_note(ast, msg, logmod.DEBUG, data)
 
-    def info(self, msg, ast=None):
-        self.build_note(ast, msg, logmod.INFO)
+    def info(self, msg, ast=None, data=None):
+        self.build_note(ast, msg, logmod.INFO, data)
 
-    def warning(self, msg, ast=None):
-        self.build_note(ast, msg, logmod.WARN)
+    def warning(self, msg, ast=None, data=None):
+        self.build_note(ast, msg, logmod.WARN, data)
 
-    def error(self, msg, ast=None):
-        self.build_note(ast, msg, logmod.ERROR)
+    def error(self, msg, ast=None, data=None):
+        self.build_note(ast, msg, logmod.ERROR, data)
 
-    def build_note(self, ast, msg, level):
+    def build_note(self, ast, msg, level, data):
         self.current_reports.append(InstalCheckReport(ast, msg,
                                                       level=level,
-                                                      checker=self.__class__))
+                                                      checker=self.__class__,
+                                                      data=data))
 
 
-    def __call__(self, asts:list[InstalAST]) -> list[InstalCheckReport]:
+    def __call__(self) -> list[InstalCheckReport]:
         """
         The access point used by InstalCheckRunner.
         Clears the log of reports generated, runs the .check method,
         and returns the new list of reports.
         """
-        assert(isinstance(asts, list))
-        self.clear()
-        self.check(asts)
+        self.check()
         return self.current_reports[:]
 
-    @abc.abstractmethod
-    def check(self, asts:list[InstalAST]): pass
+    def check(self):
+        pass
 
 
-
-class InstalExtractor_i(metaclass=abc.ABCMeta):
-
-    @abc.abstractmethod
-    def extract(self, asts:list[InstalAST]) -> list[InstalAST]: pass
 
 @dataclass
 class InstalCheckRunner:
@@ -128,22 +146,19 @@ class InstalCheckRunner:
     and warns / errors / reports a collection of results
     """
 
-    components : list[InstalChecker_i | InstalExtractor_i] = field(default_factory=list)
-
-    checkers   : list[InstalChecker_i]   = field(init=False, default_factory=list)
-    extractors : list[InstalExtractor_i] = field(init=False, default_factory=list)
+    checkers : list[InstalChecker_i] = field(default_factory=list)
+    visitor  : InstalASTVisitor_i    = field(default_factory=InstalBaseASTVisitor)
 
     def __post_init__(self):
-        for comp in self.components:
-            if isinstance(comp, InstalChecker_i):
-                self.checkers.append(comp)
-            if isinstance(comp, InstalExtractor_i) or hasattr(comp, 'extract'):
-                self.extractors.append(comp)
+        # Register all checkers' actions with the visitor
+        for comp in self.checkers:
+            self.visitor.add_actions(comp.get_actions())
 
-        logging.info("%s built with %s extractors and %s checkers",
+
+        logging.info("%s built with %s checkers and visitor class %s",
                      self.__class__.__name__,
-                     len(self.extractors),
-                     len(self.checkers))
+                     len(self.checkers),
+                     self.visitor.__class__.__name__)
 
     def check(self, asts:list[InstalAST]) -> list[InstalCheckReport]:
         if not isinstance(asts, list):
@@ -153,17 +168,19 @@ class InstalCheckRunner:
         hard_fails : list[Exception] = []
         error_count : int            = 0
 
-        # Run extractors to flatten as necessary
-        extracted_asts = asts[:]
-        for extractor in self.extractors:
-            logging.debug("Running Extractor: %s", extractor.__class__.__name__)
-            extracted_asts += extractor.extract(asts)
+        for checker in self.checkers:
+            checker.clear()
+
+
+        logging.debug("Visiting nodes")
+        self.visitor.visit_all(asts)
+
 
         for checker in self.checkers:
             logging.debug("Running Checker: %s", checker.__class__.__name__)
             # Run the Check, recording results
             try:
-                results = checker(extracted_asts)
+                results = checker()
                 # Collect the reports by level
                 for note in results:
                     total_results[note.level].append(note)
@@ -171,6 +188,7 @@ class InstalCheckRunner:
 
             except Exception as err:
                 # If a checker actually *errors*, record that but keep going
+                logging.exception("Checker Hard Failed: %s", checker)
                 hard_fails.append(err)
                 error_count += 1
 

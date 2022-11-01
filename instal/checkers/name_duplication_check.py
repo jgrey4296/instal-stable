@@ -1,6 +1,7 @@
 ##-- imports
 from collections import defaultdict
 from dataclasses import InitVar, dataclass, field
+from itertools import combinations
 
 import warnings
 
@@ -14,49 +15,56 @@ from instal.interfaces import ast as iAST
 
 @dataclass
 class NameDuplicationCheck(InstalChecker_i):
-    """" warn on event/fluent name duplication """
+    """" warn on event/fluent/typedec name duplication
 
-    def check(self, asts):
-        fluents  = []
-        events   = []
-        typeDecs = []
+    The `action_X` methods are called as the ast is visited, for basic duplications.
+    when everything is finished, conflicts are detected by `check`
+    """
 
-        for inst in asts:
-            if not isinstance(inst, iAST.InstitutionDefAST):
-                continue
+    events   : dict[str, list[iAST.EventAST]]   = field(init=False, default_factory=lambda: defaultdic(list))
+    fluents  : dict[str, list[iAST.FluentAST]]  = field(init=False, default_factory=lambda: defaultdic(list))
+    typeDecs : dict[str, list[iAST.TypeDecAST]] = field(init=False, default_factory=lambda: defaultdic(list))
 
-            ##-- record fluent declarations
-            for fluent in inst.fluents:
-                if str(fluent.head.signature) in fluents:
-                    self.error(f"Duplicate Fluent Declaration", fluent)
+    def clear(self):
+        self.events   = defaultdict(list)
+        self.fluents  = defaultdict(list)
+        self.typeDecs = defaultdict(list)
 
-                fluents.append(str(fluent.head.signature))
+    def get_actions(self):
+        return {
+            iAST.EventAST      : {self.action_EventAST},
+            iAST.FluentAST     : {self.action_FluentAST},
+            iAST.DomainSpecAST : {self.action_DomainSpecAST},
+            }
 
-            ##-- end record fluent declarations
+    def check(self):
+        for lhs, rhs in combinations([self.events, self.fluents, self.typeDecs], 2):
+            lhs_sigs = set(lhs.keys())
+            rhs_sigs = set(rhs.keys())
 
-            ##-- record event declarations
-            for event in inst.events:
-                if str(event.head.signature) in events:
-                    self.error(f"Duplicate Event Declaration", event)
+            for sig in (lhs_sigs & rhs_sigs):
+                lhs_val = lhs[sig][0]
+                rhs_val = rhs[sig][0]
+                self.error("Declaration Conflict", lhs_val, rhs_val)
 
-                if str(event.head.signature) in fluents:
-                    self.error(f"Event-Fluent Name Conflict", event)
 
-                events.append(str(event.head.signature))
 
-            ##-- end record event declarations
+    def action_EventAST(self, visitor, event):
+        if event.head.signature in self.events:
+            self.error(f"Duplicate Event Declaration", event)
+        else:
+            self.events[event.head.signature].append(event)
 
-            ##-- record type declarations
-            for typeDec in inst.types:
-                if str(typeDec.head.signature) in typeDecs:
-                    self.error(f"Duplicate TypeDec Declaration", typeDec)
 
-                if str(typeDec.head.signature) in fluents:
-                    self.error(f"TypeDec-Fluent Name Conflict", typeDec)
+    def action_FluentAST(self, visitor, node):
+        if fluent.head.signature in self.fluents:
+            self.error(f"Duplicate Fluent Declaration", fluent)
+        else:
+            self.fluents[fluent.head.signature].append(fluent)
 
-                if str(typeDec.head.signature) in events:
-                    self.error(f"TypeDec-Event Name Conflict", typeDec)
 
-                typeDecs.append(str(typeDec.head.signature))
-
-            ##-- end record type declarations
+    def action_DomainSpecAST(self, visitor, node):
+        if typeDec.head.signature in self.typeDecs:
+            self.error(f"Duplicate TypeDec Declaration", typeDec)
+        else:
+            self.typeDecs[typeDec.head.signature].append(typeDec)
