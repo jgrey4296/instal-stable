@@ -21,9 +21,9 @@ __all__ = [
     "EventEnum", "FluentEnum", "RuleEnum", "InstalAST",
     "TermAST", "InstitutionDefAST",
     "BridgeDefAST", "DomainSpecAST", "QueryAST", "InitiallyAST",
-    "TypeAST", "EventAST", "FluentAST", "ConditionAST",
+    "EventAST", "FluentAST", "ConditionAST",
     "RuleAST", "GenerationRuleAST", "InertialRuleAST",
-    "TransientRuleAST", "SinkAST", "SourceAST",
+    "TransientRuleAST", "BridgeLinkAST"
 ]
 logging = logmod.getLogger(__name__)
 

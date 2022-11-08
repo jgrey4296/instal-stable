@@ -48,7 +48,7 @@ class InstalASTVisitor_i(metaclass=abc.ABCMeta):
     def generic_visit(self, node): pass
 
     @abc.abstractmethod
-    def flatten(self): pass
+    def flatten_for_classes(self, *classes): pass
 
     @abc.abstractmethod
-    def add_actions(self, a_dict:dict[type, callable]): pass
+    def add_actions(self, actions_obj): pass

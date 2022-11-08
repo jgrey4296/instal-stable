@@ -83,7 +83,7 @@ class TestCheck(unittest.TestCase):
         result = runner.check(data)
         self.assertTrue(result)
         self.assertEqual(len(result[logmod.WARNING]), 1)
-        self.assertEqual(result[logmod.WARNING][0].msg, "Non-Generated Institutional Event")
+        self.assertEqual(result[logmod.WARNING][0].msg, "Institutional Event is not generated")
 
     def test_basic_chain_pass(self):
         """
@@ -136,7 +136,7 @@ class TestCheck(unittest.TestCase):
         self.assertEqual(len(result[logmod.WARNING]), 2)
         msgs = [x.msg for x in result[logmod.WARNING]]
         self.assertIn("Unused External Event", msgs)
-        self.assertIn("Non-Generated Institutional Event", msgs)
+        self.assertIn("Institutional Event is not generated", msgs)
 
 
 

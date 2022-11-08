@@ -26,31 +26,33 @@ class InstalBaseASTVisitor(InstalASTVisitor_i):
     """
     actions : dict[type[iAST.InstalAST], set[callable]] = field(default_factory=lambda: defaultdict(set))
 
-    def __post_init__(self):
-        self.flatten()
-
-    def add_actions(self, a_dict):
+    def add_actions(self, action_obj):
         """
         add visit actions to the visitor,
         the dict of actions being: dict[classType -> set[callable]]
         """
-        assert(isinstance(a_dict, dict))
-        for key, act_set in a_dict.items():
-            self.actions[key].update(act_set)
+        for action in dir(actions_obj):
+            a_match = ACTION_RE.match(action)
+            if a_match:
+                self.actions[a_match[1]].add(getattr(actions_obj, action))
 
-    def flatten(self):
+    def flatten_for_classes(self, *classes):
         # flatten action lists to avoid having to look up mro orders in visit
-        for key in self.actions.keys():
-            for mro_entry in key.__mro__:
-                mro_actions = self.actions.get(mro_entry) or []
-                self.actions[key].update(mro_actions)
+        if not classes and hasattr(iAST, '__all__'):
+            classes = [getattr(iAST, x) for x in iAST.__all__
+                       if issubclass(getattr(iAST, x), iAST.InstalAST)]
+
+        for cls in classes:
+            for mro in cls.__mro__:
+                mro_actions = self.actions.get(mro.__name__) or []
+                self.actions[cls.__name__].update(mro_actions)
 
     def visit(self, node, *, skip_actions=False):
         """Visit a node."""
         assert isinstance(node, iAST.InstalAST)
         logging.debug("Entering Visit: %s", node)
         if not skip_actions:
-            actions = self.actions.get(node.__class__) or []
+            actions = self.actions.get(node.__class__.__name__) or []
             logging.debug("Running %s actions", len(actions))
             for func in actions:
                 try:

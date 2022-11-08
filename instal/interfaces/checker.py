@@ -31,7 +31,6 @@ if TYPE_CHECKING:
 
 logging = logmod.getLogger(__name__)
 
-
 @dataclass
 class InstalCheckReport:
     """
@@ -84,12 +83,6 @@ class InstalChecker_i(metaclass=abc.ABCMeta):
     """
 
     current_reports : list[InstalCheckReport] = field(init=False, default_factory=list)
-
-    def get_actions(self) -> dict:
-        """
-        return a dictionary of visit actions for addition to the check walker
-        """
-        return {}
 
     def clear(self):
         """
@@ -151,9 +144,10 @@ class InstalCheckRunner:
 
     def __post_init__(self):
         # Register all checkers' actions with the visitor
-        for comp in self.checkers:
-            self.visitor.add_actions(comp.get_actions())
+        for checker in self.checkers:
+            self.visitor.add_actions(checker)
 
+        self.visitor.flatten_for_classes()
 
         logging.info("%s built with %s checkers and visitor class %s",
                      self.__class__.__name__,
