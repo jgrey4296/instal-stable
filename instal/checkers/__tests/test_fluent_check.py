@@ -61,7 +61,7 @@ class TestCheck(unittest.TestCase):
         """
         Check there are no reports if a consistent institution is defined
         """
-        file_name = "fluent_check_pass.ial"
+        file_name = "basic_empty_inst.ial"
         runner    = checker.InstalCheckRunner([ FluentCheck() ])
 
         text = data_path.joinpath(file_name).read_text()
@@ -86,7 +86,7 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(result)
         self.assertIn(logmod.WARNING, result)
         self.assertEqual(len(result[logmod.WARNING]), 1)
-        self.assertEqual(result[logmod.WARNING][0].msg, "Non-Initiated Inertial Fluent")
+        self.assertEqual(result[logmod.WARNING][0].msg, "Inertial Fluent Not Initiated Anywhere")
 
     def test_basic_terminate_fail(self):
         """
@@ -103,7 +103,7 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(result)
         self.assertIn(logmod.WARNING, result)
         self.assertEqual(len(result[logmod.WARNING]), 1)
-        self.assertEqual(result[logmod.WARNING][0].msg, "Non-Terminated Inertial Fluent")
+        self.assertEqual(result[logmod.WARNING][0].msg, "Inertial Fluent Not Terminated Anywhere")
 
     def test_basic_transient_fail(self):
         """
@@ -120,12 +120,24 @@ class TestCheck(unittest.TestCase):
         self.assertTrue(result)
         self.assertIn(logmod.WARNING, result)
         self.assertEqual(len(result[logmod.WARNING]), 1)
-        self.assertEqual(result[logmod.WARNING][0].msg, "Unmentioned Transient Fluent")
+        self.assertEqual(result[logmod.WARNING][0].msg, "Transient Fluent Not Mentioned Anywhere")
 
 
 
 
 
+
+
+    def test_success_on_consistent(self):
+        file_name = "fluent_check_pass.ial"
+        runner    = checker.InstalCheckRunner([ FluentCheck() ])
+
+        text = data_path.joinpath(file_name).read_text()
+        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        result = runner.check(data)
+        self.assertFalse(result)
 
 if __name__ == '__main__':
     unittest.main()

@@ -25,12 +25,6 @@ class FluentCheck(InstalChecker_i):
         self.declarations = defaultdict(set)
         self.usage        = defaultdict(set)
 
-    def get_actions(self):
-        return {
-            iAST.FluentAST: {self.action_FluentAST},
-            iAST.RuleAST  : {self.action_RuleAST}
-            }
-
     def check(self):
         inertials   = self.declarations[iAST.FluentEnum.inertial]
         initiated   = self.usage[iAST.RuleEnum.initiates]
@@ -57,11 +51,13 @@ class FluentCheck(InstalChecker_i):
             case iAST.FluentEnum.inertial | iAST.FluentEnum.transient:
                 self.declarations[fluent.annotation].add(fluent.head)
 
-    def action_RuleAST(self, visitor, rule):
+    def action_InertialRuleAST(self, visitor, rule):
         match rule:
             case iAST.RuleAST(annotation=iAST.RuleEnum.initiates):
                 self.usage[rule.annotation].update(rule.body)
             case iAST.RuleAST(annotation=iAST.RuleEnum.terminates):
                 self.usage[rule.annotation].update(rule.body)
-            case iAST.RuleAST(annotation=iAST.RuleEnum.transient):
-                self.usage[rule.annotation].add(rule.head)
+
+    def action_TransientRuleAST(self, visitor, rule):
+        assert(rule.annotation == iAST.RuleEnum.transient)
+        self.usage[rule.annotation].add(rule.head)
