@@ -1,6 +1,0 @@
-institution termDeclFail.
-
-type Test.
-
-external event exEv(Test, Test2).
-

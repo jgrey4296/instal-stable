@@ -1,28 +1,28 @@
-institution c;
+institution c.
 
-type Person;
-type Book;
+type Person.
+type Book.
 
 
-exo  event exo;
-inst event inter;
-viol event testviolation;
+exo  event exo.
+inst event inter.
+viol event testviolation.
 
-fluent testFluent;
-fluent otherFluent;
+fluent testFluent.
+fluent otherFluent.
 
-transient fluent testTransient;
-transient fluent testTransient2;
+transient fluent testTransient.
+transient fluent testTransient2.
 
-cross fluent blah;
-obligation fluent obFluent(obligation, deadline, violation, oneshot);
+cross fluent blah.
+obligation fluent obFluent(obligation, deadline, violation, oneshot).
 
-exo   generates blah;
-exo   generates inter;
+exo   generates blah.
+exo   generates inter.
 
-inter initiates blah;
-exo   terminates blah;
+inter initiates blah.
+exo   terminates blah.
 
-testTransient when testFluent;
+testTransient when testFluent.
 
-initially perm(exo), pow(exo), perm(exo);
+initially perm(exo), pow(exo), perm(exo).

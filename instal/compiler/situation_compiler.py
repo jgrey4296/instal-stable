@@ -66,9 +66,10 @@ class InstalSituationCompiler(InstalCompiler_i):
                 else:
                     assert(initial.inst is not None)
                     assert(not bool(initial.conditions))
+                    assert(not any(y.has_var for x in facts for y in x.body))
                     inst_term  = CompileUtil.compile_term(initial.inst)
                     state_term = CompileUtil.compile_term(state)
-                    rhs        = ", ".join(sorted(CompileUtil.wrap_types(None, state)))
+                    rhs        = "true"
                     self.insert(INITIAL_FACT,
                                 state=state_term,
                                 inst=inst_term,

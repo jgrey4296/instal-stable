@@ -89,6 +89,10 @@ class State_i:
     @abc.abstractmethod
     def filter(self, allow:list[Any], reject:list[Any]) -> State_i: pass
 
+
+    # @abc.abstractmethod
+    # def conflicts(self) -> list[tuple[int, Any, Any]]: pass
+
 @dataclass
 class Trace_i(Sequence):
     """
@@ -153,3 +157,6 @@ class Trace_i(Sequence):
 
     @abc.abstractmethod
     def fluent_intervals(self) -> list[tuple[str, int, int]]: pass
+
+    # @abc.abstractmethod
+    # def conflicts(self) -> list[tuple[int, Any, Any]]: pass

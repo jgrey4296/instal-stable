@@ -43,9 +43,9 @@ class TestBridgeCompiler(unittest.TestCase):
 
     def test_simple_bridge(self):
         compiler = InstalBridgeCompiler()
-        inst     = ASTs.BridgeDefAST(ASTs.TermAST("simple"))
-        inst.sources.append(ASTs.TermAST("sourceTest"))
-        inst.sinks.append(ASTs.TermAST("sinkTest"))
+        inst     = ASTs.BridgeDefAST(ASTs.TermAST("simple"),
+                                     links=[ASTs.BridgeLinkAST(ASTs.TermAST("sourceTest"), ASTs.BridgeLinkEnum.source),
+                                            ASTs.BridgeLinkAST(ASTs.TermAST("sinkTest"), ASTs.BridgeLinkEnum.sink)])
 
         result = compiler.compile([inst])
         self.assertIsInstance(result, str)
@@ -57,12 +57,16 @@ class TestBridgeCompiler(unittest.TestCase):
             "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
             "#program base.",
             "",
-            "% bridge/3 (in standard prelude) is built from these:",
+            "% bridge/3 (in standard prelude) is built from the bridge institution, and its links:",
             "institution(simple).",
-            "source(sourceTest, simple).",
-            "sink(sinkTest, simple).",
             "",
             ":- not _preludeLoaded.",
+            "",
+            "%% Compiled source sourceTest in simple",
+            "source(sourceTest, simple).",
+            "",
+            "%% Compiled sink sinkTest in simple",
+            "sink(sinkTest, simple).",
             "",
             "%%",
             "%-------------------------------",
@@ -105,21 +109,20 @@ class TestBridgeCompiler(unittest.TestCase):
 
     def test_cross_fluents(self):
         compiler = InstalBridgeCompiler()
-        inst     = ASTs.BridgeDefAST(ASTs.TermAST("simple"))
-        inst.sources.append(ASTs.TermAST("sourceTest"))
-        inst.sinks.append(ASTs.TermAST("sinkTest"))
+        inst     = ASTs.BridgeDefAST(ASTs.TermAST("simple"),
+                                     links=[ASTs.BridgeLinkAST(ASTs.TermAST("sourceTest"), ASTs.BridgeLinkEnum.source),
+                                            ASTs.BridgeLinkAST(ASTs.TermAST("sinkTest"), ASTs.BridgeLinkEnum.sink)])
 
         inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("ipow",
-                                                        [ASTs.TermAST("first"),
-                                                         ASTs.TermAST("second"),
-                                                         ASTs.TermAST("third")]),
+                                                        [ASTs.TermAST("sourceTest"),
+                                                         ASTs.TermAST("action"),
+                                                         ASTs.TermAST("sinkTest")]),
                                            ASTs.FluentEnum.cross))
-
 
         compiler.compile_fluents(inst)
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
-            "inertialFluent(ipow(first, second, third), simple) :- bridge(simple, first, third), true.",
+            "inertialFluent(ipow(sourceTest, action, sinkTest), simple) :- bridge(simple, sourceTest, sinkTest), true.",
             ""
             ]
         # self.assertEqual(len(result.split("\n")), len(expected))
@@ -128,9 +131,9 @@ class TestBridgeCompiler(unittest.TestCase):
 
     def test_cross_generation(self):
         compiler = InstalBridgeCompiler()
-        inst     = ASTs.BridgeDefAST(ASTs.TermAST("simple"))
-        inst.sources.append(ASTs.TermAST("sourceTest"))
-        inst.sinks.append(ASTs.TermAST("sinkTest"))
+        inst     = ASTs.BridgeDefAST(ASTs.TermAST("simple"),
+                                     links=[ASTs.BridgeLinkAST(ASTs.TermAST("sourceTest"), ASTs.BridgeLinkEnum.source),
+                                            ASTs.BridgeLinkAST(ASTs.TermAST("sinkTest"), ASTs.BridgeLinkEnum.sink)])
 
         inst.rules.append(ASTs.GenerationRuleAST(ASTs.TermAST("test"),
                                                  [ASTs.TermAST("testResult")],
@@ -154,9 +157,9 @@ class TestBridgeCompiler(unittest.TestCase):
 
     def test_cross_initiates(self):
         compiler = InstalBridgeCompiler()
-        inst     = ASTs.BridgeDefAST(ASTs.TermAST("simple"))
-        inst.sources.append(ASTs.TermAST("sourceTest"))
-        inst.sinks.append(ASTs.TermAST("sinkTest"))
+        inst     = ASTs.BridgeDefAST(ASTs.TermAST("simple"),
+                                     links=[ASTs.BridgeLinkAST(ASTs.TermAST("sourceTest"), ASTs.BridgeLinkEnum.source),
+                                            ASTs.BridgeLinkAST(ASTs.TermAST("sinkTest"), ASTs.BridgeLinkEnum.sink)])
 
         inst.rules.append(ASTs.InertialRuleAST(ASTs.TermAST("test"),
                                                [ASTs.TermAST("testResult")],
@@ -182,9 +185,9 @@ class TestBridgeCompiler(unittest.TestCase):
 
     def test_cross_terminates(self):
         compiler = InstalBridgeCompiler()
-        inst     = ASTs.BridgeDefAST(ASTs.TermAST("simple"))
-        inst.sources.append(ASTs.TermAST("sourceTest"))
-        inst.sinks.append(ASTs.TermAST("sinkTest"))
+        inst     = ASTs.BridgeDefAST(ASTs.TermAST("simple"),
+                                     links=[ASTs.BridgeLinkAST(ASTs.TermAST("sourceTest"), ASTs.BridgeLinkEnum.source),
+                                            ASTs.BridgeLinkAST(ASTs.TermAST("sinkTest"), ASTs.BridgeLinkEnum.sink)])
 
         inst.rules.append(ASTs.InertialRuleAST(ASTs.TermAST("test"),
                                                [ASTs.TermAST("testResult")],

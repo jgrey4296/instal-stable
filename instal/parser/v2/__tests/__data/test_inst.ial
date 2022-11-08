@@ -1,11 +1,11 @@
-institution a;
+institution a.
 
-exogenous event b;
+exogenous event b.
 % test
 
-inst event c;
+inst event c.
 
-b generates c;
+b generates c.
 
 % blah
-initially perm(b), pow(b), perm(c);
+initially perm(b), pow(b), perm(c).

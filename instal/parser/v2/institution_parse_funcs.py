@@ -104,17 +104,6 @@ INSTITUTION.set_parse_action(lambda s, l, t: ASTs.InstitutionDefAST(t['head'][0]
 INSTITUTION.set_name("institution head")
 ##-- end institution head
 
-##-- bridge specific
-BRIDGE      = s_kw("bridge") + TERM("head") + semi
-BRIDGE.set_parse_action(lambda s, l, t: ASTs.BridgeDefAST(t['head'][0], parse_loc=(pp.lineno(l, s), pp.col(l, s))))
-
-SINK        = s_kw("sink") + TERM("head") + semi
-SINK.set_parse_action(lambda s, l, t: ASTs.SinkAST(t['head'], parse_loc=(pp.lineno(l, s), pp.col(l, s))))
-
-SOURCE      = s_kw("source") + TERM("head") + semi
-SOURCE.set_parse_action(lambda s, l, t: ASTs.SourceAST(t['head'], parse_loc=(pp.lineno(l, s), pp.col(l, s))))
-##-- end bridge specific
-
 ##-- top level parser entry points
 institution_structure = (INSTITUTION('head')
                          + zrm(ln
@@ -129,21 +118,5 @@ institution_structure.set_name("Institution Structure")
 top_institution = orm(institution_structure + zrm(ln))
 top_institution.ignore(comment)
 top_institution.set_name("Institutions")
-
-bridge_structure = (BRIDGE('head')
-                    + zrm(SOURCE
-                          | SINK
-                          | TYPE_DEC
-                          | EVENT
-                          | FLUENT
-                          | RULE
-                          | INITIALLY)('body'))
-
-bridge_structure.set_parse_action(construct.institution)
-bridge_structure.set_name("Bridge Structure")
-
-top_bridge = orm(bridge_structure + zrm(ln))
-top_bridge.ignore(comment)
-top_bridge.set_name("Bridges")
 
 ##-- end top level parser entry points

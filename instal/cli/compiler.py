@@ -26,7 +26,6 @@ from typing import IO, List, Optional
 from instal import defaults
 
 from instal.interfaces.parser import InstalParser_i
-from instal.checkers.institution_checker import InstitutionChecker
 from instal.compiler.bridge_compiler import InstalBridgeCompiler
 from instal.compiler.domain_compiler import InstalDomainCompiler
 from instal.compiler.institution_compiler import InstalInstitutionCompiler
@@ -89,16 +88,15 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, 
     compilation_errored = False
     for target in targets:
         logging.info("Reading %s", str(target))
-        compiler = None
-        parse_fn = None
-        checker  = None
+        compiler  = None
+        parse_fn  = None
+        validator = None
         text = target.read_text()
 
         ##-- match
         match target.suffix:
             case defaults.INST_EXT:
                 parse_fn = parser.parse_institution
-                checker  = InstitutionChecker()
                 compiler = InstalInstitutionCompiler()
             case defaults.BRIDGE_EXT:
                 parse_fn = parser.parse_bridge
@@ -126,8 +124,8 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, 
 
         try:
             ast = parse_fn(text, parse_source=target)
-            if check and checker:
-                checker.check(ast)
+            if check and validator:
+                validator.validate(ast)
 
             compiled     = compiler.compile(ast)
             output.append(compiled)

@@ -118,7 +118,7 @@ RULE = GEN_RULE | INERTIAL_RULE | TRANSIENT_RULE
 
 ##-- parser components
 TYPE_DEC    = s_kw("type") + TERM('head') + semi
-TYPE_DEC.set_parse_action(lambda s, l, t: ASTs.TypeAST(t['head']))
+TYPE_DEC.set_parse_action(lambda s, l, t: ASTs.DomainSpecAST(t['head']))
 TYPE_DEC.set_name("type_dec")
 
 FLUENT      = op(fluent_kws)("annotation") + s_kw("fluent") + TERM("head") + semi
@@ -145,11 +145,11 @@ INSTITUTION.set_name("institution head")
 BRIDGE      = s_kw("bridge") + TERM("head") + semi
 BRIDGE.set_parse_action(lambda s, l, t: ASTs.BridgeDefAST(t['head'][0]))
 
-SINK        = s_kw("sink") + TERM("head") + semi
-SINK.set_parse_action(lambda s, l, t: ASTs.SinkAST(t['head']))
+link_kws = pp.MatchFirst([kw(x).set_parse_action(lambda s, l, t: ASTs.BridgeLinkEnum[t[0]]) for x in ASTs.BridgeLinkEnum.__members__.keys()])
 
-SOURCE      = s_kw("source") + TERM("head") + semi
-SOURCE.set_parse_action(lambda s, l, t: ASTs.SourceAST(t['head']))
+BRIDGE_LINK =  link_kws("link_type") + TERM("head") + semi
+BRIDGE_LINK.set_parse_action(lambda s, l, t: ASTs.BridgeLinkAST(t['head'], link_type=t['link_type'], parse_loc=(pp.lineno(l, s), pp.col(l, s))))
+
 ##-- end bridge specific
 
 ##-- idc domain
@@ -184,8 +184,7 @@ top_institution.ignore(comment)
 top_institution.set_name("Institutions")
 
 bridge_structure = (BRIDGE('head')
-                    + zrm(SOURCE
-                          | SINK
+                    + zrm(BRIDGE_LINK
                           | TYPE_DEC
                           | EVENT
                           | FLUENT

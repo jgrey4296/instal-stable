@@ -1,0 +1,14 @@
+bridge testBridge.
+
+source aSource.
+sink   aSink.
+
+exogenous event b.
+% test
+
+inst event c.
+
+b generates c.
+
+% blah
+initially perm(b), pow(b), perm(c).

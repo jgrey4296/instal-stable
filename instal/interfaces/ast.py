@@ -21,9 +21,9 @@ __all__ = [
     "EventEnum", "FluentEnum", "RuleEnum", "InstalAST",
     "TermAST", "InstitutionDefAST",
     "BridgeDefAST", "DomainSpecAST", "QueryAST", "InitiallyAST",
-    "TypeAST", "EventAST", "FluentAST", "ConditionAST",
+    "EventAST", "FluentAST", "ConditionAST",
     "RuleAST", "GenerationRuleAST", "InertialRuleAST",
-    "TransientRuleAST", "SinkAST", "SourceAST",
+    "TransientRuleAST", "BridgeLinkAST"
 ]
 logging = logmod.getLogger(__name__)
 
@@ -53,6 +53,10 @@ class RuleEnum(Enum):
     xterminates = auto()
     # Transient:
     transient   = auto()
+
+class BridgeLinkEnum(Enum):
+    source = auto()
+    sink   = auto()
 
 ##-- end enums
 
@@ -131,8 +135,7 @@ class InstitutionDefAST(InstalAST):
 
 @dataclass(frozen=True)
 class BridgeDefAST(InstitutionDefAST):
-    sources   : list[TermAST]         = field(default_factory=list)
-    sinks     : list[TermAST]         = field(default_factory=list)
+    links : list[BridgeLinkAST] = field(default_factory=list)
 
 ##-- end institutions and bridges
 
@@ -158,9 +161,6 @@ class InitiallyAST(InstalAST):
     conditions : list[ConditionAST] = field(default_factory=list)
     inst       : None|TermAST       = field(default=None)
     negated    : bool               = field(default=False)
-@dataclass(frozen=True)
-class TypeAST(DomainSpecAST):
-    pass
 
 @dataclass(frozen=True)
 class EventAST(InstalAST):
@@ -172,14 +172,10 @@ class FluentAST(InstalAST):
     head       : TermAST    = field()
     annotation : FluentEnum = field(default=FluentEnum.inertial)
 
-
 @dataclass(frozen=True)
-class SinkAST(InstalAST):
-    head : TermAST = field()
-
-@dataclass(frozen=True)
-class SourceAST(InstalAST):
-    head : TermAST = field()
+class BridgeLinkAST(InstalAST):
+    head     : TermAST        = field()
+    link_type : BridgeLinkEnum = field()
 
 ##-- end components
 

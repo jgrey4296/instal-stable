@@ -69,8 +69,8 @@ class TestCompilerUtils(unittest.TestCase):
 
     def test_type_wrapping(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
 
         term = ASTs.TermAST("has",
                             [ASTs.TermAST("Person", is_var=True),
@@ -84,8 +84,8 @@ class TestCompilerUtils(unittest.TestCase):
 
     def test_nested_type_wrapping(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
 
         term = ASTs.TermAST("has",
                             [ASTs.TermAST("patron",
@@ -100,8 +100,8 @@ class TestCompilerUtils(unittest.TestCase):
 
     def test_multiple_same_type_wrapping(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
 
         term = ASTs.TermAST("similarTo",
                             [ASTs.TermAST("fantasy",
@@ -116,8 +116,8 @@ class TestCompilerUtils(unittest.TestCase):
 
     def test_multiple_same_type_wrapping_unique(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
 
         term = ASTs.TermAST("similarTo",
                             [ASTs.TermAST("fantasy",
@@ -131,8 +131,8 @@ class TestCompilerUtils(unittest.TestCase):
 
     def test_multiple_same_type_wrapping_underscore(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
 
         term = ASTs.TermAST("similarTo",
                             [ASTs.TermAST("fantasy",
@@ -148,16 +148,16 @@ class TestCompilerUtils(unittest.TestCase):
 
     def test_empty_condition_compilation(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
 
         result    = CompileUtil.compile_conditions(inst, [])
         self.assertEqual(result, {"true"})
 
     def test_condition_compilation(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
 
         condition = ASTs.ConditionAST(ASTs.TermAST("the_world"))
 
@@ -167,8 +167,8 @@ class TestCompilerUtils(unittest.TestCase):
 
     def test_comparison_compilation(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
 
         condition = ASTs.ConditionAST(ASTs.TermAST("the_world"),
                                       operator="<",
@@ -180,8 +180,8 @@ class TestCompilerUtils(unittest.TestCase):
 
     def test_comparison_compilation_with_types(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
 
         condition = ASTs.ConditionAST(ASTs.TermAST("the_world",
                                                    [ASTs.TermAST("Person", is_var=True)]),
@@ -198,8 +198,8 @@ class TestCompilerUtils(unittest.TestCase):
 
     def test_multiple_condition_compilation(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
 
         condition = ASTs.ConditionAST(ASTs.TermAST("the_world"))
         condition2 = ASTs.ConditionAST(ASTs.TermAST("the_stars"))
@@ -213,8 +213,8 @@ class TestCompilerUtils(unittest.TestCase):
 
     def test_negated_condition_compilation(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
 
         condition = ASTs.ConditionAST(ASTs.TermAST("the_world"),
                                       negated=True)
@@ -225,8 +225,8 @@ class TestCompilerUtils(unittest.TestCase):
 
     def test_condition_with_types(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Person")))
-        inst.types.append(ASTs.TypeAST(ASTs.TermAST("Book")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
+        inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
 
         condition = ASTs.ConditionAST(ASTs.TermAST("the_world",
                                                    [ASTs.TermAST("Person",

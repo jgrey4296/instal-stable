@@ -22,6 +22,7 @@ from instal.interfaces.parser import InstalParser_i
 import instal.interfaces.ast as ASTs
 import instal.parser.v2.parse_funcs as PF
 import instal.parser.v2.institution_parse_funcs as IPF
+import instal.parser.v2.bridge_parse_funcs as BPF
 from instal.defaults import SUPPRESS_PARSER_EXCEPTION_TRACE
 
 if TYPE_CHECKING:
@@ -56,7 +57,7 @@ class InstalPyParser(InstalParser_i):
         logging.debug("Parsing Bridge, parse_source: %s", parse_source)
         ASTs.InstalAST.current_parse_source = parse_source
         try:
-            result = IPF.top_bridge.parse_string(text.strip(), parse_all=True)[:]
+            result = BPF.top_bridge.parse_string(text.strip(), parse_all=True)[:]
         except pp.ParseException as err:
             logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
             if SUPPRESS_PARSER_EXCEPTION_TRACE:

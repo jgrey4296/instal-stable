@@ -49,8 +49,8 @@ semi    = s(op(lit(";") | lit(".")) + orm(pp.lineEnd))
 semi.set_name(";")
 
 # TODO: shift these lists into defaults, as dicts to use in constructors as well
-event_kws      = pp.MatchFirst(kw(x) for x in ["exogenous", "institutional", "violation", "exo", "inst", "viol", "external"])
-fluent_kws     = pp.MatchFirst(kw(x) for x in ["cross", "obligation", "x", "transient", "obl"])
+event_kws      = pp.MatchFirst(kw(x) for x in list(ASTs.EventEnum.__members__.keys()) + ["exo", "inst", "viol", "external"])
+fluent_kws     = pp.MatchFirst(kw(x) for x in list(ASTs.FluentEnum.__members__.keys()) + ["x", "obl"])
 generation_kws = pp.MatchFirst(kw(x) for x in ["generates", "xgenerates"])
 inertial_kws   = pp.MatchFirst(kw(x) for x in ["initiates", "terminates", "xinitiates", "xterminates"])
 op_lits        = pp.MatchFirst(lit(x) for x in ["<=", ">=", "<>", "!=", "<", ">", "=", ])
