@@ -26,10 +26,15 @@ class InstalBaseASTVisitor(InstalASTVisitor_i):
     """
     actions : dict[type[iAST.InstalAST], set[callable]] = field(default_factory=lambda: defaultdict(set))
 
-    def add_actions(self, action_obj):
+    actions : dict[str, set[callable]] = field(default_factory=lambda: defaultdict(set))
+
+    current_path : list[iAST.InstalAST] = field(init=False, default_factory=list)
+
+    def add_actions(self, actions_obj:Any):
         """
         add visit actions to the visitor,
-        the dict of actions being: dict[classType -> set[callable]]
+        any methods on the object of the form action_{CLASSNAME}
+        will be recorded
         """
         for action in dir(actions_obj):
             a_match = ACTION_RE.match(action)
@@ -37,12 +42,13 @@ class InstalBaseASTVisitor(InstalASTVisitor_i):
                 self.actions[a_match[1]].add(getattr(actions_obj, action))
 
     def flatten_for_classes(self, *classes):
-        # flatten action lists to avoid having to look up mro orders in visit
+        """ flatten action sets to avoid having to look up mro order repeatedly"""
         if not classes and hasattr(iAST, '__all__'):
             classes = [getattr(iAST, x) for x in iAST.__all__
                        if issubclass(getattr(iAST, x), iAST.InstalAST)]
 
         for cls in classes:
+            logging.debug("Flattening: %s : %s", cls.__name__, cls.__mro__)
             for mro in cls.__mro__:
                 mro_actions = self.actions.get(mro.__name__) or []
                 self.actions[cls.__name__].update(mro_actions)
@@ -50,6 +56,7 @@ class InstalBaseASTVisitor(InstalASTVisitor_i):
     def visit(self, node, *, skip_actions=False):
         """Visit a node."""
         assert isinstance(node, iAST.InstalAST)
+        self.current_path.append(node)
         logging.debug("Entering Visit: %s", node)
         if not skip_actions:
             actions = self.actions.get(node.__class__.__name__) or []
@@ -63,11 +70,14 @@ class InstalBaseASTVisitor(InstalASTVisitor_i):
         logging.debug("Running visit")
         method = 'visit_' + node.__class__.__name__
         visitor = getattr(self, method, self.generic_visit)
+        result  = None
         try:
             result = visitor(node)
         except Exception as err:
             logging.exception("Visit attempt failed: %s : %s", visitor, node)
 
+        assert(self.current_path[-1] is node)
+        self.current_path.pop()
         return result
 
 

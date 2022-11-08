@@ -36,7 +36,7 @@ logging = logmod.getLogger(__name__)
 ACTION_RE = re.compile("^action_(.+)$")
 
 @dataclass
-class InstalBaseASTVisitor(InstalASTVisitor_i):
+class InstalGeneratedASTVisitor(InstalASTVisitor_i):
     """
     A Base AST Visitor
     to generate visitor methods onto using

@@ -22,7 +22,7 @@ from weakref import ref
 from instal.interfaces.ast import InstalAST
 from instal.interfaces.util import InstalASTVisitor_i
 
-from instal.util.generated_visitor import InstalBaseASTVisitor
+from instal.util.generated_visitor import InstalGeneratedASTVisitor
 ##-- end imports
 
 
@@ -136,7 +136,7 @@ class InstalValidatorRunner:
     """
 
     validators : list[InstalValidator_i] = field(default_factory=list)
-    visitor    : InstalASTVisitor_i      = field(default_factory=InstalBaseASTVisitor)
+    visitor    : InstalASTVisitor_i      = field(default_factory=InstalGeneratedASTVisitor)
 
     def __post_init__(self):
         # Register all validators' actions with the visitor
