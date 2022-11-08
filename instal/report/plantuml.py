@@ -1,9 +1,10 @@
+#/usr/bin/env python3
+"""
+
+"""
 ##-- imports
 from __future__ import annotations
-
 import logging as logmod
-import sys
-
 from instal.interfaces.reporter import InstalReporter_i
 ##-- end imports
 
@@ -12,9 +13,10 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 
-class InstalSVGReporter(InstalReporter_i):
+class InstalPlantUMLReporter(InstalReporter_i):
     """
-    Exports a Trace as an html svg image
+        InstalPlantUMLReporter
+        Implementation of ABC InstalTracer for plantuml visualisation.
     """
 
     def trace_to_file(self, trace, path):

@@ -6,8 +6,6 @@
 InstAL : The Institutional Action Language
 ================================
 
-.. contents::
-   :local:
 
 Introduction
 ------------
@@ -55,17 +53,18 @@ Institutions!::
 
    in_blue(Alpha) terminates in_fact(Alpha)
 
+Documentation Contents
+----------------------
 
+.. toctree::
+   :maxdepth: 1
 
-:ref:`concepts`
-
-:ref:`installation`
-
-:ref:`cli`
-
-:ref:`system`
-
-:ref:`examples`
+   concepts.rst
+   system_structure.rst
+   repo_structure.rst
+   installation.rst
+   cli.rst
+   examples.rst
 
 
 API Reference

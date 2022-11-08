@@ -2,7 +2,7 @@
 Concepts of InstAL
 ==================
 
-Insitutions
+Institutions
 -----------
 
 Events
