@@ -32,6 +32,7 @@ logging = logmod.root
 ##-- data
 data_path = files("instal.validate.__tests.__data")
 ##-- end data
+parser = InstalPyParser()
 
 
 # TODO implement and test rule validator
@@ -62,11 +63,9 @@ class TestRuleValidator(unittest.TestCase):
         """
         Validator no reports are generated on proper use of events
         """
-        file_name = "event_validator_pass.ial"
-        runner    = validate.InstalValidatorRunner([ EventValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        file_name = data_path / "rule_validator_pass.ial"
+        runner    = validate.InstalValidatorRunner([ RuleValidator() ])
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)

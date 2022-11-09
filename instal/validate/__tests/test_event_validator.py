@@ -32,6 +32,7 @@ logging = logmod.root
 ##-- data
 data_path = files("instal.validate.__tests.__data")
 ##-- end data
+parser = InstalPyParser()
 
 class TestEventValidator(unittest.TestCase):
     @classmethod
@@ -59,11 +60,9 @@ class TestEventValidator(unittest.TestCase):
         """
         Validator no reports are generated on proper use of events
         """
-        file_name = "event_check_pass.ial"
+        file_name = data_path / "event_check_pass.ial"
         runner    = validate.InstalValidatorRunner([ EventValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
@@ -73,11 +72,9 @@ class TestEventValidator(unittest.TestCase):
         """
         Validator a report is generated if an institutional event is not generated
         """
-        file_name = "event_check_inst_fail.ial"
+        file_name = data_path / "event_check_inst_fail.ial"
         runner    = validate.InstalValidatorRunner([ EventValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
@@ -90,11 +87,9 @@ class TestEventValidator(unittest.TestCase):
         Validator reports aren't generated when institutional events generate
         further institutional events
         """
-        file_name = "event_check_chain_pass.ial"
+        file_name = data_path / "event_check_chain_pass.ial"
         runner    = validate.InstalValidatorRunner([ EventValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
@@ -104,11 +99,9 @@ class TestEventValidator(unittest.TestCase):
         """
         Validator a report is generated if an external event is not used
         """
-        file_name = "event_check_ex_fail.ial"
+        file_name = data_path / "event_check_ex_fail.ial"
         runner    = validate.InstalValidatorRunner([ EventValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
@@ -122,11 +115,9 @@ class TestEventValidator(unittest.TestCase):
         """
         Check appropriate details of a report
         """
-        file_name = "event_check_fail.ial"
+        file_name = data_path / "event_check_fail.ial"
         runner    = validate.InstalValidatorRunner([ EventValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)

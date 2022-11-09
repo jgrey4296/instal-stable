@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import abc
 import logging as logmod
+import pathlib as pl
 from copy import deepcopy
 from dataclasses import InitVar, dataclass, field
 from re import Pattern
@@ -24,6 +25,7 @@ import instal.parser.v2.parse_funcs as PF
 import instal.parser.v2.institution_parse_funcs as IPF
 import instal.parser.v2.bridge_parse_funcs as BPF
 from instal.defaults import SUPPRESS_PARSER_EXCEPTION_TRACE
+from instal.util.misc import maybe_read_path
 
 if TYPE_CHECKING:
     # tc only imports
@@ -37,79 +39,79 @@ logging = logmod.getLogger(__name__)
 ##-- interface implementation
 class InstalPyParser(InstalParser_i):
 
-    def parse_institution(self, text:str, *, parse_source:str=None) -> list[ASTs.InstitutionDefAST]:
+    def parse_institution(self, text:str|pl.Path, *, parse_source:str=None) -> list[ASTs.InstitutionDefAST]:
         """ Mainly for .ial's """
         logging.debug("Parsing Institution, parse_source: %s", parse_source)
-        ASTs.InstalAST.current_parse_source = parse_source
-        try:
-            result = IPF.top_institution.parse_string(text.strip(), parse_all=True)[:]
-        except pp.ParseException as err:
-            logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
-            if SUPPRESS_PARSER_EXCEPTION_TRACE:
-                err.__traceback__ = None
-            raise err from err
+        text, parse_source = maybe_read_path(text, parse_source)
+        with ASTs.InstalAST.manage_source(parse_source):
+            try:
+                result = IPF.top_institution.parse_string(text.strip(), parse_all=True)[:]
+            except pp.ParseException as err:
+                logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
+                if SUPPRESS_PARSER_EXCEPTION_TRACE:
+                    err.__traceback__ = None
+                raise err from err
 
-        ASTs.InstalAST.current_parse_source = None
         return result
 
-    def parse_bridge(self, text:str, *, parse_source:str=None) -> list[ASTs.BridgeDefAST]:
+    def parse_bridge(self, text:str|pl.Path, *, parse_source:str=None) -> list[ASTs.BridgeDefAST]:
         """ Mainly for .iab's """
         logging.debug("Parsing Bridge, parse_source: %s", parse_source)
-        ASTs.InstalAST.current_parse_source = parse_source
-        try:
-            result = BPF.top_bridge.parse_string(text.strip(), parse_all=True)[:]
-        except pp.ParseException as err:
-            logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
-            if SUPPRESS_PARSER_EXCEPTION_TRACE:
-                err.__traceback__ = None
-            raise err
+        text, parse_source = maybe_read_path(text, parse_source)
+        with ASTs.InstalAST.manage_source(parse_source):
+            try:
+                result = BPF.top_bridge.parse_string(text.strip(), parse_all=True)[:]
+            except pp.ParseException as err:
+                logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
+                if SUPPRESS_PARSER_EXCEPTION_TRACE:
+                    err.__traceback__ = None
+                raise err
 
-        ASTs.InstalAST.current_parse_source = None
         return result
 
-    def parse_domain(self, text:str, *, parse_source:str=None) -> list[ASTs.DomainSpecAST]:
+    def parse_domain(self, text:str|pl.Path, *, parse_source:str=None) -> list[ASTs.DomainSpecAST]:
         """ For .idc's """
         logging.debug("Parsing Domain, parse_source: %s", parse_source)
-        ASTs.InstalAST.current_parse_source = parse_source
-        try:
-            result = PF.top_domain.parse_string(text, parse_all=True)[:]
-        except pp.ParseException as err:
-            logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
-            if SUPPRESS_PARSER_EXCEPTION_TRACE:
-                err.__traceback__ = None
-            raise err
+        text, parse_source = maybe_read_path(text, parse_source)
+        with ASTs.InstalAST.manage_source(parse_source):
+            try:
+                result = PF.top_domain.parse_string(text, parse_all=True)[:]
+            except pp.ParseException as err:
+                logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
+                if SUPPRESS_PARSER_EXCEPTION_TRACE:
+                    err.__traceback__ = None
+                raise err
 
-        ASTs.InstalAST.current_parse_source = None
         return result
 
-    def parse_situation(self, text:str, *, parse_source:str=None) -> list[ASTs.InitiallyAST]:
+    def parse_situation(self, text:str|pl.Path, *, parse_source:str=None) -> list[ASTs.InitiallyAST]:
         """ Mainly for .iaf's """
         logging.debug("Parsing Situation, parse_source: %s", parse_source)
-        ASTs.InstalAST.current_parse_source = parse_source
-        try:
-            result = PF.top_fact.parse_string(text, parse_all=True)[:]
-        except pp.ParseException as err:
-            logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
-            if SUPPRESS_PARSER_EXCEPTION_TRACE:
-                err.__traceback__ = None
-            raise err
+        text, parse_source = maybe_read_path(text, parse_source)
+        with ASTs.InstalAST.manage_source(parse_source):
+            try:
+                result = PF.top_fact.parse_string(text, parse_all=True)[:]
+            except pp.ParseException as err:
+                logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
+                if SUPPRESS_PARSER_EXCEPTION_TRACE:
+                    err.__traceback__ = None
+                raise err
 
-        ASTs.InstalAST.current_parse_source = None
         return result
 
-    def parse_query(self, text:str, *, parse_source:str=None) -> list[ASTs.QueryAST]:
+    def parse_query(self, text:str|pl.Path, *, parse_source:str=None) -> list[ASTs.QueryAST]:
         """ Mainly for .iaq's """
         logging.debug("Parsing Query, parse_source: %s", parse_source)
-        ASTs.InstalAST.current_parse_source = parse_source
-        try:
-            result = PF.top_query.parse_string(text, parse_all=True)[:]
-        except pp.ParseException as err:
-            logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
-            if SUPPRESS_PARSER_EXCEPTION_TRACE:
-                err.__traceback__ = None
-            raise err
+        text, parse_source = maybe_read_path(text, parse_source)
+        with ASTs.InstalAST.manage_source(parse_source):
+            try:
+                result = PF.top_query.parse_string(text, parse_all=True)[:]
+            except pp.ParseException as err:
+                logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
+                if SUPPRESS_PARSER_EXCEPTION_TRACE:
+                    err.__traceback__ = None
+                raise err
 
-        ASTs.InstalAST.current_parse_source = None
         return result
 
 ##-- end interface implementation

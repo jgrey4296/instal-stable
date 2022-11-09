@@ -34,6 +34,7 @@ data_path = files("instal.validate.__tests.__data")
 # data_file = data_path.joinpath("filename.ext")
 # data_text = data_file.read_text()
 ##-- end data
+parser = InstalPyParser()
 
 
 class TestNameDuplicationValidator(unittest.TestCase):
@@ -62,11 +63,9 @@ class TestNameDuplicationValidator(unittest.TestCase):
         """
         Validator an error report is raised when a fluent is duplicated
         """
-        test_file = "name_duplication_test.ial"
-        runner = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
-
-        text = data_path.joinpath(test_file).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        test_file = data_path / "name_duplication_test.ial"
+        runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
+        data      = parser.parse_institution(test_file)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         with self.assertRaises(Exception) as cm:
@@ -83,11 +82,9 @@ class TestNameDuplicationValidator(unittest.TestCase):
         """
         Validator an event duplication report is generated
         """
-        test_file = "name_duplication_test.ial"
-        runner = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
-
-        text = data_path.joinpath(test_file).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        test_file = data_path / "name_duplication_test.ial"
+        runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
+        data      = parser.parse_institution(test_file)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         with self.assertRaises(Exception) as cm:
@@ -104,11 +101,9 @@ class TestNameDuplicationValidator(unittest.TestCase):
         """
         Validator an event-fluent conflict is recognized
         """
-        test_file = "name_duplication_test.ial"
-        runner = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
-
-        text = data_path.joinpath(test_file).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        test_file = data_path / "name_duplication_test.ial"
+        runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
+        data      = parser.parse_institution(test_file)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         with self.assertRaises(Exception) as cm:
@@ -124,11 +119,9 @@ class TestNameDuplicationValidator(unittest.TestCase):
         """
         Validator a typedec duplication report is raised
         """
-        test_file = "name_duplication_test.ial"
-        runner = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
-
-        text = data_path.joinpath(test_file).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        test_file = data_path / "name_duplication_test.ial"
+        runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
+        data      = parser.parse_institution(test_file)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         with self.assertRaises(Exception) as cm:
@@ -144,11 +137,9 @@ class TestNameDuplicationValidator(unittest.TestCase):
         """
         Validator a typedec-fluent conflict report is raised
         """
-        test_file = "type_fluent_conflict_test.ial"
+        test_file = data_path / "type_fluent_conflict_test.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
-
-        text = data_path.joinpath(test_file).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        data      = parser.parse_institution(test_file)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         with self.assertRaises(Exception) as cm:
@@ -169,11 +160,9 @@ class TestNameDuplicationValidator(unittest.TestCase):
         """
         validate typedec-event conflicts are recognized
         """
-        test_file = "type_ex_event_conflict.ial"
+        test_file = data_path / "type_ex_event_conflict.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
-
-        text = data_path.joinpath(test_file).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        data      = parser.parse_institution(test_file)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         with self.assertRaises(Exception) as cm:
@@ -192,11 +181,9 @@ class TestNameDuplicationValidator(unittest.TestCase):
         """
         validate typedec-event conflicts are recognized
         """
-        test_file = "type_inst_event_conflict.ial"
+        test_file = data_path / "type_inst_event_conflict.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
-
-        text = data_path.joinpath(test_file).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        data      = parser.parse_institution(test_file)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         with self.assertRaises(Exception) as cm:
@@ -217,11 +204,9 @@ class TestNameDuplicationValidator(unittest.TestCase):
         """
         Validator exact fluent parameters can cause duplication reports
         """
-        test_file = "name_params_duplication_test.ial"
+        test_file = data_path / "name_params_duplication_test.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
-
-        text = data_path.joinpath(test_file).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        data      = parser.parse_institution(test_file)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         with self.assertRaises(Exception) as cm:
@@ -239,11 +224,9 @@ class TestNameDuplicationValidator(unittest.TestCase):
         """
         Validator fluents with the same variables trigger duplication reports
         """
-        test_file = "name_vars_duplication_test.ial"
+        test_file = data_path / "name_vars_duplication_test.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
-
-        text = data_path.joinpath(test_file).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=test_file)
+        data      = parser.parse_institution(test_file)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         with self.assertRaises(Exception) as cm:
@@ -262,9 +245,8 @@ class TestNameDuplicationValidator(unittest.TestCase):
         generate duplication reports
         """
         runner = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
-
-        text = data_path.joinpath("name_vars_numbered_duplication_test.ial").read_text()
-        data = InstalPyParser().parse_institution(text, parse_source="name_params_duplication_test.ial")
+        file_name = data_path / "name_vars_numbered_duplication_test.ial"
+        data = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         with self.assertRaises(Exception) as cm:

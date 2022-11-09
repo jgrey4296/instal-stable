@@ -60,6 +60,22 @@ class BridgeLinkEnum(Enum):
 
 ##-- end enums
 
+##-- util context manager
+class ASTContextManager:
+    """ For ensuring all ASTs are built with the correct source """
+
+    def __init__(self, parse_source):
+        self.parse_source = parse_source
+
+    def __enter__(self):
+        InstalAST.current_parse_source = self.parse_source
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        InstalAST.current_parse_source = None
+
+
+##-- end util context manager
+
 ##-- core base asts
 @dataclass(frozen=True)
 class InstalAST:
@@ -75,6 +91,11 @@ class InstalAST:
     @property
     def sources_str(self):
         return " ".join(str(x) for x in self.parse_source)
+
+    @staticmethod
+    def manage_source(parse_source):
+        return ASTContextManager(parse_source)
+
 
 @dataclass(frozen=True)
 class TermAST(InstalAST):

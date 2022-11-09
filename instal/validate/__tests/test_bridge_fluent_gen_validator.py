@@ -33,6 +33,7 @@ logging = logmod.root
 data_path = files("instal.validate.__tests.__data")
 ##-- end data
 
+parser = InstalPyParser()
 
 # TODO implemenet and test bridge fluent gen
 class TestBridgeFluentGenValidator(unittest.TestCase):
@@ -61,11 +62,10 @@ class TestBridgeFluentGenValidator(unittest.TestCase):
         """
         Validator no reports are generated on proper use of events
         """
-        file_name = "bridge_fluent_gen_rules.iab"
+        file_name = data_path / "bridge_fluent_gen_rules.iab"
         runner    = validate.InstalValidatorRunner([ BridgeFluentGenValidator() ])
 
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_bridge(text, parse_source=file_name)
+        data = parser.parse_bridge(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)

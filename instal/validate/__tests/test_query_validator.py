@@ -33,7 +33,7 @@ logging = logmod.root
 ##-- data
 data_path = files("instal.validate.__tests.__data")
 ##-- end data
-
+parser = InstalPyParser()
 
 # TODO implement and test query validator
 class TestQueryValidator(unittest.TestCase):
@@ -58,21 +58,48 @@ class TestQueryValidator(unittest.TestCase):
         self.assertIsInstance(runner, validate.InstalValidatorRunner)
         self.assertIsNotNone(runner.validators)
 
-    @unittest.skip
-    def test_basic_pass(self):
+    def test_trivial_pass(self):
         """
         Validator no reports are generated on proper use of events
         """
-        file_name = "event_validator_pass.ial"
-        runner    = validate.InstalValidatorRunner([ EventValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        file_name = data_path / "basic_empty_inst.ial"
+        runner    = validate.InstalValidatorRunner([ QueryValidator() ])
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
         self.assertFalse(result)
 
+    def test_basic_pass(self):
+        """
+        Validator no reports are generated on proper use of events
+        """
+        inst_file_name  = data_path / "basic_query_inst.ial"
+        query_file_name = data_path / "basic_query_pass.iaq"
+        runner          = validate.InstalValidatorRunner([ QueryValidator() ])
+        inst_data       = parser.parse_institution(inst_file_name)
+        query_data      = parser.parse_query(query_file_name)
+        self.assertIsInstance(inst_data[0], iAST.InstitutionDefAST)
+        self.assertIsInstance(query_data[0], iAST.QueryAST)
+
+        result = runner.validate(inst_data + query_data)
+        self.assertFalse(result)
+
+
+    def test_basic_fail(self):
+        """
+        Validator no reports are generated on proper use of events
+        """
+        inst_file_name  = data_path / "basic_query_inst.ial"
+        query_file_name = data_path / "basic_query_fail.iaq"
+        runner    = validate.InstalValidatorRunner([ QueryValidator() ])
+        inst_data  = parser.parse_institution(inst_file_name)
+        query_data = parser.parse_query(query_file_name)
+        self.assertIsInstance(inst_data[0], iAST.InstitutionDefAST)
+        self.assertIsInstance(query_data[0], iAST.QueryAST)
+
+        result = runner.validate(inst_data + query_data)
+        self.assertFalse(result)
 
 if __name__ == '__main__':
     unittest.main()

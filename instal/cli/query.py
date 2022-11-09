@@ -22,7 +22,6 @@ from json import dumps
 
 from clingo import Control, Function, Symbol, parse_term
 from instal.solve.clingo_solver import ClingoSolver
-from instal.util.misc import InstalFileGroup
 from instal.trace.trace import InstalTrace
 from instal.defaults import STANDARD_PRELUDE_loc
 ##-- end imports
@@ -53,7 +52,7 @@ argparser.add_argument('-l', '--length',      type=int, default=3, help='length 
 argparser.add_argument('-d', '--debug',       action="store_true", help="activate debug parser functions")
 ##-- end argparse
 
-def maybe_get_query_and_situation(que:None|str, sit:None|str) -> tuple[list[TermAST], list[TermAST]]:
+def maybe_get_query_and_situation(query:None|str, situation:None|str) -> tuple[list[TermAST], list[TermAST]]:
     """
     Try to parse a query and situation specification,
     without erroring if no targets are provided
@@ -65,26 +64,15 @@ def maybe_get_query_and_situation(que:None|str, sit:None|str) -> tuple[list[Term
     situation = []
     query     = []
 
-    if sit:
-        try:
-            sit_path = pathlib.Path(sit).expanduser().resolve()
-            assert(sit_path.exists())
-            sit_text = sit_path.read_text()
-        except:
-            sit_text = sit.replace("\\n", "\n")
+    if situation:
+        as_path    = pathlib.Path(situation).expanduser().resolve()
+        parse_this = as_path if as_path.exists() else situation.replace("\\n", "\n")
+        situation += parser.parse_situation(parse_this).body[:]
 
-        situation += parser.parse_situation(sit_text).body[:]
-
-
-    if que:
-        try:
-            query_path = pathlib.Path(que).expanduser().resolve()
-            assert(query_path.exists())
-            query_text = query_path.read_text()
-        except:
-            query_text = que.replace("\\n", "\n")
-
-        query += parser.parse_query(query_text).body[:]
+    if query:
+        as_path    = pathlib.Path(query).expanduser().resolve()
+        parse_this = as_path if as_path.exists() else query.replace("\\n", "\n")
+        query     += parser.parse_query(parse_this).body[:]
 
 
     return query, situation
@@ -111,7 +99,6 @@ def main():
     ##-- end logging
 
     args         = argparser.parse_args()
-    file_group   = InstalFileGroup.from_targets(*args.target)
 
     # Set Logging level
     console_handler.setLevel(max(logmod.NOTSET, logmod.WARNING - (10 * self.verbose)))

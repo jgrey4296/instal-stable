@@ -91,7 +91,6 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, 
         compiler  = None
         parse_fn  = None
         validator = None
-        text = target.read_text()
 
         ##-- match
         match target.suffix:
@@ -123,7 +122,7 @@ def compile_target(targets:list[pathlib.Path], debug=False, with_prelude=False, 
             output.append(compiler.load_prelude())
 
         try:
-            ast = parse_fn(text, parse_source=target)
+            ast = parse_fn(target)
             if check and validator:
                 validator.validate(ast)
 

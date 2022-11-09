@@ -22,4 +22,3 @@ Cliffe, O., 2007. Specifying and analysing institutions in multi-agent systems u
 
 __version__ = "1.0.1"
 
-from instal.util.misc import InstalFileGroup

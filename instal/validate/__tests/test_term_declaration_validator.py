@@ -32,6 +32,7 @@ logging = logmod.root
 ##-- data
 data_path = files("instal.validate.__tests.__data")
 ##-- end data
+parser = InstalPyParser()
 
 
 class TestTermDeclarationValidator(unittest.TestCase):
@@ -60,11 +61,9 @@ class TestTermDeclarationValidator(unittest.TestCase):
         """
         Validator no reports are generated on proper use of events
         """
-        file_name = "term_decl_pass.ial"
+        file_name = data_path / "term_decl_pass.ial"
         runner    = validate.InstalValidatorRunner([ TermDeclarationValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
@@ -75,11 +74,9 @@ class TestTermDeclarationValidator(unittest.TestCase):
         """
         Validator a report is generated for declarations that aren't used
         """
-        file_name = "term_decl_fail.ial"
+        file_name = data_path / "term_decl_fail.ial"
         runner    = validate.InstalValidatorRunner([ TermDeclarationValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
@@ -96,11 +93,9 @@ class TestTermDeclarationValidator(unittest.TestCase):
         """
         Validator an error report is generated for term use without declaration
         """
-        file_name = "term_decl_use_fail.ial"
+        file_name = data_path / "term_decl_use_fail.ial"
         runner    = validate.InstalValidatorRunner([ TermDeclarationValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         with self.assertRaises(Exception) as cm:
@@ -116,11 +111,9 @@ class TestTermDeclarationValidator(unittest.TestCase):
         """
         Validator an error report is generated for signature mismatches
         """
-        file_name = "term_decl_signature_fail.ial"
+        file_name = data_path / "term_decl_signature_fail.ial"
         runner    = validate.InstalValidatorRunner([ TermDeclarationValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         with self.assertRaises(Exception) as cm:
