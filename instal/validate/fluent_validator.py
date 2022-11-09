@@ -21,9 +21,6 @@ class FluentValidator(InstalValidator_i):
     declarations : dict[iAST.FluentEnum, set[iAST.TermAST]] = field(init=False, default_factory=lambda: defaultdict(set))
     usage        : dict[iAST.RuleEnum,   set[iAST.TermAST]] = field(init=False, default_factory=lambda: defaultdict(set))
 
-    def clear(self):
-        self.declarations = defaultdict(set)
-        self.usage        = defaultdict(set)
 
     def validate(self):
         inertials   = self.declarations[iAST.FluentEnum.inertial]

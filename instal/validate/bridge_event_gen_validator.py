@@ -22,12 +22,6 @@ class BridgeEventGenValidator(InstalValidator_i):
     bridge_insts  : set[str]                            = field(init=False, default_factory=set)
     inst_events   : dict[str, dict[str, iAST.EventAST]] = field(init=False, default_factory=lambda: defaultdict(dict))
 
-    def clear(self):
-        self.bridge_events = dict()
-        self.bridge_insts  = set()
-        self.inst_events   = defaultdict(dict)
-
-
     def action_BridgeDefAST(self, visitor, node):
         """
         track cross generation events in bridge

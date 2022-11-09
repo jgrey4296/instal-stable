@@ -22,10 +22,6 @@ class BridgeStructureValidator(InstalValidator_i):
     sinks        = dict()
     institutions = set()
 
-    def clear(self):
-        self.declarations = defaultdict(set)
-        self.usage        = set()
-
 
     def action_InstitutionDefAST(self, visitor, ast):
         self.institutions.add(ast.head.signature)

@@ -22,10 +22,6 @@ class DeclarationTypeValidator(InstalValidator_i):
     found_types : dict[str, list[iAST.DomainSpecAST]] = field(init=False, default_factory=lambda: defaultdict(list))
     found_vars  : dict[str, list[iAST.TermAST]]       = field(init=False, default_factory=lambda: defaultdict(list))
 
-    def clear(self):
-        self.found_types = defaultdict(list)
-        self.found_vars  = defaultdict(list)
-
     def validate(self):
         for varname in self.found_vars:
             pass

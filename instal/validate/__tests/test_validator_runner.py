@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import logging as logmod
+from dataclasses import dataclass, field, InitVar
 import unittest
 import warnings
 import pathlib
@@ -27,12 +28,10 @@ with warnings.catch_warnings():
 logging = logmod.root
 
 ##-- util classes
+@dataclass
 class SimpleValidator(validate.InstalValidator_i):
 
-    nodes = []
-
-    def clear(self):
-        self.nodes = []
+    nodes : list = field(init=False, default_factory=list)
 
     def action_TermAST(self, visitor, node):
         self.nodes.append(node)
@@ -50,6 +49,7 @@ class SimpleValidator(validate.InstalValidator_i):
 
 
 
+@dataclass
 class SecondValidator(validate.InstalValidator_i):
 
     def action_TermAST(self, visitor, node):

@@ -25,11 +25,6 @@ class NameDuplicationValidator(InstalValidator_i):
     fluents  : dict[str, list[iAST.FluentAST]]     = field(init=False, default_factory=lambda: defaultdict(list))
     typeDecs : dict[str, list[iAST.DomainSpecAST]] = field(init=False, default_factory=lambda: defaultdict(list))
 
-    def clear(self):
-        self.events   = defaultdict(list)
-        self.fluents  = defaultdict(list)
-        self.typeDecs = defaultdict(list)
-
     def validate(self):
         for lhs, rhs in combinations([self.events, self.fluents, self.typeDecs], 2):
             lhs_sigs = set(lhs.keys())
