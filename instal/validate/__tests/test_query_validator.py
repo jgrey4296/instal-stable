@@ -98,8 +98,15 @@ class TestQueryValidator(unittest.TestCase):
         self.assertIsInstance(inst_data[0], iAST.InstitutionDefAST)
         self.assertIsInstance(query_data[0], iAST.QueryAST)
 
-        result = runner.validate(inst_data + query_data)
-        self.assertFalse(result)
+        with self.assertRaises(Exception) as cm:
+            runner.validate(inst_data + query_data)
+
+        the_exc = cm.exception
+        results = the_exc.args[1]
+        breakpoint()
+        self.assertTrue(results)
+        self.assertIn(logmod.ERROR, results)
+
 
 if __name__ == '__main__':
     unittest.main()

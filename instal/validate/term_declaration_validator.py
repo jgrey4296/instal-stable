@@ -39,12 +39,12 @@ class TermDeclarationValidator(InstalValidator_i):
         ##-- report on mismatches
         for termSig in set(self.declarations.keys()).difference(self.uses.keys()):
             term = self.declarations[termSig]
-            self.warning("Term declared without use", term)
+            self.delay_warning("Term declared without use", term)
 
         for termSig in set(self.uses.keys()).difference(self.declarations.keys()):
             terms = self.uses[termSig]
             for useTerm in terms:
-                self.error("Term used without declaration", useTerm)
+                self.delay_error("Term used without declaration", useTerm)
 
         ##-- end report on mismatches
 

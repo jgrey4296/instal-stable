@@ -33,23 +33,23 @@ class NameDuplicationValidator(InstalValidator_i):
             for sig in (lhs_sigs & rhs_sigs):
                 lhs_val = lhs[sig][0]
                 rhs_val = rhs[sig][0]
-                self.error("Declaration Conflict", lhs_val, rhs_val)
+                self.delay_error("Declaration Conflict", lhs_val, rhs_val)
 
     def action_EventAST(self, visitor, event):
         if event.head.signature in self.events:
-            self.error(f"Duplicate Event Declaration", event)
+            self.delay_error(f"Duplicate Event Declaration", event)
         else:
             self.events[event.head.signature].append(event)
 
     def action_FluentAST(self, visitor, fluent):
         if fluent.head.signature in self.fluents:
-            self.error(f"Duplicate Fluent Declaration", fluent)
+            self.delay_error(f"Duplicate Fluent Declaration", fluent)
         else:
             self.fluents[fluent.head.signature].append(fluent)
 
 
     def action_DomainSpecAST(self, visitor, typeDec):
         if typeDec.head.signature in self.typeDecs:
-            self.error(f"Duplicate TypeDec Declaration", typeDec)
+            self.delay_error(f"Duplicate TypeDec Declaration", typeDec)
         else:
             self.typeDecs[typeDec.head.signature].append(typeDec)

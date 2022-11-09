@@ -41,11 +41,11 @@ class SimpleValidator(validate.InstalValidator_i):
             case "hardFail":
                 raise Exception("told to hardFail")
             case "info report":
-                self.info("A Simple Report")
+                self.delay_info("A Simple Report")
             case "warning":
-                self.warning("A Simple Warning")
+                self.delay_warning("A Simple Warning")
             case _:
-                self.info(self.nodes[0].value)
+                self.delay_info(self.nodes[0].value)
 
 
 
@@ -53,7 +53,7 @@ class SimpleValidator(validate.InstalValidator_i):
 class SecondValidator(validate.InstalValidator_i):
 
     def action_TermAST(self, visitor, node):
-        self.info("second validator fired")
+        self.delay_info("second validator fired")
 
 ##-- end util classes
 

@@ -20,12 +20,16 @@ class QueryValidator(InstalValidator_i):
     events  : dict[str, list[iAST.EventAST]] = field(init=False, default_factory=lambda: defaultdict(list))
 
     def action_QueryAST(self, visitor, node):
-        pass
+        self.queries[node.head.signature].append(node)
 
     def action_EventAST(self, visitor, node):
-        pass
+        if node.annotation is iAST.EventEnum.exogenous:
+            self.events[node.head.signature].append(node)
 
 
     def validate(self):
+        undefined_events = set(self.queries.keys()) - self.events.keys()
 
-        pass
+        for sig in undefined_events:
+            for query in self.queries[sig]:
+                self.delay_error("Undeclared Event used in Query", query)

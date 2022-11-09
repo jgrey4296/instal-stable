@@ -49,7 +49,7 @@ class InstalValidationReport:
         loc    = ""
         source = ""
         if self.ast and bool(self.ast.parse_source):
-            source = f"Source: {self.ast.parse_source[0]}: "
+            source = f"Source: {self.ast.sources_str} : "
 
         if self.ast and self.ast.parse_loc is not None:
             loc = f"L:{self.ast.parse_loc[0]}, C:{self.ast.parse_loc[1]}: "
@@ -106,13 +106,13 @@ class InstalValidator_i(metaclass=abc.ABCMeta):
     def debug(self, msg, ast=None, data=None):
         self.build_note(ast, msg, logmod.DEBUG, data)
 
-    def info(self, msg, ast=None, data=None):
+    def delay_info(self, msg, ast=None, data=None):
         self.build_note(ast, msg, logmod.INFO, data)
 
-    def warning(self, msg, ast=None, data=None):
+    def delay_warning(self, msg, ast=None, data=None):
         self.build_note(ast, msg, logmod.WARN, data)
 
-    def error(self, msg, ast=None, data=None):
+    def delay_error(self, msg, ast=None, data=None):
         self.build_note(ast, msg, logmod.ERROR, data)
 
     def build_note(self, ast, msg, level, data):

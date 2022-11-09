@@ -6,6 +6,8 @@ AST representations bridging parsed instal -> compiled clingo
 from __future__ import annotations
 
 import logging as logmod
+import pathlib as pl
+from os import getcwd
 from enum import Enum, auto
 from dataclasses import InitVar, dataclass, field
 import re
@@ -79,7 +81,7 @@ class ASTContextManager:
 ##-- core base asts
 @dataclass(frozen=True)
 class InstalAST:
-    parse_source : list[str]            = field(default_factory=list, kw_only=True)
+    parse_source : list[str|pl.Path]    = field(default_factory=list, kw_only=True, repr=False)
     parse_loc    : None|tuple[int, int] = field(default=None, kw_only=True)
 
     current_parse_source : ClassVar[None|str] = None
@@ -90,7 +92,15 @@ class InstalAST:
 
     @property
     def sources_str(self):
-        return " ".join(str(x) for x in self.parse_source)
+        if not bool(self.parse_source):
+            return "n/a"
+
+        full_path = self.parse_source[0]
+        cwd       = getcwd()
+        try:
+            return str(full_path.relative_to(cwd))
+        except ValueError:
+            return str(full_path)
 
     @staticmethod
     def manage_source(parse_source):

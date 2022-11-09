@@ -22,6 +22,6 @@ def maybe_read_path(maybe_path:str|pl.Path, parse_source) -> tuple[str, str]:
         case str(), _:
             return maybe_path, parse_source
         case pl.Path(), _:
-            return maybe_path.read_text(), str(maybe_path)
+            return maybe_path.read_text(), maybe_path
         case _:
             raise TypeException("Unknown type used in parser", maybe_path)

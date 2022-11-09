@@ -65,4 +65,4 @@ class BridgeEventGenValidator(InstalValidator_i):
 
         for sig in missing_events:
             rule = self.bridge_events[sig]
-            self.error("Undeclared institutional event used in bridge", rule)
+            self.delay_error("Undeclared institutional event used in bridge", rule)
