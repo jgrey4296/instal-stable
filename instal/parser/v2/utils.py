@@ -53,7 +53,7 @@ event_kws      = pp.MatchFirst(kw(x) for x in list(ASTs.EventEnum.__members__.ke
 fluent_kws     = pp.MatchFirst(kw(x) for x in list(ASTs.FluentEnum.__members__.keys()) + ["x", "obl"])
 generation_kws = pp.MatchFirst(kw(x) for x in ["generates", "xgenerates"])
 inertial_kws   = pp.MatchFirst(kw(x) for x in ["initiates", "terminates", "xinitiates", "xterminates"])
-op_lits        = pp.MatchFirst(lit(x) for x in ["<=", ">=", "<>", "!=", "<", ">", "=", ])
+op_lits        = pp.MatchFirst(lit(x) for x in ["<=", ">=", "<>", "!=", "<", ">", "==", "="])
 
 not_kw         = kw("not")
 

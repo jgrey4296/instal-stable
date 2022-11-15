@@ -115,6 +115,7 @@ class TermAST(InstalAST):
 
     def __post_init__(self):
         assert(not (self.is_var and bool(self.params)))
+        super().__post_init__()
 
     def __str__(self):
         if bool(self.params):

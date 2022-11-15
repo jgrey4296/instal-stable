@@ -113,10 +113,47 @@ class TestInstitutionParser(InstalParserTestCase):
             initial = result[0].initial
             self.assertAllIn((y.value for x in initial for y in x.body), data[1])
 
-
-    @unittest.skip("TODO")
     def test_condition_parsing(self):
-        pass
+        for result, data in self.yieldParseResults(dsl.CONDITIONS,
+                                                   ("testVal", [ASTs.ConditionAST(ASTs.TermAST("testVal"))]),
+                                                   ("testVal, testSecond", [ASTs.ConditionAST(ASTs.TermAST("testVal")),
+                                                                               ASTs.ConditionAST(ASTs.TermAST("testSecond"))]),
+                                                   ("testVal = testOther", [ASTs.ConditionAST(ASTs.TermAST("testVal"),
+                                                                                                  operator="=",
+                                                                                                  rhs=ASTs.TermAST("testOther"))]),
+                                                   ("testVal < testOther", [ASTs.ConditionAST(ASTs.TermAST("testVal"),
+                                                                                                  operator="<",
+                                                                                                  rhs=ASTs.TermAST("testOther"))]),
+                                                   ("testVal <= testOther", [ASTs.ConditionAST(ASTs.TermAST("testVal"),
+                                                                                                  operator="<=",
+                                                                                                  rhs=ASTs.TermAST("testOther"))])
+                                                   ):
+            result_list = result[:]
+            self.assertEqual(len(result_list), len(data[1]))
+            for resultCond, expectedCond in zip(result_list, data[1]):
+                self.assertEqual(resultCond.head, expectedCond.head)
+                self.assertEqual(resultCond.negated, expectedCond.negated)
+                self.assertEqual(resultCond.operator, expectedCond.operator)
+                self.assertEqual(resultCond.rhs, expectedCond.rhs)
+
+    def test_rule_with_condition_parsing(self):
+        for result, data in self.yieldParseResults(dsl.RULE,
+                                                   ("anEv generates someFluent if testVal", ASTs.GenerationRuleAST, [ASTs.ConditionAST(ASTs.TermAST("testVal"))]),
+                                                   ("anEv initiates someFluent if testVal", ASTs.InertialRuleAST, [ASTs.ConditionAST(ASTs.TermAST("testVal"))]),
+                                                   ):
+            the_rule = result[:][0]
+            self.assertIsInstance(the_rule, ASTs.RuleAST)
+            self.assertIsInstance(the_rule, data[1])
+            self.assertIsInstance(the_rule.conditions, list)
+            self.assertEqual(len(the_rule.conditions), len(data[2]))
+            for resultCond, expectedCond in zip(the_rule.conditions, data[2]):
+                self.assertIsInstance(resultCond, ASTs.ConditionAST)
+                self.assertEqual(resultCond.head, expectedCond.head)
+                self.assertEqual(resultCond.negated, expectedCond.negated)
+                self.assertEqual(resultCond.operator, expectedCond.operator)
+                self.assertEqual(resultCond.rhs, expectedCond.rhs)
+
+
 
     def test_simple_full(self):
         self.assertFilesParse(dsl.top_institution,

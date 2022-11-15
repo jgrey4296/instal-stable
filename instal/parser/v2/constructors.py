@@ -96,7 +96,7 @@ def event(string, loc, toks) -> ASTs.EventAST:
 def generate_rule(string, loc, toks) -> ASTs.GenerationRuleAST:
     head       = toks['head']
     body       = toks['body'][:]
-    conditions = toks['conditions'] if 'conditions' in toks else []
+    conditions = toks['conditions'][:] if 'conditions' in toks else []
 
     match toks['annotation']:
         case "xgenerates":
@@ -116,7 +116,7 @@ def generate_rule(string, loc, toks) -> ASTs.GenerationRuleAST:
 def inertial_rule(string, loc, toks) -> ASTs.InertialRuleAST:
     head       = toks['head']
     body       = toks['body'][:]
-    conditions = toks['conditions'] if 'conditions' in toks else []
+    conditions = toks['conditions'][:] if 'conditions' in toks else []
 
     match toks['annotation']:
         case "xinitiates":
@@ -141,7 +141,7 @@ def inertial_rule(string, loc, toks) -> ASTs.InertialRuleAST:
 def transient_rule(string, loc, toks) -> ASTs.TransientRuleAST:
     return ASTs.TransientRuleAST(toks['head'],
                                  [],
-                                 toks['conditions'],
+                                 toks['conditions'][:],
                                  annotation=ASTs.RuleEnum.transient,
                                  parse_loc=(pp.lineno(loc, string), pp.col(loc, string)))
 
