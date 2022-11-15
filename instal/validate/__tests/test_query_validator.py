@@ -35,7 +35,6 @@ data_path = files("instal.validate.__tests.__data")
 ##-- end data
 parser = InstalPyParser()
 
-# TODO implement and test query validator
 class TestQueryValidator(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -88,13 +87,13 @@ class TestQueryValidator(unittest.TestCase):
 
     def test_basic_fail(self):
         """
-        Validator no reports are generated on proper use of events
+        check reports are generated on unse of unrecognized events
         """
         inst_file_name  = data_path / "basic_query_inst.ial"
         query_file_name = data_path / "basic_query_fail.iaq"
-        runner    = validate.InstalValidatorRunner([ QueryValidator() ])
-        inst_data  = parser.parse_institution(inst_file_name)
-        query_data = parser.parse_query(query_file_name)
+        runner          = validate.InstalValidatorRunner([ QueryValidator() ])
+        inst_data       = parser.parse_institution(inst_file_name)
+        query_data      = parser.parse_query(query_file_name)
         self.assertIsInstance(inst_data[0], iAST.InstitutionDefAST)
         self.assertIsInstance(query_data[0], iAST.QueryAST)
 
@@ -103,7 +102,6 @@ class TestQueryValidator(unittest.TestCase):
 
         the_exc = cm.exception
         results = the_exc.args[1]
-        breakpoint()
         self.assertTrue(results)
         self.assertIn(logmod.ERROR, results)
 

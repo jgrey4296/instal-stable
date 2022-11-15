@@ -40,7 +40,7 @@ class InstalValidationReport:
     validator : InstalValidator_i = field(kw_only=True)
     data      : Any               = field(kw_only=True, default=None)
 
-    fmt     : str             = field(kw_only=True, default="({level}) {source}{loc} {msg}")
+    fmt       : None|str          = field(kw_only=True, default="({level}) {source}{loc} {msg}")
 
     def __repr__(self):
         return str(self) + f" AST: {self.ast}"

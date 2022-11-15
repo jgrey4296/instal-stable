@@ -61,7 +61,7 @@ class TestNameDuplicationValidator(unittest.TestCase):
 
     def test_fluent_duplicate(self):
         """
-        Validator an error report is raised when a fluent is duplicated
+        check an error report is raised when a fluent is duplicated
         """
         test_file = data_path / "name_duplication_test.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
@@ -80,7 +80,7 @@ class TestNameDuplicationValidator(unittest.TestCase):
 
     def test_event_duplicate(self):
         """
-        Validator an event duplication report is generated
+        check an event duplication report is generated
         """
         test_file = data_path / "name_duplication_test.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
@@ -99,7 +99,7 @@ class TestNameDuplicationValidator(unittest.TestCase):
 
     def test_fluent_event_conflict(self):
         """
-        Validator an event-fluent conflict is recognized
+        check an event-fluent conflict is recognized
         """
         test_file = data_path / "name_duplication_test.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
@@ -117,7 +117,7 @@ class TestNameDuplicationValidator(unittest.TestCase):
 
     def test_type_duplicate(self):
         """
-        Validator a typedec duplication report is raised
+        check a typedec duplication report is raised
         """
         test_file = data_path / "name_duplication_test.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
@@ -135,7 +135,7 @@ class TestNameDuplicationValidator(unittest.TestCase):
 
     def test_type_fluent_conflict(self):
         """
-        Validator a typedec-fluent conflict report is raised
+        check a typedec-fluent conflict report is raised
         """
         test_file = data_path / "type_fluent_conflict_test.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
@@ -158,7 +158,7 @@ class TestNameDuplicationValidator(unittest.TestCase):
 
     def test_type_ex_event_conflict(self):
         """
-        validate typedec-event conflicts are recognized
+        check typedec-event conflicts are recognized
         """
         test_file = data_path / "type_ex_event_conflict.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
@@ -179,7 +179,7 @@ class TestNameDuplicationValidator(unittest.TestCase):
 
     def test_type_inst_event_conflict(self):
         """
-        validate typedec-event conflicts are recognized
+        check typedec-event conflicts are recognized
         """
         test_file = data_path / "type_inst_event_conflict.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
@@ -202,7 +202,7 @@ class TestNameDuplicationValidator(unittest.TestCase):
 
     def test_fluent_duplication_with_params(self):
         """
-        Validator exact fluent parameters can cause duplication reports
+        check exact fluent parameters can cause duplication reports
         """
         test_file = data_path / "name_params_duplication_test.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
@@ -222,7 +222,7 @@ class TestNameDuplicationValidator(unittest.TestCase):
 
     def test_fluent_duplication_with_vars(self):
         """
-        Validator fluents with the same variables trigger duplication reports
+        check fluents with the same variables trigger duplication reports
         """
         test_file = data_path / "name_vars_duplication_test.ial"
         runner    = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
@@ -240,8 +240,7 @@ class TestNameDuplicationValidator(unittest.TestCase):
 
     def test_fluent_duplication_with_numbered_vars(self):
         """
-        TODO
-        Validator fluent declaration with vars only differing by index number
+        check fluent declaration with vars only differing by index number
         generate duplication reports
         """
         runner = validate.InstalValidatorRunner([ NameDuplicationValidator() ])
