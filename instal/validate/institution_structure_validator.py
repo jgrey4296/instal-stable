@@ -25,7 +25,7 @@ class InstitutionStructureValidator(InstalValidator_i):
             self.delay_warning("Institution has no events", node)
 
         if not bool(node.types):
-            self.delay_warning("Institution has no types", node)
+            self.delay_warning("Institution has no types/variables", node)
 
         if not bool(node.rules):
             self.delay_warning("Institution has no rules", node)

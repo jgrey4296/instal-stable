@@ -1,5 +1,7 @@
 institution termDeclFail.
 
 type Test.
+%% Fail because Other is not used
+type Other.
 
 external event exEv(Test, Test2).

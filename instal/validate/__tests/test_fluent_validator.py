@@ -102,7 +102,7 @@ class TestFluentValidator(unittest.TestCase):
 
     def test_basic_transient_fail(self):
         """
-        Validator a report is generated if a transient fluent isn't used as the head of a `when` rule.
+        a report is generated if a transient fluent isn't used as the head of a `when` rule.
         """
         file_name = data_path / "fluent_check_transient_fail.ial"
         runner    = validate.InstalValidatorRunner([ FluentValidator() ])
@@ -123,6 +123,18 @@ class TestFluentValidator(unittest.TestCase):
 
         result = runner.validate(data)
         self.assertFalse(result)
+
+    def test_transient_initiation_fail(self):
+        """
+        report when a transient fluent is used like an inertial
+        """
+        pass
+
+    def test_transient_termination_fail(self):
+        """
+        report when a transient fluent is used like an inertial
+        """
+        pass
 
 if __name__ == '__main__':
     unittest.main()

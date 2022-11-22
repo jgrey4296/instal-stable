@@ -1,8 +1,7 @@
 institution termDeclUseFail.
 
-type Test.
-
 external event exEv.
 institutional event simpleEv.
 
-exEv generates simpleEv(Test).
+%% Fail because simpleEv is defined as simpleEv/0.
+exEv generates simpleEv(val).

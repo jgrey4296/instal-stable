@@ -1,0 +1,7 @@
+institution obligationCheckPass.
+
+inst event theObligation.
+inst event theDeadline.
+inst event theViolation.
+
+obligation fluent obl(theObligation, theDeadline, theViolation, oneshot).

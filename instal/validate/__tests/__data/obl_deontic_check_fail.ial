@@ -1,0 +1,8 @@
+institution obligationCheckFail.
+
+inst event theObligation.
+inst event theDeadline.
+inst event theViolation.
+
+%% fail because the obligation....?
+obligation fluent obl(theObligation, theDeadline, theViolation, oneshot).

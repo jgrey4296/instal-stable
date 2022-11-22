@@ -3,6 +3,8 @@ institution fluentCheckTransientFail.
 inst event blah.
 
 fluent testFluent.
+
+%% fail because testTransient isn't used.
 transient fluent testTransient.
 
 blah initiates testFluent.

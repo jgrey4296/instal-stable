@@ -103,9 +103,34 @@ class TestDeonticValidator(unittest.TestCase):
         result = runner.validate(data)
         self.assertFalse(result)
 
+    def test_obligation_fluent_fail(self):
+        """
+
+        """
+        file_name = data_path / "obl_deontic_check_fail.ial"
+        runner    = validate.InstalValidatorRunner([ DeonticValidator() ])
+        data = parser.parse_institution(file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        result = runner.validate(data)
+        self.assertFalse(result)
+
+    def test_obligation_fluent_pass(self):
+        """
+
+        """
+        file_name = data_path / "obl_deontic_check_pass.ial"
+        runner    = validate.InstalValidatorRunner([ DeonticValidator() ])
+        data = parser.parse_institution(file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        result = runner.validate(data)
+        self.assertFalse(result)
 
 
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain
