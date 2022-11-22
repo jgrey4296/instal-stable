@@ -130,18 +130,23 @@ class TestInstitutionParser(InstalParserTestCase):
 
     def test_transient_rules(self):
         for result, data in self.yieldParseResults(b_dsl.top_bridge,
-                                                   ("bridge test;\nsomething when else;", ["something"], ["else"], {ASTs.RuleEnum.transient}),
-                                                   ("bridge test;\nblah when bloo;", ["blah"], ["bloo"], {ASTs.RuleEnum.transient}),
+                                                   ("bridge test.\nsomething when else.", ["something"], ["else"], {ASTs.RuleEnum.transient}),
+                                                   ("bridge test.\nblah when bloo.", ["blah"], ["bloo"], {ASTs.RuleEnum.transient}),
 
-                                                   ("bridge test;\nsomething when else;", ["something"], ["else"], {ASTs.RuleEnum.transient}),
-                                                   ("bridge test\nsomething(value) when else(other)", ["something(value)"], ["else(other)"], {ASTs.RuleEnum.transient}),
-                                                   ("bridge test\nsomething(Variable) when else(Variable)", ["something(Variable)"], ["else(Variable)"], {ASTs.RuleEnum.transient}),
-                                                   ("bridge test\nsomething(Variable, SecondVar) when else(Variable, SecondVar)", ["something(Variable,SecondVar)"], ["else(Variable,SecondVar)"], {ASTs.RuleEnum.transient}),
-                                                   ("bridge test\nsomething(_) when else(_)", ["something(_)"], ["else(_)"], {ASTs.RuleEnum.transient}),
+                                                   ("bridge test.\nsomething when else.", ["something"], ["else"], {ASTs.RuleEnum.transient}),
+                                                   ("bridge test.\nsomething(value) when else(other).", ["something(value)"], ["else(other)"], {ASTs.RuleEnum.transient}),
+                                                   ("bridge test.\nsomething(Variable) when else(Variable).", ["something(Variable)"], ["else(Variable)"], {ASTs.RuleEnum.transient}),
+                                                   ("bridge test.\nsomething(Variable, SecondVar) when else(Variable, SecondVar).", ["something(Variable,SecondVar)"], ["else(Variable,SecondVar)"], {ASTs.RuleEnum.transient}),
+                                                   ("bridge test.\nsomething(_) when else(_).", ["something(_)"], ["else(_)"], {ASTs.RuleEnum.transient}),
                                                    ):
             transients = result[0].rules
-            self.assertAllIn((str(x.head) for x in transients), data[1])
-            self.assertAllIn((str(y) for x in transients for y in x.body), data[2])
+            # all rules should have one body result:
+            self.assertTrue(all(1 == len(x.body) for x in transients))
+            self.assertTrue(all(x.head is None for x in transients))
+            # Check the result of the rule:
+            self.assertAllIn((str(y) for x in transients for y in x.body), data[1])
+            # Check the conditions of the rule:
+            self.assertAllIn((str(y.head) for x in transients for y in x.conditions), data[2])
             self.assertAllIn((x.annotation for x in transients), data[3])
 
 

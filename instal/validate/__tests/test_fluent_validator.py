@@ -33,6 +33,7 @@ logging = logmod.root
 ##-- data
 data_path = files("instal.validate.__tests.__data")
 ##-- end data
+parser = InstalPyParser()
 
 
 class TestFluentValidator(unittest.TestCase):
@@ -61,11 +62,9 @@ class TestFluentValidator(unittest.TestCase):
         """
         Validator there are no reports if a consistent institution is defined
         """
-        file_name = "basic_empty_inst.ial"
+        file_name = data_path / "basic_empty_inst.ial"
         runner    = validate.InstalValidatorRunner([ FluentValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
@@ -75,11 +74,9 @@ class TestFluentValidator(unittest.TestCase):
         """
         Validator a report is generated if an inertial fluent isn't initiated anywhere.
         """
-        file_name = "fluent_check_initiate_fail.ial"
+        file_name = data_path / "fluent_check_initiate_fail.ial"
         runner    = validate.InstalValidatorRunner([ FluentValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
@@ -92,11 +89,9 @@ class TestFluentValidator(unittest.TestCase):
         """
         Validator a report is generated if an inertial fluent isn't terminated anywhere
         """
-        file_name = "fluent_check_terminate_fail.ial"
+        file_name = data_path / "fluent_check_terminate_fail.ial"
         runner    = validate.InstalValidatorRunner([ FluentValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
@@ -107,13 +102,11 @@ class TestFluentValidator(unittest.TestCase):
 
     def test_basic_transient_fail(self):
         """
-        Validator a report is generated if a transient fluent isn't used as the head of a `when` rule.
+        a report is generated if a transient fluent isn't used as the head of a `when` rule.
         """
-        file_name = "fluent_check_transient_fail.ial"
+        file_name = data_path / "fluent_check_transient_fail.ial"
         runner    = validate.InstalValidatorRunner([ FluentValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
@@ -123,15 +116,25 @@ class TestFluentValidator(unittest.TestCase):
         self.assertEqual(result[logmod.WARNING][0].msg, "Transient Fluent Not Mentioned Anywhere")
 
     def test_success_on_consistent(self):
-        file_name = "fluent_check_pass.ial"
+        file_name = data_path / "fluent_check_pass.ial"
         runner    = validate.InstalValidatorRunner([ FluentValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
         self.assertFalse(result)
+
+    def test_transient_initiation_fail(self):
+        """
+        report when a transient fluent is used like an inertial
+        """
+        pass
+
+    def test_transient_termination_fail(self):
+        """
+        report when a transient fluent is used like an inertial
+        """
+        pass
 
 if __name__ == '__main__':
     unittest.main()

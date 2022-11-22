@@ -55,4 +55,4 @@ class BridgeFluentGenValidator(InstalValidator_i):
 
         for sig in missing_fluents:
             rule = bridge_fluents[sig]
-            self.error("Undeclared fluent used in bridge", rule)
+            self.delay_error("Undeclared fluent used in bridge", rule)

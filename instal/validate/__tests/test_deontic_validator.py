@@ -32,6 +32,8 @@ logging = logmod.root
 ##-- data
 data_path = files("instal.validate.__tests.__data")
 ##-- end data
+parser = InstalPyParser()
+
 
 # TODO implement and test deontic validator
 class TestDeonticValidator(unittest.TestCase):
@@ -56,20 +58,79 @@ class TestDeonticValidator(unittest.TestCase):
         self.assertIsInstance(runner, validate.InstalValidatorRunner)
         self.assertIsNotNone(runner.validators)
 
-    @unittest.skip
-    def test_basic_pass(self):
+    def test_empty_pass(self):
         """
-        Validator no reports are generated on proper use of events
+        check no reports are generated on an empty institution
         """
-        file_name = "event_check_pass.ial"
-        runner    = validate.InstalValidatorRunner([ EventValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        file_name = data_path / "basic_empty_inst.ial"
+        runner    = validate.InstalValidatorRunner([ DeonticValidator() ])
+        data = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
         self.assertFalse(result)
 
+    def test_basic_fail(self):
+        """
+        check reports are generated on improper use of deontics
+        """
+        file_name = data_path / "deontic_check_fail.ial"
+        runner    = validate.InstalValidatorRunner([ DeonticValidator() ])
+
+        data = parser.parse_institution(file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        with self.assertRaises(Exception) as cm:
+            runner.validate(data)
+
+        the_exc = cm.exception
+        self.assertTrue(the_exc.args[1])
+        self.assertEqual(len(the_exc.args[1][40]), 2)
+
+        bad_asts = {x.ast.params[0].signature for x in the_exc.args[1][40]}
+        self.assertEqual(bad_asts, set(["aFluent/0", "testEvent/0"]))
+
+
+    def test_basic_pass(self):
+        """
+        check no reports are generated on deontics applied to institutional events
+        """
+        file_name = data_path / "deontic_check_pass.ial"
+        runner    = validate.InstalValidatorRunner([ DeonticValidator() ])
+        data = parser.parse_institution(file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        result = runner.validate(data)
+        self.assertFalse(result)
+
+    def test_obligation_fluent_fail(self):
+        """
+
+        """
+        file_name = data_path / "obl_deontic_check_fail.ial"
+        runner    = validate.InstalValidatorRunner([ DeonticValidator() ])
+        data = parser.parse_institution(file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        result = runner.validate(data)
+        self.assertFalse(result)
+
+    def test_obligation_fluent_pass(self):
+        """
+
+        """
+        file_name = data_path / "obl_deontic_check_pass.ial"
+        runner    = validate.InstalValidatorRunner([ DeonticValidator() ])
+        data = parser.parse_institution(file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        result = runner.validate(data)
+        self.assertFalse(result)
+
+
+
+
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

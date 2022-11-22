@@ -32,6 +32,7 @@ logging = logmod.root
 ##-- data
 data_path = files("instal.validate.__tests.__data")
 ##-- end data
+parser = InstalPyParser()
 
 
 # TODO implement and test declaration types
@@ -61,11 +62,11 @@ class TestDeclarationTypeValidator(unittest.TestCase):
         """
         Validator no reports are generated on proper use of events
         """
-        file_name = "term_type_check.ial"
+        file_name = data_path / "term_type_check.ial"
         runner    = validate.InstalValidatorRunner([ DeclarationTypeValidator() ])
 
         text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)

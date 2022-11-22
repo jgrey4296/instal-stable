@@ -32,6 +32,7 @@ logging = logmod.root
 ##-- data
 data_path = files("instal.validate.__tests.__data")
 ##-- end data
+parser = InstalPyParser()
 
 
 class TestTermDeclarationValidator(unittest.TestCase):
@@ -56,30 +57,65 @@ class TestTermDeclarationValidator(unittest.TestCase):
         self.assertIsInstance(runner, validate.InstalValidatorRunner)
         self.assertIsNotNone(runner.validators)
 
-    def test_basic_pass(self):
-        """
-        Validator no reports are generated on proper use of events
-        """
-        file_name = "term_decl_pass.ial"
-        runner    = validate.InstalValidatorRunner([ TermDeclarationValidator() ])
 
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+    def test_basic_use_fail(self):
+        """
+        an error report is generated for term use without declaration
+        """
+        file_name = data_path / "term_decl_use_fail.ial"
+        runner    = validate.InstalValidatorRunner([ TermDeclarationValidator() ])
+        data      = parser.parse_institution(file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        with self.assertRaises(Exception) as cm:
+            result = runner.validate(data)
+
+        the_exc = cm.exception
+        result = the_exc.args[1]
+        self.assertEqual(len(result[logmod.ERROR]), 1)
+        self.assertEqual(result[logmod.ERROR][0].msg, "Term used without declaration")
+        self.assertEqual(str(result[logmod.ERROR][0].ast), "badEv")
+
+
+    def test_basic_signature_fail(self):
+        """
+        an error report is generated for signature mismatches
+        """
+        file_name = data_path / "term_decl_signature_fail.ial"
+        runner    = validate.InstalValidatorRunner([ TermDeclarationValidator() ])
+        data      = parser.parse_institution(file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        with self.assertRaises(Exception) as cm:
+            result = runner.validate(data)
+
+        the_exc = cm.exception
+        result = the_exc.args[1]
+        self.assertEqual(len(result[logmod.ERROR]), 1)
+        self.assertEqual(result[logmod.ERROR][0].msg, "Term used without declaration, but these were: [ simpleEv/0 ]")
+        self.assertEqual(str(result[logmod.ERROR][0].ast), "simpleEv(TestVar)")
+
+
+    def test_type_declaration_usage_pass(self):
+        """
+        no reports are generated on proper use of events
+        """
+        file_name = data_path / "term_decl_pass.ial"
+        runner    = validate.InstalValidatorRunner([ TermDeclarationValidator() ])
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
         self.assertFalse(result)
 
     @unittest.expectedFailure
-    def test_basic_fail(self):
+    def test_type_declaration_usage_fail(self):
         """
-        Validator a report is generated for declarations that aren't used
+        a report is generated for declarations that aren't used
         """
-        file_name = "term_decl_fail.ial"
+        file_name = data_path / "term_decl_fail.ial"
         runner    = validate.InstalValidatorRunner([ TermDeclarationValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
+        data      = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
 
         result = runner.validate(data)
@@ -92,47 +128,10 @@ class TestTermDeclarationValidator(unittest.TestCase):
         self.assertIn("Term declared without use", msgs)
         self.assertEqual(repr(result[logmod.WARNING][0].ast.head), "exEv(Test,Test2)")
 
-    def test_basic_use_fail(self):
-        """
-        Validator an error report is generated for term use without declaration
-        """
-        file_name = "term_decl_use_fail.ial"
-        runner    = validate.InstalValidatorRunner([ TermDeclarationValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
-        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
-
-        with self.assertRaises(Exception) as cm:
-            result = runner.validate(data)
-
-        the_exc = cm.exception
-        result = the_exc.args[1]
-        self.assertEqual(len(result[logmod.ERROR]), 1)
-        self.assertEqual(result[logmod.ERROR][0].msg, "Term used without declaration")
-        self.assertEqual(str(result[logmod.ERROR][0].ast), "badEv")
-
-    def test_basic_signature_fail(self):
-        """
-        Validator an error report is generated for signature mismatches
-        """
-        file_name = "term_decl_signature_fail.ial"
-        runner    = validate.InstalValidatorRunner([ TermDeclarationValidator() ])
-
-        text = data_path.joinpath(file_name).read_text()
-        data = InstalPyParser().parse_institution(text, parse_source=file_name)
-        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
-
-        with self.assertRaises(Exception) as cm:
-            result = runner.validate(data)
-
-        the_exc = cm.exception
-        result = the_exc.args[1]
-        self.assertEqual(len(result[logmod.ERROR]), 1)
-        self.assertEqual(result[logmod.ERROR][0].msg, "Term used without declaration")
-        self.assertEqual(str(result[logmod.ERROR][0].ast), "simpleEv(Test)")
 
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

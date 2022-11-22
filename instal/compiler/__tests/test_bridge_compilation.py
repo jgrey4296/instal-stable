@@ -53,7 +53,7 @@ class TestBridgeCompiler(unittest.TestCase):
             "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
             "%% Compiled Bridge",
             "%% simple",
-            "%% From : ",
+            "%% From : n/a",
             "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
             "#program base.",
             "",

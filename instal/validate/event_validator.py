@@ -27,16 +27,12 @@ class EventValidator(InstalValidator_i):
     declarations : dict[iAST.EventEnum, set[iAST.TermAST]] = field(init=False, default_factory=lambda: defaultdict(set))
     usage        : set[iAST.TermAST]                       = field(init=False, default_factory=set)
 
-    def clear(self):
-        self.declarations = defaultdict(set)
-        self.usage        = set()
-
     def validate(self):
         for event in (self.declarations[iAST.EventEnum.exogenous] - self.usage):
-            self.warning("Unused External Event", event)
+            self.delay_warning("Unused External Event", event)
 
         for event in (self.declarations[iAST.EventEnum.institutional] - self.usage):
-            self.warning("Institutional Event is not generated", event)
+            self.delay_warning("Institutional Event is not generated", event)
 
     def action_EventAST(self, visitor, event):
         match event.annotation:

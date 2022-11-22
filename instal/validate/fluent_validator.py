@@ -21,9 +21,6 @@ class FluentValidator(InstalValidator_i):
     declarations : dict[iAST.FluentEnum, set[iAST.TermAST]] = field(init=False, default_factory=lambda: defaultdict(set))
     usage        : dict[iAST.RuleEnum,   set[iAST.TermAST]] = field(init=False, default_factory=lambda: defaultdict(set))
 
-    def clear(self):
-        self.declarations = defaultdict(set)
-        self.usage        = defaultdict(set)
 
     def validate(self):
         inertials   = self.declarations[iAST.FluentEnum.inertial]
@@ -31,19 +28,19 @@ class FluentValidator(InstalValidator_i):
         terminated  = self.usage[iAST.RuleEnum.terminates]
 
         for fluent in (inertials - initiated):
-            self.warning("Inertial Fluent Not Initiated Anywhere", fluent)
+            self.delay_warning("Inertial Fluent Not Initiated Anywhere", fluent)
         for fluent in (inertials - terminated):
-            self.warning("Inertial Fluent Not Terminated Anywhere", fluent)
+            self.delay_warning("Inertial Fluent Not Terminated Anywhere", fluent)
 
 
         transient   = self.declarations[iAST.FluentEnum.transient]
         consequents = self.usage[iAST.RuleEnum.transient]
 
         for fluent in (transient - consequents):
-            self.warning("Transient Fluent Not Mentioned Anywhere", fluent)
+            self.delay_warning("Transient Fluent Not Mentioned Anywhere", fluent)
 
         for fluent in (transient & (initiated | terminated)):
-            self.error("Transient Fluent treated as an Inertial Fluent", fluent)
+            self.delay_error("Transient Fluent treated as an Inertial Fluent", fluent)
 
 
     def action_FluentAST(self, visitor, fluent):
@@ -60,4 +57,4 @@ class FluentValidator(InstalValidator_i):
 
     def action_TransientRuleAST(self, visitor, rule):
         assert(rule.annotation == iAST.RuleEnum.transient)
-        self.usage[rule.annotation].add(rule.head)
+        self.usage[rule.annotation].add(rule.body[0])

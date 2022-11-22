@@ -3,5 +3,5 @@ institution fluentCheckTerminateFail.
 inst event blah.
 
 fluent testFluent.
-
+%% fail because testFluent is only initiated, not terminated
 blah initiates testFluent.

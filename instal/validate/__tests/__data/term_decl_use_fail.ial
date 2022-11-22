@@ -2,4 +2,5 @@ institution termDeclUseFail.
 
 external event exEv.
 
+%% fail because badEv isn't declared
 exEv generates badEv.

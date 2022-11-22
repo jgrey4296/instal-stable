@@ -33,6 +33,7 @@ logging = logmod.root
 data_path = files("instal.validate.__tests.__data")
 ##-- end data
 
+parser = InstalPyParser()
 
 
 class TestBridgeStructureValidator(unittest.TestCase):
@@ -61,16 +62,12 @@ class TestBridgeStructureValidator(unittest.TestCase):
         """
         Validator a basic bridge + source + sink doesn't report
         """
-        bridge_file_name = "bridge_structure_basic.iab"
-        insts_file_name  = "bridge_structure_insts.ial"
+        bridge_file_name = data_path / "bridge_structure_basic.iab"
+        insts_file_name  = data_path / "bridge_structure_insts.ial"
         runner           = validate.InstalValidatorRunner([ BridgeStructureValidator() ])
-        parser           = InstalPyParser()
 
-        bridge_text = data_path.joinpath(bridge_file_name).read_text()
-        bridge_data = parser.parse_bridge(bridge_text, parse_source=bridge_file_name)
-
-        insts_text  = data_path.joinpath(insts_file_name).read_text()
-        insts_data  = parser.parse_institution(insts_text, parse_source=insts_file_name)
+        bridge_data = parser.parse_bridge(bridge_file_name)
+        insts_data  = parser.parse_institution(insts_file_name)
 
         self.assertEqual(len(bridge_data), 1)
         self.assertEqual(len(insts_data), 2)
@@ -82,13 +79,10 @@ class TestBridgeStructureValidator(unittest.TestCase):
         """
         Validator a basic bridge + source + sink doesn't report
         """
-        bridge_file_name = "bridge_structure_basic.iab"
+        bridge_file_name = data_path / "bridge_structure_basic.iab"
         runner           = validate.InstalValidatorRunner([ BridgeStructureValidator() ])
-        parser           = InstalPyParser()
 
-        bridge_text = data_path.joinpath(bridge_file_name).read_text()
-
-        bridge_data = parser.parse_bridge(bridge_text, parse_source=bridge_file_name)
+        bridge_data = parser.parse_bridge(bridge_file_name)
 
         self.assertEqual(len(bridge_data), 1)
 

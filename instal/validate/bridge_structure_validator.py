@@ -22,10 +22,6 @@ class BridgeStructureValidator(InstalValidator_i):
     sinks        = dict()
     institutions = set()
 
-    def clear(self):
-        self.declarations = defaultdict(set)
-        self.usage        = set()
-
 
     def action_InstitutionDefAST(self, visitor, ast):
         self.institutions.add(ast.head.signature)
@@ -35,7 +31,7 @@ class BridgeStructureValidator(InstalValidator_i):
         self.sinks.update({x.head.signature: x for x in ast.links if x.link_type is iAST.BridgeLinkEnum.sink})
 
         if not bool(ast.links):
-            self.warning("Bridge has no links", ast)
+            self.delay_warning("Bridge has no links", ast)
 
 
     def validate(self):
@@ -44,9 +40,9 @@ class BridgeStructureValidator(InstalValidator_i):
         missing_sinks   = [y for x,y in self.sinks.items()   if x not in self.institutions]
 
         for source in missing_sources:
-            self.warning("Bridge Source declared but not defined", source)
+            self.delay_warning("Bridge Source declared but not defined", source)
 
         for sink in missing_sinks:
-            self.warning("Bridge Sink declared but not defined", sink)
+            self.delay_warning("Bridge Sink declared but not defined", sink)
 
         ##-- end report sources/sinks that arent defined

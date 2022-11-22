@@ -40,7 +40,7 @@ class InstalValidationReport:
     validator : InstalValidator_i = field(kw_only=True)
     data      : Any               = field(kw_only=True, default=None)
 
-    fmt     : str             = field(kw_only=True, default="({level}) {source}{loc} {msg}")
+    fmt       : None|str          = field(kw_only=True, default="({level}) {source}{loc} {msg}")
 
     def __repr__(self):
         return str(self) + f" AST: {self.ast}"
@@ -49,7 +49,7 @@ class InstalValidationReport:
         loc    = ""
         source = ""
         if self.ast and bool(self.ast.parse_source):
-            source = f"Source: {self.ast.parse_source[0]}: "
+            source = f"Source: {self.ast.sources_str} : "
 
         if self.ast and self.ast.parse_loc is not None:
             loc = f"L:{self.ast.parse_loc[0]}, C:{self.ast.parse_loc[1]}: "
@@ -77,13 +77,16 @@ class InstalValidator_i(metaclass=abc.ABCMeta):
     instead of just logging, or raising an error,
     so that *all* validates can be run, instead of throwing up to the runner on the first error.
 
+    validator runners call `full_clear` at the start of a validation pass.
+    which re-call's any validator's fields default_factories.
+
     """
 
     current_reports : list[InstalValidationReport] = field(init=False, default_factory=list)
 
     def clear(self):
         """
-        A Clear method for implementations to use
+        an empty method for more involved reinitialization
         """
         pass
 
@@ -92,18 +95,24 @@ class InstalValidator_i(metaclass=abc.ABCMeta):
         The full clear triggered by the validate runner
         """
         self.current_reports = []
+        for field in self.__dataclass_fields__.values():
+            if field.default_factory is None:
+                continue
+
+            setattr(self, field.name, field.default_factory())
+
         self.clear()
 
     def debug(self, msg, ast=None, data=None):
         self.build_note(ast, msg, logmod.DEBUG, data)
 
-    def info(self, msg, ast=None, data=None):
+    def delay_info(self, msg, ast=None, data=None):
         self.build_note(ast, msg, logmod.INFO, data)
 
-    def warning(self, msg, ast=None, data=None):
+    def delay_warning(self, msg, ast=None, data=None):
         self.build_note(ast, msg, logmod.WARN, data)
 
-    def error(self, msg, ast=None, data=None):
+    def delay_error(self, msg, ast=None, data=None):
         self.build_note(ast, msg, logmod.ERROR, data)
 
     def build_note(self, ast, msg, level, data):

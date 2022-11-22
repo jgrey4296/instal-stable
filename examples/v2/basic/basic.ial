@@ -2,9 +2,9 @@ institution basic
 
 type Alpha
 
-exogenous event ex_blue(Alpha)
-exogenous event ex_green(Alpha)
-exogenous event ex_red(Alpha)
+external event ex_blue(Alpha)
+external event ex_green(Alpha)
+external event ex_red(Alpha)
 
 inst event in_blue(Alpha)
 inst event in_green(Alpha)

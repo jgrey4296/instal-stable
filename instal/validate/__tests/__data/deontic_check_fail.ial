@@ -1,0 +1,10 @@
+institution deonticCheckFail.
+
+external event testEvent.
+
+fluent aFluent.
+
+%% fail because permissions apply to institutional events
+%% not externals or fluents
+testEvent initiates aFluent if perm(testEvent).
+testEvent initiates aFluent if perm(aFluent).

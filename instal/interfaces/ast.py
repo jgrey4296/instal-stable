@@ -6,6 +6,8 @@ AST representations bridging parsed instal -> compiled clingo
 from __future__ import annotations
 
 import logging as logmod
+import pathlib as pl
+from os import getcwd
 from enum import Enum, auto
 from dataclasses import InitVar, dataclass, field
 import re
@@ -60,10 +62,26 @@ class BridgeLinkEnum(Enum):
 
 ##-- end enums
 
+##-- util context manager
+class ASTContextManager:
+    """ For ensuring all ASTs are built with the correct source """
+
+    def __init__(self, parse_source):
+        self.parse_source = parse_source
+
+    def __enter__(self):
+        InstalAST.current_parse_source = self.parse_source
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        InstalAST.current_parse_source = None
+
+
+##-- end util context manager
+
 ##-- core base asts
 @dataclass(frozen=True)
 class InstalAST:
-    parse_source : list[str]            = field(default_factory=list, kw_only=True)
+    parse_source : list[str|pl.Path]    = field(default_factory=list, kw_only=True, repr=False)
     parse_loc    : None|tuple[int, int] = field(default=None, kw_only=True)
 
     current_parse_source : ClassVar[None|str] = None
@@ -74,7 +92,24 @@ class InstalAST:
 
     @property
     def sources_str(self):
-        return " ".join(str(x) for x in self.parse_source)
+        if not bool(self.parse_source):
+            return "n/a"
+
+        full_path = self.parse_source[0]
+        cwd       = getcwd()
+        match full_path:
+            case pl.Path():
+                return str(full_path.relative_to(cwd))
+            case str():
+                return full_path
+            case _:
+                raise TypeError("An AST has an unexpected pasrse source", full_path)
+
+
+    @staticmethod
+    def manage_source(parse_source):
+        return ASTContextManager(parse_source)
+
 
 @dataclass(frozen=True)
 class TermAST(InstalAST):
@@ -84,6 +119,7 @@ class TermAST(InstalAST):
 
     def __post_init__(self):
         assert(not (self.is_var and bool(self.params)))
+        super().__post_init__()
 
     def __str__(self):
         if bool(self.params):
@@ -182,7 +218,13 @@ class BridgeLinkAST(InstalAST):
 ##-- Rules
 @dataclass(frozen=True)
 class RuleAST(InstalAST):
-    head       : TermAST            = field()
+    """
+    rule of the form:
+    if [head] and [conditions] then [body]
+    or in datalog style:
+    body <- head, conditions.
+    """
+    head       : None| TermAST      = field()
     body       : list[TermAST]      = field(default_factory=list)
     conditions : list[ConditionAST] = field(default_factory=list)
     delay      : int                = field(default=0)
@@ -208,10 +250,8 @@ class InertialRuleAST(RuleAST):
 class TransientRuleAST(RuleAST):
     """
     transient fluent consequence rules
-
-    NOTE: Unlike Generation and Inertial Rules,
-    Transient Rules are *not* head -> [body],
-    but [conditions] -> head
+    of the form:
+    [transientFluent] when [conditions]
     """
     pass
 

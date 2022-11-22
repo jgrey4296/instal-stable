@@ -1,0 +1,2 @@
+%% fail because `notEvent` is not defined in basic_query_inst.ial
+observed notEvent(nested(test)).

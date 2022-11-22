@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import abc
 import logging as logmod
-import pathlib
+import pathlib as pl
 from dataclasses import InitVar, dataclass, field
 from importlib.readers import MultiplexedPath
 from types import NoneType
@@ -20,7 +20,6 @@ from unittest.util import safe_repr
 import instal.interfaces.ast as InASTs
 import pyparsing as pp
 import pyparsing.testing as ppt
-from instal.util.misc import InstalFileGroup
 
 ##-- end imports
 
@@ -28,25 +27,31 @@ logging = logmod.getLogger(__name__)
 
 class InstalParser_i(metaclass=abc.ABCMeta):
     """
-        InstalParserWrapper
-        See __init__.py for more details.
+    The abstract api of an Instal Parser.
+    default implementations use pyparsing,
+    but that isn't necessary.
+
     """
 
+
     @abc.abstractmethod
-    def parse_institution(self, text:str) -> list[InASTs.InstalAST]: pass
+    def parse_institution(self, text:str|pl.Path, *, parser_source=str|pl.Path) -> list[InASTs.InstalAST]: pass
     @abc.abstractmethod
-    def parse_bridge(self, text:str) -> list[InASTs.InstalAST]: pass
+    def parse_bridge(self, text:str|pl.Path, *, parser_source=str|pl.Path) -> list[InASTs.InstalAST]: pass
     @abc.abstractmethod
-    def parse_domain(self, text:str) -> list[InASTs.InstalAST]: pass
+    def parse_domain(self, text:str|pl.Path, *, parser_source=str|pl.Path) -> list[InASTs.InstalAST]: pass
     @abc.abstractmethod
-    def parse_situation(self, text:str) -> list[InASTs.InstalAST]: pass
+    def parse_situation(self, text:str|pl.Path, *, parser_source=str|pl.Path) -> list[InASTs.InstalAST]: pass
     @abc.abstractmethod
-    def parse_query(self, text:str) -> list[InASTs.InstalAST]: pass
+    def parse_query(self, text:str|pl.Path, *, parser_source=str|pl.Path) -> list[InASTs.InstalAST]: pass
 
 
 
 
 class InstalParserTestCase(TestCase):
+    """
+    A Utility class for simplifying testing parsers
+    """
 
     current_parse_text : None|str = None
 
@@ -54,7 +59,7 @@ class InstalParserTestCase(TestCase):
     def setUpClass(cls):
         # pylint: disable=consider-using-f-string
         LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
+        LOG_FILE_NAME = "log.{}".format(pl.Path(__file__).stem)
 
         cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
         cls.file_h.setLevel(LOGLEVEL)
@@ -68,7 +73,7 @@ class InstalParserTestCase(TestCase):
         logmod.root.removeHandler(cls.file_h)
 
 
-    def assertFilesParse(self, dsl:pp.ParserElement, *files:str|pathlib.Path, loc:None|MultiplexedPath=None):
+    def assertFilesParse(self, dsl:pp.ParserElement, *files:str|pl.Path, loc:None|MultiplexedPath=None):
         """
         Assert all files parse without error.
         Can be simple names all appended to the path `loc` if provided,
@@ -77,7 +82,7 @@ class InstalParserTestCase(TestCase):
         """
         self.assertIsInstance(dsl, pp.ParserElement)
         self.assertTrue(isinstance(loc, (NoneType, MultiplexedPath)))
-        file_paths = (pathlib.Path(path) for path in files)
+        file_paths = (pl.Path(path) for path in files)
         file_locs  = (loc / path for path in file_paths) if loc is not None else file_paths
 
         for path in file_locs:

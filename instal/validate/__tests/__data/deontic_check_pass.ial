@@ -1,0 +1,10 @@
+institution deonticCheckPass.
+
+external event testEvent.
+inst event testInst.
+
+fluent aFluent.
+
+testEvent generates testInst.
+
+testInst initiates aFluent if perm(testInst).
