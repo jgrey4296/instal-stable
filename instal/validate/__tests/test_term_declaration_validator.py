@@ -108,7 +108,7 @@ class TestTermDeclarationValidator(unittest.TestCase):
         result = runner.validate(data)
         self.assertFalse(result)
 
-    @unittest.expectedFailure
+
     def test_type_declaration_usage_fail(self):
         """
         a report is generated for declarations that aren't used
@@ -126,7 +126,7 @@ class TestTermDeclarationValidator(unittest.TestCase):
         msgs = {x.msg for x in result[logmod.WARNING]}
         self.assertEqual(len(msgs), 1)
         self.assertIn("Term declared without use", msgs)
-        self.assertEqual(repr(result[logmod.WARNING][0].ast.head), "exEv(Test,Test2)")
+        self.assertEqual(repr(result[logmod.WARNING][0].ast.head), "Other")
 
 
 
