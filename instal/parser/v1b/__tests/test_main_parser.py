@@ -102,8 +102,8 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("institution test;\nsomething when else;", ["something"], ["else"]),
                                                    ):
             transients = result[0].rules
-            self.assertAllIn((x.head.value for x in transients), data[1])
-            self.assertAllIn((y.value for x in transients for y in x.body), data[2])
+            self.assertAllIn((str(y) for x in transients for y in x.body), data[1])
+            self.assertAllIn((str(y.head)for x in transients for y in x.conditions), data[2])
 
 
     def test_initially(self):
@@ -138,8 +138,8 @@ class TestInstitutionParser(InstalParserTestCase):
 
     def test_rule_with_condition_parsing(self):
         for result, data in self.yieldParseResults(dsl.RULE,
-                                                   ("anEv generates someFluent if testVal", ASTs.GenerationRuleAST, [ASTs.ConditionAST(ASTs.TermAST("testVal"))]),
-                                                   ("anEv initiates someFluent if testVal", ASTs.InertialRuleAST, [ASTs.ConditionAST(ASTs.TermAST("testVal"))]),
+                                                   ("anEv generates someFluent if testVal;", ASTs.GenerationRuleAST, [ASTs.ConditionAST(ASTs.TermAST("testVal"))]),
+                                                   ("anEv initiates someFluent if testVal;", ASTs.InertialRuleAST, [ASTs.ConditionAST(ASTs.TermAST("testVal"))]),
                                                    ):
             the_rule = result[:][0]
             self.assertIsInstance(the_rule, ASTs.RuleAST)

@@ -214,7 +214,13 @@ class BridgeLinkAST(InstalAST):
 ##-- Rules
 @dataclass(frozen=True)
 class RuleAST(InstalAST):
-    head       : TermAST            = field()
+    """
+    rule of the form:
+    if [head] and [conditions] then [body]
+    or in datalog style:
+    body <- head, conditions.
+    """
+    head       : None| TermAST      = field()
     body       : list[TermAST]      = field(default_factory=list)
     conditions : list[ConditionAST] = field(default_factory=list)
     delay      : int                = field(default=0)
@@ -240,10 +246,8 @@ class InertialRuleAST(RuleAST):
 class TransientRuleAST(RuleAST):
     """
     transient fluent consequence rules
-
-    NOTE: Unlike Generation and Inertial Rules,
-    Transient Rules are *not* head -> [body],
-    but [conditions] -> head
+    of the form:
+    [transientFluent] when [conditions]
     """
     pass
 

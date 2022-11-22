@@ -127,8 +127,8 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("institution test\nsomething(_) when else(_)", ["something(_)"], ["else(_)"], {ASTs.RuleEnum.transient}),
                                                    ):
             transients = result[0].rules
-            self.assertAllIn((str(x.head) for x in transients), data[1])
-            self.assertAllIn((str(y) for x in transients for y in x.body), data[2])
+            self.assertAllIn((str(y) for x in transients for y in x.body), data[1])
+            self.assertAllIn((str(y.head) for x in transients for y in x.conditions), data[2])
             self.assertAllIn((x.annotation for x in transients), data[3])
 
 

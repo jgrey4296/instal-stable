@@ -104,8 +104,8 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("institution test;\nsomething when else;", ["something"], ["else"]),
                                                    ):
             transients = result[0].rules
-            self.assertAllIn((x.head.value for x in transients), data[1])
-            self.assertAllIn((y.value for x in transients for y in x.body), data[2])
+            self.assertAllIn((str(y) for x in transients for y in x.body), data[1])
+            self.assertAllIn((str(y.head) for x in transients for y in x.conditions), data[2])
 
 
     def test_initially(self):

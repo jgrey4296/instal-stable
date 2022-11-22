@@ -139,8 +139,8 @@ def inertial_rule(string, loc, toks) -> ASTs.InertialRuleAST:
 
 
 def transient_rule(string, loc, toks) -> ASTs.TransientRuleAST:
-    return ASTs.TransientRuleAST(toks['head'],
-                                 [],
+    return ASTs.TransientRuleAST(None,
+                                 [toks['body']],
                                  toks['conditions'][:],
                                  annotation=ASTs.RuleEnum.transient)
 

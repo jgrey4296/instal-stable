@@ -108,7 +108,7 @@ INERTIAL_RULE  = (TERM("head")
 INERTIAL_RULE.set_parse_action(construct.inertial_rule)
 INERTIAL_RULE.set_name("inertial fluent rule")
 
-TRANSIENT_RULE  = TERM("head") + s_kw("when") + CONDITIONS("conditions") + semi
+TRANSIENT_RULE  = TERM("body") + s_kw("when") + CONDITIONS("conditions") + semi
 TRANSIENT_RULE.set_parse_action(construct.transient_rule)
 TRANSIENT_RULE.set_name("transient rule")
 
