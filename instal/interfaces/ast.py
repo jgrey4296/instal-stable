@@ -97,10 +97,14 @@ class InstalAST:
 
         full_path = self.parse_source[0]
         cwd       = getcwd()
-        try:
-            return str(full_path.relative_to(cwd))
-        except ValueError:
-            return str(full_path)
+        match full_path:
+            case pl.Path():
+                return str(full_path.relative_to(cwd))
+            case str():
+                return full_path
+            case _:
+                raise TypeError("An AST has an unexpected pasrse source", full_path)
+
 
     @staticmethod
     def manage_source(parse_source):

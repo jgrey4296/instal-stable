@@ -57,4 +57,4 @@ class FluentValidator(InstalValidator_i):
 
     def action_TransientRuleAST(self, visitor, rule):
         assert(rule.annotation == iAST.RuleEnum.transient)
-        self.usage[rule.annotation].add(rule.head)
+        self.usage[rule.annotation].add(rule.body[0])

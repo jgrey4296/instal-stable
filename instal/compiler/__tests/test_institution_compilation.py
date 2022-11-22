@@ -52,7 +52,7 @@ class TestInstitutionCompiler(unittest.TestCase):
             "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
             "%% Compiled Institution",
             "%% simple",
-            "%% From    : ",
+            "%% From    : n/a",
             "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
             "#program base.",
             "",
@@ -96,10 +96,6 @@ class TestInstitutionCompiler(unittest.TestCase):
         self.assertEqual(len(result.split("\n")), len(expected))
         for x,y in zip(result.split("\n"), expected):
             self.assertEqual(x,y)
-
-
-
-
 
 
 
@@ -573,19 +569,20 @@ class TestInstitutionCompiler(unittest.TestCase):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
         inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
-        inst.rules.append(ASTs.TransientRuleAST(ASTs.TermAST("alive"),
-                                                [ASTs.TermAST("breathing")],
+        inst.rules.append(ASTs.TransientRuleAST(None,
+                                                [ASTs.TermAST("alive")],
+                                                [ASTs.ConditionAST(ASTs.TermAST("breathing"))],
                                                 annotation=ASTs.RuleEnum.transient
                                                 ))
 
         compiler.compile_rules(inst)
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
-            "%% Translation of alive when true",
+            "%% Translation of alive when holdsat(breathing, simple, I), true",
             "holdsat(alive, simple, I) :- instant(I),",
             "institution(simple),",
             "transientFluent(alive, simple),",
-            "true.",
+            "holdsat(breathing, simple, I), true.",
             "",
         ]
 
@@ -598,19 +595,20 @@ class TestInstitutionCompiler(unittest.TestCase):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
         inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Person")))
-        inst.rules.append(ASTs.TransientRuleAST(ASTs.TermAST("alive", [ASTs.TermAST("Person", is_var=True)]),
-                                          [ASTs.TermAST("breathing", [ASTs.TermAST("Person", is_var=True)])],
-                                          annotation=ASTs.RuleEnum.transient
-                                          ))
+        inst.rules.append(ASTs.TransientRuleAST(None,
+                                                [ASTs.TermAST("alive", [ASTs.TermAST("Person", is_var=True)])],
+                                                [ASTs.ConditionAST(ASTs.TermAST("breathing", [ASTs.TermAST("Person", is_var=True)]))],
+                                                annotation=ASTs.RuleEnum.transient
+                                                ))
 
         compiler.compile_rules(inst)
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
-            "%% Translation of alive(Person) when person(Person), true",
+            "%% Translation of alive(Person) when holdsat(breathing(Person), simple, I), person(Person), true",
             "holdsat(alive(Person), simple, I) :- instant(I),",
             "institution(simple),",
             "transientFluent(alive(Person), simple),",
-            "person(Person), true.",
+            "holdsat(breathing(Person), simple, I), person(Person), true.",
             "",
         ]
 
@@ -687,8 +685,9 @@ class TestInstitutionCompiler(unittest.TestCase):
                                                annotation=ASTs.RuleEnum.terminates,
                                                ))
 
-        inst.rules.append(ASTs.TransientRuleAST(ASTs.TermAST("alive", [ASTs.TermAST("Person", is_var=True)]),
-                                                [ASTs.TermAST("breathing", [ASTs.TermAST("Person", is_var=True)])],
+        inst.rules.append(ASTs.TransientRuleAST(None,
+                                                [ASTs.TermAST("alive", [ASTs.TermAST("Person", is_var=True)])],
+                                                [ASTs.ConditionAST(ASTs.TermAST("breathing", [ASTs.TermAST("Person", is_var=True)]))],
                                                 annotation=ASTs.RuleEnum.transient,
                                                 ))
         ##-- end rules

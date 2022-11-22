@@ -231,7 +231,7 @@ class InstalInstitutionCompiler(InstalCompiler_i):
 
                 case IAST.RuleEnum.transient:
                     self.insert(TRANSIENT_RULE_PAT,
-                                state=CompileUtil.compile_term(rule.head),
+                                state=CompileUtil.compile_term(rule.body[0]),
                                 inst=CompileUtil.compile_term(inst.head),
                                 rhs=rhs)
                 case _:
