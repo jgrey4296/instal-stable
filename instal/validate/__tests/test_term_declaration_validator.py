@@ -92,8 +92,8 @@ class TestTermDeclarationValidator(unittest.TestCase):
         the_exc = cm.exception
         result = the_exc.args[1]
         self.assertEqual(len(result[logmod.ERROR]), 1)
-        self.assertEqual(result[logmod.ERROR][0].msg, "Term used without declaration")
-        self.assertEqual(str(result[logmod.ERROR][0].ast), "simpleEv(Test)")
+        self.assertEqual(result[logmod.ERROR][0].msg, "Term used without declaration, but these were: [ simpleEv/0 ]")
+        self.assertEqual(str(result[logmod.ERROR][0].ast), "simpleEv(TestVar)")
 
 
     def test_type_declaration_usage_pass(self):
