@@ -61,6 +61,7 @@ class TestDomainCompiler(unittest.TestCase):
             "",
             "#program base.",
             "",
+            "definedType(person).",
             "person(bill).",
             "person(jill).",
             ]
@@ -92,8 +93,10 @@ class TestDomainCompiler(unittest.TestCase):
             "",
             "#program base.",
             "",
+            "definedType(person).",
             "person(bill).",
             "person(jill).",
+            "definedType(book).",
             "book(book1).",
             "book(book2).",
             ]

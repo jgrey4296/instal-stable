@@ -24,7 +24,7 @@ from instal.solve.clingo_solver import ClingoSolver
 ##-- end imports
 
 ##-- data
-test_files      = files("instal.__data.test_files.minimal")
+test_files      = files("instal.__tests.model_logic.__data")
 ##-- end data
 
 ##-- warnings
@@ -181,5 +181,7 @@ class TestInstalInitials(unittest.TestCase):
 
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

@@ -36,8 +36,14 @@ basicExEventMulti(Example, _)  generates instMultiVar(Example, Example)
 basicExEventMulti(_, Example2) generates instMultiVar(Example2, Example2)
 
 
-initially perm(instMultiVar(Example, Example2)).
+initially permitted(instMultiVar(Example, Example2)).
 %% Note: just start and end of the chain are permitted:
-initially perm(instBasicEvent(Example)).
-initially perm(instChainStart(Example)).
-initially perm(instChainEnd(Example)).
+initially permitted(instBasicEvent(Example)).
+initially permitted(instChainStart(Example)).
+initially permitted(instChainEnd(Example)).
+initially permitted(instMultiVar(Example, Example2)).
+
+initially power(instBasicEvent(Example)).
+initially power(instChainStart(Example)).
+initially power(instChainEnd(Example)).
+initially power(instMultiVar(Example, Example2)).

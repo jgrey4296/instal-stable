@@ -44,7 +44,8 @@ STATE_HOLDSAT_GROUPS = ["fluent", "gpow", "ipow", "obl", "other", "perm", "pow",
 
 ##-- end trace fluent groupings
 
-DEONTICS = ["pow", "perm", "genPow", "initPow", "termPow"]
+DEONTICS        = ["power", "permitted"]
+BRIDGE_DEONTICS = ["genPower", "initPower", "termPower"]
 
 
 # DEBUG controls:

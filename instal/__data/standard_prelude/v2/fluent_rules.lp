@@ -9,16 +9,18 @@ inertialFluentChange(P, In, I, initiated)    :- instant(I),
                                                 inertialFluent(P, In),
                                                 initiated(P, In, I).
 
+inertialFluentChange(P, In, I, terminated)   :- instant(I),
+                                                institution(In),
+                                                inertialFluent(P, In),
+                                                terminated(P, In, I).
+
+% Cross-institution fluent changes
 inertialFluentChange(P, Sink, I, initiated)  :- instant(I),
                                                 institution(Source),
                                                 institution(Sink),
                                                 inertialFluent(P, Sink),
                                                 xInitiated(Source, P, Sink, I).
 
-inertialFluentChange(P, In, I, terminated)   :- instant(I),
-                                                institution(In),
-                                                inertialFluent(P, In),
-                                                terminated(P, In, I).
 
 inertialFluentChange(P, Sink, I, terminated) :- instant(I),
                                                 institution(Source),

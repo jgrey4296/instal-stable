@@ -12,18 +12,5 @@ obligationType(${name}, ${obType}, ${inst}).
 inertialFluent(${name}(${requirement}, ${deadline}, ${violation}), ${inst}) :- institution(${inst}).
 
 % but make sure they sync:
-initiated(obligation(${name}, R, D, V), Ins, I) :- instant(I),
-                                                   institution(${inst}),
-                                                   initiated(${name}(R, D, V), Ins, I).
-
-terminated(obligation(${name}, R, D, V), Ins, I) :- instant(I),
-                                                    institution(${inst}),
-                                                    terminated(${name}(R, D, V), Ins, I).
-
-initiated(${name}(R, D, V), Ins, I) :- instant(I),
-                                       institution(${inst}),
-                                       initiated(obligation(${name}, R, D, V), Ins, I).
-
-terminated(${name}(R, D, V), Ins, I) :- instant(I),
-                                        institution(${inst}),
-                                        terminated(obligation(${name}, R, D, V), Ins, I).
+inertialFluentChange(obligation(${name}, R, D, V), ${inst}, I, C) :- inertialFluentChange(${name}(R, D, V), ${inst}, I, C).
+inertialFluentChange(${name}(R, D, V), ${inst}, I, C)             :- inertialFluentChange(obligation(${name}, R, D, V), ${inst}, I, C).

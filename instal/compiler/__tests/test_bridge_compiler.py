@@ -113,7 +113,7 @@ class TestBridgeCompiler(unittest.TestCase):
                                      links=[ASTs.BridgeLinkAST(ASTs.TermAST("sourceTest"), ASTs.BridgeLinkEnum.source),
                                             ASTs.BridgeLinkAST(ASTs.TermAST("sinkTest"), ASTs.BridgeLinkEnum.sink)])
 
-        inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("initPow",
+        inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("initPower",
                                                         [ASTs.TermAST("sourceTest"),
                                                          ASTs.TermAST("action"),
                                                          ASTs.TermAST("sinkTest")]),
@@ -122,7 +122,8 @@ class TestBridgeCompiler(unittest.TestCase):
         compiler.compile_fluents(inst)
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
-            "inertialFluent(deontic(initPow, ev(sourceTest, action, sinkTest)), simple) :- bridge(simple, sourceTest, sinkTest),",
+            "inertialFluent(deontic(initPower, ev(sourceTest, action, sinkTest)), simple) :- bridge(simple, sourceTest, sinkTest),",
+            "bridgeDeonticTypes(initPower),",
             "inertialFluent(action, sinkTest),",
             "true.",
             ""
@@ -148,7 +149,7 @@ class TestBridgeCompiler(unittest.TestCase):
             "% Translation of test of sourceTest xgenerates testResult of sinkTest if [condition] in",
             "occurred(testResult, sinkTest, I) :- instant(I),",
             "bridge(simple,  sourceTest,  sinkTest),",
-            "holdsat(deontic(genPow, ev(sourceTest, testResult, sinkTest)), simple, I),",
+            "holdsat(deontic(genPower, ev(sourceTest, testResult, sinkTest)), simple, I),",
             "occurred(test, sourceTest, I),",
             "true.",
             ""
@@ -175,7 +176,7 @@ class TestBridgeCompiler(unittest.TestCase):
             "xInitiated(sourceTest, testResult, sinkTest, I) :- instant(I),",
             "bridge(simple, sourceTest, sinkTest),",
             "holdsat(live(simple), simple, I),",
-            "holdsat(deontic(initPow, ev(sourceTest, testResult, sinkTest)), simple, I),",
+            "holdsat(deontic(initPower, ev(sourceTest, testResult, sinkTest)), simple, I),",
             "occurred(test, sourceTest, I),",
             "true.",
             ""
@@ -203,7 +204,7 @@ class TestBridgeCompiler(unittest.TestCase):
             "xTerminated(sourceTest, testResult, sinkTest, I) :- instant(I),",
             "bridge(simple, sourceTest, sinkTest),",
             "holdsat(live(simple), simple, I),",
-            "holdsat(deontic(termPow, ev(sourceTest, testResult, sinkTest)), simple, I),",
+            "holdsat(deontic(termPower, ev(sourceTest, testResult, sinkTest)), simple, I),",
             "occurred(test, sourceTest, I),",
             "true.",
             ""

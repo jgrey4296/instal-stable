@@ -12,8 +12,7 @@ eventType(null, Ins, inst)        :- institution(Ins).
 eventInst(Ev, Ins)                :- eventType(Ev, Ins, _).
 
 % every insitutional action has a (potential) violation:
-event(violation(Ev))                   :- event(Ev), eventType(Ev, _,   inst).
-eventType(violation(Ev), Ins, viol)    :- event(Ev), eventType(Ev, Ins, inst).
+eventType(violation(Ev), Ins, viol)    :- eventType(Ev, Ins, inst).
 
 %% Institutional null occurrence when nothing can be recognised:
 { occurred(null, In, I) }             :- instant(I),

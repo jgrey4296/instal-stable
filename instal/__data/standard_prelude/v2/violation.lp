@@ -6,5 +6,5 @@ occurred(violation(E), In, I):- instant(I),
                                 eventType(E, In, inst),
                                 holdsat(live(In), In, I),
                                 occurred(E, In, I),
-                                not holdsat(perm(E), In, I).
+                                not holdsat(deontic(permitted, E), In, I).
 %%-- end violations for non-permitted events

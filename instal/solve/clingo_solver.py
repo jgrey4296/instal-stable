@@ -19,6 +19,7 @@ from clingo import Control, Function, Number, Symbol, parse_term
 from instal.interfaces.ast import (DomainSpecAST, InitiallyAST, InstalAST,
                                    QueryAST, TermAST)
 from instal.interfaces.solver import InstalModelResult, SolverWrapper_i
+from instal.compiler.util import CompileUtil
 ##-- end imports
 
 ##-- logging
@@ -103,7 +104,7 @@ class ClingoSolver(SolverWrapper_i):
         self.ctl.ground(default_grounding)
         logging.info("Clingo initialization complete")
 
-    def solve(self, assignments:list[str|QueryAST|Symbol|tuple[bool, Symbol]]=None, fresh:bool=False, reground:list[tuple]=None) -> int:
+    def solve(self, assignments:list[str|InstalAST|Symbol|tuple[bool, Symbol]]=None, fresh:bool=False, reground:list[tuple]=None) -> int:
         assignments = assignments or []
 
         if fresh or self.ctl is None:
@@ -168,12 +169,14 @@ class ClingoSolver(SolverWrapper_i):
                     assert(not bool(ast.conditions))
                     assert(not any(x.has_var for x in ast.body))
                     truthy = not ast.negated
+                    inst_term = parse_term(str(ast.inst))
                     for fact in ast.body:
-                        symbol = Function("extHoldsat", [parse_term(str(fact)), parse_term(str(ast.inst))])
+                        compiled_term = parse_term(CompileUtil.compile_term(fact))
+                        symbol = Function("extHoldsat", [compiled_term, inst_term])
                         results.append((truthy, symbol))
                 case QueryAST():
                     time   = ast.time if ast.time else 0
-                    event  = parse_term(str(ast.head))
+                    event  = parse_term(CompileUtil.compile_term(ast.head))
                     truthy = not ast.negated
                     results.append((truthy, Function("extObserved", [event, Number(time)])))
                     results.append((truthy, Function("_eventSet", [Number(time)])))

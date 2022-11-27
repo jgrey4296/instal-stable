@@ -54,6 +54,7 @@ class InstalDomainCompiler(InstalCompiler_i):
         self.insert(PROGRAM_PAT, prog="base")
         for assignment in domain:
             wrapper = assignment.head.value.lower()
+            self.insert(f"definedType({wrapper}).")
             for term in assignment.body:
                 assert(not bool(term.params))
                 term_str = CompileUtil.compile_term(term)

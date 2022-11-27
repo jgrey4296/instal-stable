@@ -29,15 +29,15 @@ occurred(obligation(N, violation, V), Ins, I) :- instant(I),
                                                  institution(Ins),
                                                  event(V),
                                                  eventType(obligation(N, violation, V), Ins, inst),
-                                                 holdsat(obligation(N, _, _, V}), Ins, I),
-                                                 occurred(V, Ins, I),
+                                                 holdsat(obligation(N, _, _, V), Ins, I),
+                                                 occurred(V, Ins, I).
 
 % trigger a deadline event:
 occurred(obligation(N, deadline, D), Ins, I) :- instant(I),
                                                 institution(Ins),
                                                 event(D),
                                                 eventType(obligation(N, deadline, D), Ins, inst),
-                                                holdsat(obligation(N, _, D, _}), Ins, I),
+                                                holdsat(obligation(N, _, D, _), Ins, I),
                                                 occurred(D, Ins, I).
 
 
@@ -45,7 +45,7 @@ occurred(obligation(N, deadline, D), Ins, I) :- instant(I),
 % regardless of if its an achievement or maintenance obligation
 terminated(obligation(N, R, D, V), Ins, I) :- instant(I),
                                               institution(Ins),
-                                              event(obligation(N, deadline D)),
+                                              event(obligation(N, deadline, D)),
                                               holdsat(obligation(N, R, D, V), Ins, I),
                                               occurred(obligation(N, deadline, D), Ins, I).
 

@@ -2,10 +2,10 @@
 %%-- core types
 eventTypes(ex;viol;inst).
 fluentTypes(inertial;transient;obligation).
-obligationTypes(achievement;maintenance).   % subtypes of obligations
+obligationTypes(achievement;maintenance).         % subtypes of obligations
 inertialFluentChangeTypes(initiated;terminated).
-deonticTypes(power;permitted;forbidden).    % basic deontics
-deonticTypes(genPower;initPower;termPower). % bridge deontics
+deonticTypes(power;permitted).                    % basic deontics
+bridgeDeonticTypes(genPower;initPower;termPower). % bridge deontics
 %%-- end core types
 
 %%-- output control
@@ -27,6 +27,7 @@ deonticTypes(genPower;initPower;termPower). % bridge deontics
 #external _eventSet(I)       : instant(I).
 % dictate fluents that hold at certain timesteps
 #external extHoldsat(F, I)   : inertialFluent(F, I), institution(I).
+
 %%-- end external manipulation
 
 %%-- suppress_warnings

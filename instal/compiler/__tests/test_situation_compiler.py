@@ -133,6 +133,111 @@ class TestSituationCompiler(unittest.TestCase):
             self.assertEqual(x.strip(),y)
 
 
+
+    def test_deontic_situations(self):
+        """ initially/iaf -> .lp """
+        compiler = InstalSituationCompiler()
+        data     = []
+        data.append(ASTs.InitiallyAST([ASTs.TermAST("permitted", [ASTs.TermAST("anAction")])],
+                                           inst=ASTs.TermAST("simple")))
+
+        data.append(ASTs.InitiallyAST([ASTs.TermAST("power", [ASTs.TermAST("anAction")])],
+                                           inst=ASTs.TermAST("simple")))
+
+        result = compiler.compile(data)
+        self.assertIsInstance(result, str)
+        expected = [
+            "#program base.",
+            "",
+            "% initially: deontic(permitted, anAction) (if [conditions])",
+            "holdsat(deontic(permitted, anAction), simple, I) :- start(I),",
+            "institution(simple),",
+            "inertialFluent(deontic(permitted, anAction), simple),",
+            "holdsat(live(simple), simple, I),",
+            "true.",
+            "",
+            "% initially: deontic(power, anAction) (if [conditions])",
+            "holdsat(deontic(power, anAction), simple, I) :- start(I),",
+            "institution(simple),",
+            "inertialFluent(deontic(power, anAction), simple),",
+            "holdsat(live(simple), simple, I),",
+            "true.",
+            "",
+            ]
+        self.assertEqual(len(result.split("\n")), len(expected))
+        for x,y in zip(result.split("\n"), expected):
+            self.assertEqual(x.strip(),y)
+
+    def test_deontic_with_vars_situations(self):
+        """ initially/iaf -> .lp """
+        compiler = InstalSituationCompiler()
+        data     = []
+        data.append(ASTs.InitiallyAST([ASTs.TermAST("permitted", [ASTs.TermAST("anAction", [ASTs.TermAST("X")])])],
+                                           inst=ASTs.TermAST("simple")))
+
+        data.append(ASTs.InitiallyAST([ASTs.TermAST("power", [ASTs.TermAST("anAction", [ASTs.TermAST("X")])])],
+                                           inst=ASTs.TermAST("simple")))
+
+        result = compiler.compile(data)
+        self.assertIsInstance(result, str)
+        expected = [
+            "#program base.",
+            "",
+            "% initially: deontic(permitted, anAction(X)) (if [conditions])",
+            "holdsat(deontic(permitted, anAction(X)), simple, I) :- start(I),",
+            "institution(simple),",
+            "inertialFluent(deontic(permitted, anAction(X)), simple),",
+            "holdsat(live(simple), simple, I),",
+            "true.",
+            "",
+            "% initially: deontic(power, anAction(X)) (if [conditions])",
+            "holdsat(deontic(power, anAction(X)), simple, I) :- start(I),",
+            "institution(simple),",
+            "inertialFluent(deontic(power, anAction(X)), simple),",
+            "holdsat(live(simple), simple, I),",
+            "true.",
+            "",
+            ]
+        self.assertEqual(len(result.split("\n")), len(expected))
+        for x,y in zip(result.split("\n"), expected):
+            self.assertEqual(x.strip(),y)
+
+
+
+    def test_deontic_situations_provided_inst(self):
+        """ initially/iaf -> .lp """
+        inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
+        compiler = InstalSituationCompiler()
+        data     = []
+        data.append(ASTs.InitiallyAST([ASTs.TermAST("permitted", [ASTs.TermAST("anAction")])]))
+
+        data.append(ASTs.InitiallyAST([ASTs.TermAST("power", [ASTs.TermAST("anAction")])]))
+
+        result = compiler.compile(data, inst=inst)
+        self.assertIsInstance(result, str)
+        expected = [
+            "#program base.",
+            "",
+            "% initially: deontic(permitted, anAction) (if [conditions])",
+            "holdsat(deontic(permitted, anAction), simple, I) :- start(I),",
+            "institution(simple),",
+            "inertialFluent(deontic(permitted, anAction), simple),",
+            "holdsat(live(simple), simple, I),",
+            "true.",
+            "",
+            "% initially: deontic(power, anAction) (if [conditions])",
+            "holdsat(deontic(power, anAction), simple, I) :- start(I),",
+            "institution(simple),",
+            "inertialFluent(deontic(power, anAction), simple),",
+            "holdsat(live(simple), simple, I),",
+            "true.",
+            "",
+            ]
+        self.assertEqual(len(result.split("\n")), len(expected))
+        for x,y in zip(result.split("\n"), expected):
+            self.assertEqual(x.strip(),y)
+
+
     @unittest.skip("todo")
     def test_fact_situation_with_conditions(self):
         pass

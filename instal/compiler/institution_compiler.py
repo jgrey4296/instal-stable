@@ -98,7 +98,7 @@ class InstalInstitutionCompiler(InstalCompiler_i):
         self.insert("%% End of {institution}", institution=CompileUtil.compile_term(ial.head))
 
 
-    def compile_types(self, type_list:list[IAST.TypeAST]) -> None:
+    def compile_types(self, type_list:list[IAST.DomainSpecAST]) -> None:
         logging.debug("Compiling Types")
         # Print types. Also adds a constraint that every type must be grounded.
         self.insert(HEADER, header="Type Grounding and declaration", sub="")

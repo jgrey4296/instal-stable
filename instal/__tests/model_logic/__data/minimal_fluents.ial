@@ -1,0 +1,20 @@
+%%-*- mode: instal -*-
+%% A test institution to check inertial fluent
+%% initiation and termination
+institution minimalFluents.
+
+type Change : init term.
+
+external      event basicEvent(Change).
+external      event basicEvent(Change).
+institutional event basicInstEvent(Change).
+
+fluent testFact.
+
+basicEvent(Change)   generates basicInstEvent(Change).
+
+basicInstEvent(init) initiates testFact.
+basicInstEvent(term) terminates testFact.
+
+initially permitted(basicInstEvent(Change)).
+initially power(basicInstEvent(Change)).
