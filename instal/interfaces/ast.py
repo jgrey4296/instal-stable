@@ -39,10 +39,12 @@ class EventEnum(Enum):
     violation     = auto()
 
 class FluentEnum(Enum):
-    inertial    = auto()
-    transient   = auto()
-    obligation  = auto()
-    cross       = auto()
+    inertial               = auto()
+    transient              = auto()
+    cross                  = auto()
+    obligation             = auto()
+    achievement_obligation = auto()
+    maintenance_obligation = auto()
 
 class RuleEnum(Enum):
     # Event:

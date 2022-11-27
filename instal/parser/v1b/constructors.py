@@ -73,7 +73,7 @@ def fluent(string, loc, toks) -> ASTs.FluentAST:
             if len(head.params) != 3:
                 raise pp.ParseFatalException(string, loc, "Obligation arguments need to be of the form a (requirement, deadline, violation)")
 
-            head.params.append(ASTs.TermAST("oneshot"))
+            head.params.append(ASTs.TermAST("achievement"))
         case _:
             annotation = ASTs.FluentEnum.inertial
 

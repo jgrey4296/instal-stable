@@ -81,9 +81,9 @@ class TestInstitutionParser(InstalParserTestCase):
 
                                                    ("bridge test;\ntransient fluent testFluent;\ntransient fluent otherFluent;", ["testFluent", "otherFluent"], {ASTs.FluentEnum.transient}),
 
-                                                   ("bridge test;\nobligation fluent obFluent(obligation, deadline, violation, oneshot);", ["obFluent"], {ASTs.FluentEnum.obligation}),
-                                                   ("bridge test;\nobligation fluent obFluent(obligation, deadline, violation, multishot);", ["obFluent"], {ASTs.FluentEnum.obligation}),
-                                                   ("bridge test;\nobl fluent obFluent(obligation, deadline, violation, multishot);", ["obFluent"], {ASTs.FluentEnum.obligation}),
+                                                   ("bridge test;\nachievement obligation fluent obFluent(obligation, deadline, violation);", ["obFluent"], {ASTs.FluentEnum.achievement_obligation}),
+                                                   ("bridge test;\nmaintenance obligation fluent obFluent(obligation, deadline, violation);", ["obFluent"], {ASTs.FluentEnum.maintenance_obligation}),
+                                                   ("bridge test;\nobl fluent obFluent(obligation, deadline, violation);", ["obFluent"], {ASTs.FluentEnum.obligation}),
 
                                                    ("bridge test;\ncross fluent blah;", ["blah"], {ASTs.FluentEnum.cross}),
                                                    ("bridge test;\nx fluent blah;", ["blah"], {ASTs.FluentEnum.cross}),

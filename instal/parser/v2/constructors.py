@@ -28,6 +28,9 @@ if TYPE_CHECKING:
 ##-- logging
 logging = logmod.getLogger(__name__)
 ##-- end logging
+obligations = {ASTs.FluentEnum.obligation,
+               ASTs.FluentEnum.achievement_obligation,
+               ASTs.FluentEnum.maintenance_obligation}
 
 ##-- constructors
 def institution(string, loc, toks):
@@ -62,20 +65,24 @@ def term(string, loc, toks) -> ASTs.TermAST:
 
 
 def fluent(string, loc, toks) -> ASTs.FluentAST:
-    head     = toks['head']
-    anno_str = toks.annotation
+    head       = toks['head']
+    anno_str   = toks.annotation.replace(' ', '_')
+    annotation = ASTs.FluentEnum.inertial
+
     match anno_str:
-        case "cross"       | "x":
+        case "x":
             annotation = ASTs.FluentEnum.cross
-        case "transient":
-            annotation = ASTs.FluentEnum.transient
-        case "obligation"  | "obl":
+        case "obl":
             annotation = ASTs.FluentEnum.obligation
-            # assert(len(head.params) == 4), "Obligation Fluents need a requirement, deadline, violation, and repeat"
-            if len(head.params) != 4:
-                raise pp.ParseFatalException(string, loc, "Obligation arguments need to be of the form a (requirement, deadline, violation, repeat)")
-        case _:
+        case "":
             annotation = ASTs.FluentEnum.inertial
+        case x if x in ASTs.FluentEnum.__members__:
+            annotation = ASTs.FluentEnum[x]
+        case _:
+            raise Exception("Unrecognized Fluent Annotation", anno_str)
+
+    if (annotation in obligations) and len(head.params) != 3:
+        raise pp.ParseFatalException(string, loc, "Obligation arguments need to be of the form a (requirement, deadline, violation)")
 
     return ASTs.FluentAST(head, annotation, parse_loc=(pp.lineno(loc, string), pp.col(loc, string)))
 
