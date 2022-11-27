@@ -1,3 +1,3 @@
-inertialFluent(gpow(${source}, ${event},  ${sink}), ${bridge}) :- bridge(${bridge}, ${source}, ${sink}),
-                                                                  eventType(${event}, ${sink}, ex),
-                                                                  ${rhs}.
+inertialFluent(deontic(genPower, ev(${source}, ${event}, ${sink})), ${bridge}) :- bridge(${bridge}, ${source}, ${sink}),
+                                                                                  eventType(${event}, ${sink}, inst),
+                                                                                  ${rhs}.

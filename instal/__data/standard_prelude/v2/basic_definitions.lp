@@ -2,8 +2,10 @@
 %%-- core types
 eventTypes(ex;viol;inst).
 fluentTypes(inertial;transient;obligation).
+obligationTypes(achievement;maintenance).   % subtypes of obligations
 inertialFluentChangeTypes(initiated;terminated).
-obligationTypes(oneshot;multishot).
+deonticTypes(power;permitted;forbidden).    % basic deontics
+deonticTypes(genPower;initPower;termPower). % bridge deontics
 %%-- end core types
 
 %%-- output control
@@ -35,8 +37,8 @@ event(violation(null))                    :- 1 == 2.
 eventType(0,0,0)                          :- 1 == 2.
 inertialFluent(0, 0)                      :- 1 == 2.
 initiated(0, 0, 0)                        :- 1 == 2.
-obligationalFluent(0, 0)                  :- 1 == 2.
-obligationalFluent(obligation(0,0,0,0),0) :- 1 == 2.
+obligationFluent(0, 0)                    :- 1 == 2.
+obligationFluent(obligation(0,0,0,0),0)   :- 1 == 2.
 occurred(obligation(0), 0, 0)             :- 1 == 2.
 occurred(0, 0)                            :- 1 == 2.
 occurred(0,0,0)                           :- 1 == 2.

@@ -3,9 +3,6 @@
 fluent(F) :- inertialfluent(F, I).
 fluent(F) :- transientFluent(F, I).
 
-% obligational fluents are inertial:
-transientFluent(F, I) :- obligationalFluent(F, I).
-
 % inertialFluentChange(fact, inst, time, type)
 inertialFluentChange(P, In, I, initiated)    :- instant(I),
                                                 institution(In),
@@ -44,14 +41,6 @@ holdsat(P, In, J)						:- next(I, J),
                                holdsat(P, In, I),
                                not inertialFluentChange(P, In, I, terminated).
 
-%% TODO maybe replace pow/perm(Ev) with norm(Modality, Ev)
-% All Institutions have norm fluents for all institution events
-inertialFluent(perm(Ev), Ins)  :- institution(Ins), eventType(Ev, Ins, inst).
-inertialFluent(pow(Ev), Ins)   :- institution(Ins), eventType(Ev, Ins, inst).
-
-% Null permissions hold from the start
-holdsat(perm(null), Ins, I)    :- start(I), institution(Ins).
-holdsat(pow(null),  Ins, I)    :- start(I), institution(Ins).
 
 % Institutions also hold by default at the start:
 % (which includes bridges, because they are institutions)

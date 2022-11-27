@@ -21,19 +21,9 @@ eventType(violation(Ev), Ins, viol)    :- event(Ev), eventType(Ev, Ins, inst).
                                          not occurred(_, I).
 
 
-%% for Debugging:
-% an unempowered event happens when an observed event does nothing to
-% the institution
-occurred(_unempoweredEvent(E), In, I)  :- instant(I),
-                                          institution(In),
-                                          eventType(E, In, ex),
-                                          observed(E, I),
-                                          occurred(null, In, I),
-                                          E != null.
-
 %% Reject any model with a faulty event type:
-% :- eventType(_, _, T), not event_types(T).
-
+:- eventType(_, _, T), not eventTypes(T).
+% Reject any model where nothing happens on a timestep
 :- instant(I), institution(In), not occurred(_, In, I).
 
 %%-- end events recognition

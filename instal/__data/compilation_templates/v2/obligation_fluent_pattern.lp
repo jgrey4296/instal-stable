@@ -1,46 +1,29 @@
 %% obligation fluent: ${fluent} %
-obligationalFluent(obligation(${obligation}, ${deadline}, ${violation}, ${repeats}), ${inst}) :- institution(${inst}),
-                                                                                                  ${rhs}.
+obligationFluent(obligation(${name}, ${requirement}, ${deadline}, ${violation}), ${inst}) :- institution(${inst}),
+                                                                                             eventType(${requirement}, ${inst}, inst),
+                                                                                             eventType(${deadline}, ${inst}, inst),
+                                                                                             eventType(${violation}, ${inst}, inst),
+                                                                                             ${rhs}.
 
+obligationType(${name}, ${obType}, ${inst}).
 
-% Do the obligation (inst) event:
-occurred(obligation(${obligation}), ${inst}, I) :- institution(${inst}),
-                                                   eventType(${obligation}, ${inst}, inst),
-                                                   holdsat(obligation(${obligation}, ${deadline}, ${violation}, ${repeats}), ${inst}, I),
-                                                   occurred(${obligation}, Ins, I),
-                                                   ${rhs}.
+% as function heads can't be variables,
+% convert name(...) to obligation(name ...) for internal use
+inertialFluent(${name}(${requirement}, ${deadline}, ${violation}), ${inst}) :- institution(${inst}).
 
-% Do the obligation (ex) event:
-occurred(obligation(${obligation}), ${inst}, I) :- institution(${inst}),
-                                                   eventType(${obligation}, ${inst}, ex),
-                                                   holdsat(obligation(${obligation}, ${deadline}, ${violation}, ${repeats}), ${inst}, I),
-                                                   observed(${obligation}, I),
-                                                   ${rhs}.
+% but make sure they sync:
+initiated(obligation(${name}, R, D, V), Ins, I) :- instant(I),
+                                                   institution(${inst}),
+                                                   initiated(${name}(R, D, V), Ins, I).
 
-% bring about the obligation state:
-occurred(obligation(${obligation}), ${inst}, I) :- institution(${inst}),
-                                                   fluent(${obligation}),
-                                                   holdsat(${obligation}, ${inst}, I),
-                                                   holdsat(obligation(${obligation}, ${deadline}, ${violation}, ${repeats}), ${inst}, I),
-                                                   ${rhs}.
+terminated(obligation(${name}, R, D, V), Ins, I) :- instant(I),
+                                                    institution(${inst}),
+                                                    terminated(${name}(R, D, V), Ins, I).
 
-% trigger a violation if the violating (inst) event occurs:
-occurred(violation(${violation}), ${inst}, I) :- institution(${inst}),
-                                                 event(${violation}),
-                                                 holdsat(obligation(${obligation}, ${deadline}, ${violation}, ${repeats}), ${inst}, I),
-                                                 occurred(${violation}, ${inst}, I),
-                                                 ${rhs}.
+initiated(${name}(R, D, V), Ins, I) :- instant(I),
+                                       institution(${inst}),
+                                       initiated(obligation(${name}, R, D, V), Ins, I).
 
-% trigger a violation if the violating (ex) event occurs:
-occurred(violation(${violation}), ${inst}, I) :- institution(${inst}),
-                                                 event(${violation}),
-                                                 holdsat(obligation(${obligation}, ${deadline}, ${violation}, ${repeats}), ${inst}, I),
-                                                 observed(${violation}, I),
-                                                 ${rhs}.
-
-% trigger a violation if the the violating state occurs:
-occurred(violation(${violation}), ${inst}, I) :- institution(${inst}),
-                                                 fluent(${violation}),
-                                                 holdsat(${violation}, ${inst}, I),
-                                                 holdsat(obligation(${obligation}, ${deadline}, ${violation}, ${repeats}), ${inst}, I),
-                                                 ${rhs}.
+terminated(${name}(R, D, V), Ins, I) :- instant(I),
+                                        institution(${inst}),
+                                        terminated(obligation(${name}, R, D, V), Ins, I).
