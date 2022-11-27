@@ -111,7 +111,7 @@ class TestInstalClingoSolver(unittest.TestCase):
         self.assertIn(term_2, solver.results[0].atoms)
 
 
-    def test_multishot_no_change(self):
+    def test_maintenance_no_change(self):
         term   = parse_term("testVal")
         term_2 = parse_term("a")
         solver = ClingoSolver("#external testVal. a.")
@@ -128,7 +128,7 @@ class TestInstalClingoSolver(unittest.TestCase):
         self.assertIn(term_2, solver.results[-1].atoms)
 
 
-    def test_multishot_with_change(self):
+    def test_maintenance_with_change(self):
         term         = parse_term("testVal(1)")
         term_2       = parse_term("testVal(2)")
         a_term       = parse_term("a")
@@ -147,7 +147,7 @@ class TestInstalClingoSolver(unittest.TestCase):
         self.assertIn(a_term, solver.results[-1].atoms)
 
 
-    def test_multishot_incremental(self):
+    def test_maintenance_incremental(self):
         solver = ClingoSolver("""
         #program base.
         on(X, 0) :- init_on(X).
