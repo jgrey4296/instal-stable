@@ -155,19 +155,24 @@ class InstalInstitutionCompiler(InstalCompiler_i):
                                 fluent=CompileUtil.compile_term(fluent.head),
                                 inst=inst_head,
                                 rhs=rhs)
-                case IAST.FluentEnum.obligation:
-                    obligation, deadline, violation, repeats = fluent.head.params
-                    # TODO handle obligation and deadlines being events or fluents
-                    # TODO insert event occured / fluent holdsat into rhs
+                case IAST.FluentEnum.obligation | IAST.FluentEnum.achievement_obligation | IAST.FluentEnum.maintenance_obligation:
+                    obl_name = fluent.head.value
+                    obl_type = "achievement"
+                    requirement, deadline, violation = fluent.head.params
+
+                    if fluent.annotation is IAST.FluentEnum.maintenance_obligation:
+                        obl_type = "maintenance"
+
                     self.insert(OB_FLUENT,
                                 fluent=CompileUtil.compile_term(fluent.head),
-                                obligation=CompileUtil.compile_term(obligation),
+                                name=obl_name,
+                                requirement=CompileUtil.compile_term(requirement),
                                 deadline=CompileUtil.compile_term(deadline),
                                 violation=CompileUtil.compile_term(violation),
-                                repeats=CompileUtil.compile_term(repeats),
+                                obType=obl_type,
                                 inst=inst_head,
                                 rhs=rhs)
-                case IAST.FluentEnum.cross if fluent.head.value == "gpow":
+                case IAST.FluentEnum.cross if fluent.head.value == "genPow":
                     assert(len(fluent.head.params) == 3)
                     self.insert(GPOW_FLUENT,
                                 source=CompileUtil.compile_term(fluent.head.params[0]),
@@ -204,35 +209,48 @@ class InstalInstitutionCompiler(InstalCompiler_i):
             match rule.annotation:
                 case IAST.RuleEnum.generates:
                     assert(not isinstance(inst, IAST.BridgeDefAST))
-                    delay = "+{rule.delay}" if rule.delay> 0 else ""
-                    for state in rule.body:
-                        self.insert(GEN_PAT,
-                                    event=CompileUtil.compile_term(rule.head),
-                                    state=CompileUtil.compile_term(state),
-                                    inst=inst_head,
-                                    delay=delay,
-                                    rhs=rhs)
+                    self._compile_generation(rule, rhs, inst_head)
                 case IAST.RuleEnum.initiates:
                     assert(not isinstance(inst, IAST.BridgeDefAST))
-                    for state in rule.body:
-                        self.insert(INIT_PAT,
-                                    event=CompileUtil.compile_term(rule.head),
-                                    state=CompileUtil.compile_term(state),
-                                    inst=inst_head,
-                                    rhs=rhs)
+                    self._compile_initiation(rule, rhs, inst_head)
                 case IAST.RuleEnum.terminates:
                     assert(not isinstance(inst, IAST.BridgeDefAST))
-                    for state in rule.body:
-                        self.insert(TERM_PAT,
-                                    event=CompileUtil.compile_term(rule.head),
-                                    state=CompileUtil.compile_term(state),
-                                    inst=inst_head,
-                                    rhs=rhs)
-
+                    self._compile_termination(rule, rhs, inst_head)
                 case IAST.RuleEnum.transient:
-                    self.insert(TRANSIENT_RULE_PAT,
-                                state=CompileUtil.compile_term(rule.body[0]),
-                                inst=CompileUtil.compile_term(inst.head),
-                                rhs=rhs)
+                    assert(not isinstance(inst, IAST.BridgeDefAST))
+                    self._compile_transient(rule, rhs, inst_head)
                 case _:
                     raise TypeError("Unrecognized Relation Type: %s", rule)
+
+
+    def _compile_generation(self, rule, rhs, inst_head):
+        delay = "+{rule.delay}" if rule.delay > 0 else ""
+        for event in rule.body:
+            self.insert(GEN_PAT,
+                        source_event=CompileUtil.compile_term(rule.head),
+                        result_event=CompileUtil.compile_term(event),
+                        inst=inst_head,
+                        delay=delay,
+                        rhs=rhs)
+
+    def _compile_initiation(self, rule, rhs, inst_head):
+        for state in rule.body:
+            self.insert(INIT_PAT,
+                        event=CompileUtil.compile_term(rule.head),
+                        state=CompileUtil.compile_term(state),
+                        inst=inst_head,
+                        rhs=rhs)
+
+    def _compile_termination(self, rule, rhs, inst_head):
+        for state in rule.body:
+            self.insert(TERM_PAT,
+                        event=CompileUtil.compile_term(rule.head),
+                        state=CompileUtil.compile_term(state),
+                        inst=inst_head,
+                        rhs=rhs)
+
+    def _compile_transient(self, rule, rhs, inst_head):
+        self.insert(TRANSIENT_RULE_PAT,
+                    state=CompileUtil.compile_term(rule.body[0]),
+                    inst=inst_head,
+                    rhs=rhs)
