@@ -1,0 +1,10 @@
+institution testTermTypeCheckFail.
+
+type Book: manuscript folio.
+type Furniture: table, desk.
+
+fluent toRead(Book).
+fluent storeOn(Furniture).
+
+%% Fail because desk is not a Book
+storeOn(Furniture) initiates toRead(desk).

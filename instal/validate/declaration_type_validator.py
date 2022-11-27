@@ -23,12 +23,23 @@ class DeclarationTypeValidator(InstalValidator_i):
     found_vars  : dict[str, list[iAST.TermAST]]       = field(init=False, default_factory=lambda: defaultdict(list))
 
     def validate(self):
-        for varname in self.found_vars:
-            pass
+        # solve the constriants
+        pass
 
     def action_DomainSpecAST(self, visitor, node):
         self.found_types[node.head.signature].append(node)
+        # TODO store the values as well
 
-    def action_TermAST(self, visitor, node):
-        if node.is_var:
-            self.found_vars[node.signature].append(node)
+    def action_FluentAST(self, visitor, node):
+        # TODO map declarations to types
+        pass
+
+    def action_EventAST(self, visitor, node):
+        # TODO map declarations to types
+        pass
+
+    def action_RuleAST(self, visitor, node):
+        # TODO Generate constraints for the rule
+        # values map to types
+        # argvars map to declared types of fluents and events.
+        pass
