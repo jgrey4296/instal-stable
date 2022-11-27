@@ -64,5 +64,8 @@ class TestInstitutionStructureValidator(unittest.TestCase):
         self.assertTrue(results[logmod.WARNING])
         self.assertEqual(len(results[logmod.WARNING]), 5)
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+
+##-- end ifmain

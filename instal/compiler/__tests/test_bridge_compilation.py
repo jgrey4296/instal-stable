@@ -210,5 +210,8 @@ class TestBridgeCompiler(unittest.TestCase):
         for x,y in zip(result, expected):
             self.assertEqual(x.strip(),y.strip())
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+
+##-- end ifmain

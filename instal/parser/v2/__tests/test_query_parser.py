@@ -63,5 +63,7 @@ class TestInstitutionParser(InstalParserTestCase):
             self.assertEqual(result[1].time, data[2])
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

@@ -53,5 +53,7 @@ class TestSituationParser(InstalParserTestCase):
                     self.assertEqual(result[0].body[0].params[0].value, param, "testmsg")
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

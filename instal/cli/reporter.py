@@ -84,5 +84,8 @@ def main():
         instal_text_reporter.trace_to_file(trace, output / "text_report.txt")
 
 
+##-- ifmain
 if __name__ == "__main__":
     main()
+
+##-- end ifmain

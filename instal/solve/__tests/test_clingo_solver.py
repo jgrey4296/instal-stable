@@ -175,5 +175,7 @@ class TestInstalClingoSolver(unittest.TestCase):
     def test_metadata(self):
         pass
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

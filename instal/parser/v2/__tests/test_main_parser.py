@@ -203,5 +203,7 @@ class TestInstitutionParser(InstalParserTestCase):
                               loc=data_path)
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

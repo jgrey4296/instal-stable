@@ -136,5 +136,8 @@ class TestSituationCompiler(unittest.TestCase):
     @unittest.skip("todo")
     def test_fact_situation_with_conditions(self):
         pass
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+
+##-- end ifmain

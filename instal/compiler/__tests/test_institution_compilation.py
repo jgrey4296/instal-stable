@@ -695,5 +695,8 @@ class TestInstitutionCompiler(unittest.TestCase):
         result = compiler.compile([inst])
         self.assertIsInstance(result, str)
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+
+##-- end ifmain

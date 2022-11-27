@@ -258,5 +258,8 @@ class TestNameDuplicationValidator(unittest.TestCase):
                       {x.msg for x in the_exc.args[1][logmod.ERROR]})
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+
+##-- end ifmain

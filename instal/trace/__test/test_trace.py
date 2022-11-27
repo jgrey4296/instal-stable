@@ -123,5 +123,7 @@ class TestTrace(unittest.TestCase):
     def test_fluent_intervals(self):
         pass
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

@@ -97,5 +97,8 @@ def main():
     # Print it, so it can be redirected to a file
     print(gen_visitor)
 
+##-- ifmain
 if __name__ == '__main__':
     main()
+
+##-- end ifmain

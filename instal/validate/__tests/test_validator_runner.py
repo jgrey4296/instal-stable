@@ -147,5 +147,8 @@ class TestValidatorRunner(unittest.TestCase):
         self.assertEqual(results[logmod.WARN][0].msg, "A Simple Warning")
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+
+##-- end ifmain

@@ -65,5 +65,8 @@ class TestDomainParser(InstalParserTestCase):
 
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+
+##-- end ifmain
