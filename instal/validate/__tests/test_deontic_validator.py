@@ -35,7 +35,6 @@ data_path = files("instal.validate.__tests.__data")
 parser = InstalPyParser()
 
 
-# TODO implement and test deontic validator
 class TestDeonticValidator(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -103,17 +102,60 @@ class TestDeonticValidator(unittest.TestCase):
         result = runner.validate(data)
         self.assertFalse(result)
 
-    def test_obligation_fluent_fail(self):
+    def test_obligation_fluent_name_duplication_fail(self):
         """
 
         """
-        file_name = data_path / "obl_deontic_check_fail.ial"
+        file_name = data_path / "obl_deontic_name_duplication_fail.ial"
         runner    = validate.InstalValidatorRunner([ DeonticValidator() ])
         data = parser.parse_institution(file_name)
         self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+        with self.assertRaises(Exception) as cm:
+            runner.validate(data)
 
-        result = runner.validate(data)
-        self.assertFalse(result)
+        the_exc = cm.exception
+        self.assertTrue(the_exc.args)
+        self.assertEqual(len(the_exc.args[1][40]), 2)
+        msgs = [x.msg for x in the_exc.args[1][40]]
+        self.assertIn("Duplicate obligation declared", msgs)
+        self.assertIn("Obligation Use does not match Declaration", msgs)
+
+
+    def test_obligation_fluent_structure_fail(self):
+        """
+
+        """
+        file_name = data_path / "obl_deontic_check_structure_fail.ial"
+        runner    = validate.InstalValidatorRunner([ DeonticValidator() ])
+        data = parser.parse_institution(file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+        with self.assertRaises(Exception) as cm:
+            runner.validate(data)
+
+        the_exc = cm.exception
+        self.assertTrue(the_exc.args)
+        self.assertEqual(len(the_exc.args[1][40]), 1)
+        msg = the_exc.args[1][40][0].msg
+        self.assertEqual(msg, "Obligation Use does not match Declaration")
+
+
+    def test_obligation_fluent_def_fail(self):
+        """
+        Report on obligations not using institutional events as parameters
+        """
+        file_name = data_path / "obl_deontic_check_def_fail.ial"
+        runner    = validate.InstalValidatorRunner([ DeonticValidator() ])
+        data = parser.parse_institution(file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+        with self.assertRaises(Exception) as cm:
+            runner.validate(data)
+
+        the_exc = cm.exception
+        self.assertTrue(the_exc.args)
+        self.assertEqual(len(the_exc.args[1][40]), 1)
+        msg = the_exc.args[1][40][0].msg
+        self.assertEqual(msg, "Obligation Declared with an incompatiable argument")
+
 
     def test_obligation_fluent_pass(self):
         """

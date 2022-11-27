@@ -1,0 +1,14 @@
+institution obligationCheckStructureFail.
+type Person.
+
+inst event createObl(Person).
+
+inst event theAction.
+inst event theDeadline.
+inst event theViolation(Person).
+inst event notTheDeadline.
+
+achievement obligation fluent testAObl(theAction, theDeadline, theViolation(Person)).
+
+%% fail because the obligation doesn't match internally
+createObl(Person) initiates testAObl(theAction, notTheDeadline, theViolation(Person)).

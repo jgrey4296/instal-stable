@@ -1,0 +1,12 @@
+institution obligationCheckDefFail.
+type Person.
+
+inst event createObl(Person).
+
+inst event theAction.
+inst event theViolation(Person).
+
+fluent badArg.
+
+%% Fails because the badArg isn't an inst event
+achievement obligation fluent badArgObl(theAction, badArg, theViolation(Person)).
