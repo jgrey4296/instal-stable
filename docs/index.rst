@@ -28,8 +28,8 @@ Institutions!::
    fluent in_fact_a(Alpha)
    fluent in_fact_b(Alpha)
 
-   obligation fluent obl(ex_red(Alpha),ex_blue(Alpha),ex_green(Alpha), oneshot)
-   obligation fluent obl(in_fact_a(Alpha),in_fact_b(Alpha),ex_green(Alpha), oneshot)
+   obligation fluent obl(ex_red(Alpha),ex_blue(Alpha),ex_green(Alpha), achievement)
+   obligation fluent obl(in_fact_a(Alpha),in_fact_b(Alpha),ex_green(Alpha), achievement)
 
    transient fluent ni_fact(Alpha)
 

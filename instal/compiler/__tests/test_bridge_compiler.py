@@ -113,7 +113,7 @@ class TestBridgeCompiler(unittest.TestCase):
                                      links=[ASTs.BridgeLinkAST(ASTs.TermAST("sourceTest"), ASTs.BridgeLinkEnum.source),
                                             ASTs.BridgeLinkAST(ASTs.TermAST("sinkTest"), ASTs.BridgeLinkEnum.sink)])
 
-        inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("ipow",
+        inst.fluents.append(ASTs.FluentAST(ASTs.TermAST("initPower",
                                                         [ASTs.TermAST("sourceTest"),
                                                          ASTs.TermAST("action"),
                                                          ASTs.TermAST("sinkTest")]),
@@ -122,12 +122,15 @@ class TestBridgeCompiler(unittest.TestCase):
         compiler.compile_fluents(inst)
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
-            "inertialFluent(ipow(sourceTest, action, sinkTest), simple) :- bridge(simple, sourceTest, sinkTest), true.",
+            "inertialFluent(deontic(initPower, ev(sourceTest, action, sinkTest)), simple) :- bridge(simple, sourceTest, sinkTest),",
+            "bridgeDeonticTypes(initPower),",
+            "inertialFluent(action, sinkTest),",
+            "true.",
             ""
             ]
         # self.assertEqual(len(result.split("\n")), len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x,y)
+            self.assertEqual(x.strip(),y)
 
     def test_cross_generation(self):
         compiler = InstalBridgeCompiler()
@@ -145,8 +148,8 @@ class TestBridgeCompiler(unittest.TestCase):
         expected = [
             "% Translation of test of sourceTest xgenerates testResult of sinkTest if [condition] in",
             "occurred(testResult, sinkTest, I) :- instant(I),",
-            "bridge(simple,  sourceTest,  sinkTest)",
-            "holdsat(gpow(sourceTest, testResult, sinkTest), simple, I),",
+            "bridge(simple,  sourceTest,  sinkTest),",
+            "holdsat(deontic(genPower, ev(sourceTest, testResult, sinkTest)), simple, I),",
             "occurred(test, sourceTest, I),",
             "true.",
             ""
@@ -170,10 +173,10 @@ class TestBridgeCompiler(unittest.TestCase):
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
             "%% Translation of test of sourceTest xinitiates testResult of sinkTest if [condition]",
-            "xinitiated(sourceTest, testResult, sinkTest, I) :- instant(I),",
+            "xInitiated(sourceTest, testResult, sinkTest, I) :- instant(I),",
             "bridge(simple, sourceTest, sinkTest),",
-            "holdsat(ipow(sourceTest, testResult, sinkTest), simple, I),",
             "holdsat(live(simple), simple, I),",
+            "holdsat(deontic(initPower, ev(sourceTest, testResult, sinkTest)), simple, I),",
             "occurred(test, sourceTest, I),",
             "true.",
             ""
@@ -198,10 +201,10 @@ class TestBridgeCompiler(unittest.TestCase):
         result = ("\n".join(compiler._compiled_text[:])).split("\n")
         expected = [
             "%% Translation of test of sourceTest xterminates testResult of sinkTest if [condition]",
-            "xterminated(sourceTest, testResult, sinkTest, I) :- instant(I),",
+            "xTerminated(sourceTest, testResult, sinkTest, I) :- instant(I),",
             "bridge(simple, sourceTest, sinkTest),",
-            "holdsat(tpow(sourceTest, testResult, sinkTest), simple, I),",
             "holdsat(live(simple), simple, I),",
+            "holdsat(deontic(termPower, ev(sourceTest, testResult, sinkTest)), simple, I),",
             "occurred(test, sourceTest, I),",
             "true.",
             ""
@@ -210,5 +213,8 @@ class TestBridgeCompiler(unittest.TestCase):
         for x,y in zip(result, expected):
             self.assertEqual(x.strip(),y.strip())
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+
+##-- end ifmain

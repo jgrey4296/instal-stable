@@ -79,5 +79,8 @@ class TestTermParser(InstalParserTestCase):
                                                                                 ASTs.TermAST("other")]))
                                 )
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+
+##-- end ifmain

@@ -106,5 +106,8 @@ class TestQueryValidator(unittest.TestCase):
         self.assertIn(logmod.ERROR, results)
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+
+##-- end ifmain

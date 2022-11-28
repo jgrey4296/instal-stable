@@ -68,9 +68,9 @@ class TestInstitutionParser(InstalParserTestCase):
 
                                                    ("institution test;\ntransient fluent testFluent;\ntransient fluent otherFluent;", ["testFluent", "otherFluent"], {ASTs.FluentEnum.transient}),
 
-                                                   ("institution test;\nobligation fluent obFluent(obligation, deadline, violation, oneshot);", ["obFluent"], {ASTs.FluentEnum.obligation}),
-                                                   ("institution test;\nobligation fluent obFluent(obligation, deadline, violation, multishot);", ["obFluent"], {ASTs.FluentEnum.obligation}),
-                                                   ("institution test;\nobl fluent obFluent(obligation, deadline, violation, multishot);", ["obFluent"], {ASTs.FluentEnum.obligation}),
+                                                   ("institution test;\nachievement obligation fluent obFluent(obligation, deadline, violation);", ["obFluent"], {ASTs.FluentEnum.achievement_obligation}),
+                                                   ("institution test;\nmaintenance obligation fluent obFluent(obligation, deadline, violation);", ["obFluent"], {ASTs.FluentEnum.maintenance_obligation}),
+                                                   ("institution test;\nobl fluent obFluent(obligation, deadline, violation);", ["obFluent"], {ASTs.FluentEnum.obligation}),
 
                                                    ("institution test;\ncross fluent blah;", ["blah"], {ASTs.FluentEnum.cross}),
                                                    ("institution test;\nx fluent blah;", ["blah"], {ASTs.FluentEnum.cross}),
@@ -203,5 +203,7 @@ class TestInstitutionParser(InstalParserTestCase):
                               loc=data_path)
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

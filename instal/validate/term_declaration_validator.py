@@ -33,13 +33,6 @@ class TermDeclarationValidator(InstalValidator_i):
 
 
     def validate(self):
-        """
-        Validate all Terms, by visiting every node.
-        Declarations and uses are recorded as signatures in the classic prolog style of name/{numArgs}.
-        Mismatches are then reported
-        """
-
-        ##-- report on mismatches
         for termSig in set(self.declarations.keys()).difference(self.uses.keys()):
             term = self.declarations[termSig]
             self.delay_warning("Term declared without use", term)
@@ -55,25 +48,42 @@ class TermDeclarationValidator(InstalValidator_i):
 
                 self.delay_error(msg, useTerm)
 
-
-        ##-- end report on mismatches
-
-
-    def action_TermAST(self, visitor, node):
-        # TODO this counts everything as a use, so is meaningless
-        self.uses[node.signature].append(node)
-
-
     def action_InstitutionDefAST(self, visitor, node):
+        # An Institution is its own use
         self.declarations[node.head.signature] = node
+        self.uses[node.head.signature].append(node)
 
-        for declar in node.events + node.fluents:
-            self.declarations[declar.head.signature] = declar
-            self.signature_alts[declar.head.value].append(declar.head.signature)
-
+        # Record all types and values
         for typeDec in node.types:
             self.declarations[typeDec.head.signature] = typeDec
             self.signature_alts[typeDec.head.value].append(typeDec.head.signature)
 
-    def action_DomainSpecAST(self, visitor, node):
-        pass
+        # then declarations
+        for declar in node.events + node.fluents:
+            self.declarations[declar.head.signature] = declar
+            self.signature_alts[declar.head.value].append(declar.head.signature)
+            self._dfs_term_use(declar.head)
+
+    def action_RuleAST(self, visitor, node):
+        # for rule head, and body,
+        # record uses
+        self._dfs_term_use(node.head, *node.body)
+
+    def action_ConditionAST(self, visitor, node):
+        # record uses
+        self._dfs_term_use(node.head, node.rhs)
+
+    def _dfs_term_use(self, *terms):
+        # types/values in declarations as args count as uses:
+        # so a quick DFS on them
+        queue = list(terms)
+        while bool(queue):
+            current = queue.pop()
+            if current is None:
+                continue
+
+            assert(isinstance(current, iAST.TermAST))
+            if bool(current.params):
+                queue += current.params
+
+            self.uses[current.signature].append(current)

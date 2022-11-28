@@ -22,7 +22,7 @@ from instal.defaults import STANDARD_PRELUDE_loc
 ##-- end imports
 
 ##-- data
-test_files      = files("instal.__data.test_files.minimal")
+test_files      = files("instal.__tests.model_logic.__data")
 ##-- end data
 
 ##-- warnings
@@ -116,7 +116,7 @@ class TestInstalFluents(unittest.TestCase):
         result = str(solver.results[0].shown)
         save_last(compiled, append=solver.results[0].atoms)
         self.assertIn("institution(minimalFluents)", result)
-        self.assertIn("holdsat(perm(basicInstEvent(init)),minimalFluents,0)", result)
+        self.assertIn("holdsat(deontic(permitted,basicInstEvent(init)),minimalFluents,0)", result)
         # Starts off not holding
         self.assertNotIn("holdsat(testFact,minimalFluents,0)", result)
         # initiation happens
@@ -143,7 +143,7 @@ class TestInstalFluents(unittest.TestCase):
         result = str(solver.results[0].shown)
         save_last(compiled, append=solver.results[0].atoms)
         self.assertIn("institution(minimalFluents)", result)
-        self.assertIn("holdsat(perm(basicInstEvent(init)),minimalFluents,0)", result)
+        self.assertIn("holdsat(deontic(permitted,basicInstEvent(init)),minimalFluents,0)", result)
         # Starts off not holding
         self.assertNotIn("holdsat(testFact,minimalFluents,0)", result)
         # Once it does,
@@ -174,7 +174,7 @@ class TestInstalFluents(unittest.TestCase):
         save_last(compiled, append=solver.results[0].atoms)
         self.assertIn("institution(minimalFluents)", result)
         # Initially holds:
-        self.assertIn("holdsat(perm(basicInstEvent(term)),minimalFluents,0)", result)
+        self.assertIn("holdsat(deontic(permitted,basicInstEvent(term)),minimalFluents,0)", result)
         self.assertIn("holdsat(testFact,minimalFluents,0)", result)
         # termination happens:
         self.assertIn("occurred(basicInstEvent(term),minimalFluents,1)", result)
@@ -183,5 +183,7 @@ class TestInstalFluents(unittest.TestCase):
 
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

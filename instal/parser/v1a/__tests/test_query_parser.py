@@ -45,5 +45,8 @@ class TestInstitutionParser(InstalParserTestCase):
                         self.assertAllIn((x.value for x in term.head.params), terms)
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+
+##-- end ifmain

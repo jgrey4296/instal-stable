@@ -130,5 +130,8 @@ class TestEventValidator(unittest.TestCase):
 
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+
+##-- end ifmain

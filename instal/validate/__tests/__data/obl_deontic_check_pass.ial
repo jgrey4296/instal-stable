@@ -1,7 +1,13 @@
 institution obligationCheckPass.
 
+inst event createObl.
+
 inst event theObligation.
 inst event theDeadline.
 inst event theViolation.
 
-obligation fluent obl(theObligation, theDeadline, theViolation, oneshot).
+obligation fluent testObl(theObligation, theDeadline, theViolation).
+obligation fluent otherObl(theObligation, theDeadline, theViolation).
+
+createObl initiates testObl(theObligation, theDeadline, theViolation).
+createObl terminates testObl(theObligation, theDeadline, theViolation).

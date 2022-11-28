@@ -151,5 +151,8 @@ def main():
         with open(args.output / current_filename, 'w') as f:
             f.write(trace_s)
 
+##-- ifmain
 if __name__ == "__main__":
     main()
+
+##-- end ifmain

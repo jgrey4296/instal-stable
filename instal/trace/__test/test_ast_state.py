@@ -213,5 +213,7 @@ class TestASTState(unittest.TestCase):
         self.assertEqual(as_json["holdsat"]["perm"][0], "holdsat(perm(action,role),inst,0)")
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

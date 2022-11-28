@@ -46,7 +46,7 @@ class InstalPyParser(InstalParser_i):
         with ASTs.InstalAST.manage_source(parse_source):
             try:
                 result = IPF.top_institution.parse_string(text.strip(), parse_all=True)[:]
-            except pp.ParseException as err:
+            except pp.ParseBaseException as err:
                 logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
                 if SUPPRESS_PARSER_EXCEPTION_TRACE:
                     err.__traceback__ = None
@@ -61,11 +61,11 @@ class InstalPyParser(InstalParser_i):
         with ASTs.InstalAST.manage_source(parse_source):
             try:
                 result = BPF.top_bridge.parse_string(text.strip(), parse_all=True)[:]
-            except pp.ParseException as err:
+            except pp.ParseBaseException as err:
                 logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
                 if SUPPRESS_PARSER_EXCEPTION_TRACE:
                     err.__traceback__ = None
-                raise err
+                raise err from err
 
         return result
 
@@ -76,11 +76,11 @@ class InstalPyParser(InstalParser_i):
         with ASTs.InstalAST.manage_source(parse_source):
             try:
                 result = PF.top_domain.parse_string(text, parse_all=True)[:]
-            except pp.ParseException as err:
+            except pp.ParseBaseException as err:
                 logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
                 if SUPPRESS_PARSER_EXCEPTION_TRACE:
                     err.__traceback__ = None
-                raise err
+                raise err from err
 
         return result
 
@@ -91,11 +91,11 @@ class InstalPyParser(InstalParser_i):
         with ASTs.InstalAST.manage_source(parse_source):
             try:
                 result = PF.top_fact.parse_string(text, parse_all=True)[:]
-            except pp.ParseException as err:
+            except pp.ParseBaseException as err:
                 logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
                 if SUPPRESS_PARSER_EXCEPTION_TRACE:
                     err.__traceback__ = None
-                raise err
+                raise err from err
 
         return result
 
@@ -106,11 +106,11 @@ class InstalPyParser(InstalParser_i):
         with ASTs.InstalAST.manage_source(parse_source):
             try:
                 result = PF.top_query.parse_string(text, parse_all=True)[:]
-            except pp.ParseException as err:
+            except pp.ParseBaseException as err:
                 logging.warning(f"(Line {err.lineno} Column {err.col}) : Parser {err.parser_element} : {err.markInputline()}")
                 if SUPPRESS_PARSER_EXCEPTION_TRACE:
                     err.__traceback__ = None
-                raise err
+                raise err from err
 
         return result
 

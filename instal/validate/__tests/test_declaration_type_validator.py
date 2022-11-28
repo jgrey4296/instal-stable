@@ -58,11 +58,11 @@ class TestDeclarationTypeValidator(unittest.TestCase):
         self.assertIsInstance(runner, validate.InstalValidatorRunner)
         self.assertIsNotNone(runner.validators)
 
-    def test_basic_pass(self):
+    def test_empty_pass(self):
         """
-        Validator no reports are generated on proper use of events
+        no reports are generated on an empty inst
         """
-        file_name = data_path / "term_type_check.ial"
+        file_name = data_path / "basic_empty_inst.ial"
         runner    = validate.InstalValidatorRunner([ DeclarationTypeValidator() ])
 
         text = data_path.joinpath(file_name).read_text()
@@ -72,6 +72,38 @@ class TestDeclarationTypeValidator(unittest.TestCase):
         result = runner.validate(data)
         self.assertFalse(result)
 
+    def test_basic_pass(self):
+        """
+        no reports are generated on proper use of events
+        """
+        file_name = data_path / "term_type_pass.ial"
+        runner    = validate.InstalValidatorRunner([ DeclarationTypeValidator() ])
 
+        text = data_path.joinpath(file_name).read_text()
+        data = parser.parse_institution(file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        result = runner.validate(data)
+        self.assertFalse(result)
+
+    @unittest.expectedFailure
+    def test_basic_fail(self):
+        """
+        reports are generated on type conflicts
+        """
+        file_name = data_path / "term_type_fail.ial"
+        runner    = validate.InstalValidatorRunner([ DeclarationTypeValidator() ])
+
+        text = data_path.joinpath(file_name).read_text()
+        data = parser.parse_institution(file_name)
+        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+
+        result = runner.validate(data)
+        self.assertTrue(result)
+
+
+
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

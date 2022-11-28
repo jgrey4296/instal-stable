@@ -25,7 +25,7 @@ from instal.solve.clingo_solver import ClingoSolver
 ##-- end imports
 
 ##-- data
-test_files      = files("instal.__data.test_files.minimal")
+test_files      = files("instal.__tests.model_logic.__data")
 ##-- end data
 
 ##-- warnings
@@ -177,7 +177,7 @@ class TestInstalGeneration(unittest.TestCase):
         # Add an event
         parser    = InstalPyParser()
         query     = parser.parse_query("observed basicExEventWithParam(first) at 1")
-        situation = parser.parse_situation("initially perm(instChainMid(first)) in minimalRules")
+        situation = parser.parse_situation("initially permitted(instChainMid(first)) in minimalRules\ninitially power(instChainMid(first)) in minimalRules")
         # Solve
         solver   = ClingoSolver("\n".join(compiled),
                                 options=['-n', "1",
@@ -216,7 +216,7 @@ class TestInstalGeneration(unittest.TestCase):
         self.assertIn("occurred(instChainStart(first),minimalRules,1)", result)
         self.assertNotIn("occurred(instChainMid(first),minimalRules,1)", result)
         self.assertNotIn("occurred(instChainEnd(first),minimalRules,1)", result)
-        self.assertIn("occurred(_unpermittedEvent(instChainMid(first)),minimalRules,1)", result)
+        self.assertIn("occurred(_unempoweredEvent(instChainMid(first)),minimalRules,1)", result)
 
     def test_minimal_transient_rule(self):
         """
@@ -257,5 +257,7 @@ class TestInstalGeneration(unittest.TestCase):
         self.assertNotIn("holdsat(testFluent,minimalRules,4)", result)
         self.assertNotIn("holdsat(testTransient,minimalRules,4)", result)
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

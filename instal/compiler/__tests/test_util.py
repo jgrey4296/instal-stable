@@ -45,10 +45,21 @@ class TestCompilerUtils(unittest.TestCase):
     def tearDownClass(cls):
         logmod.root.removeHandler(cls.file_h)
 
+    def test_basic_term_recursive(self):
+        term   = ASTs.TermAST("test")
+        result = CompileUtil.compile_term_recursive(term)
+        self.assertEqual(result, "test")
+
     def test_basic_term(self):
         term   = ASTs.TermAST("test")
         result = CompileUtil.compile_term(term)
         self.assertEqual(result, "test")
+
+    def test_term_with_params_recursive(self):
+        term = ASTs.TermAST("test", params=[ASTs.TermAST("first"),
+                                            ASTs.TermAST("second")])
+        result = CompileUtil.compile_term_recursive(term)
+        self.assertEqual(result, "test(first, second)")
 
     def test_term_with_params(self):
         term = ASTs.TermAST("test", params=[ASTs.TermAST("first"),
@@ -56,12 +67,57 @@ class TestCompilerUtils(unittest.TestCase):
         result = CompileUtil.compile_term(term)
         self.assertEqual(result, "test(first, second)")
 
-    def test_term_with_params_and_underscore(self):
+    def test_deontic_alt(self):
+        term = ASTs.TermAST("permitted", [ASTs.TermAST("anAction", [ASTs.TermAST("X")])])
+        result = CompileUtil.compile_term(term)
+        self.assertEqual(result, "deontic(permitted, anAction(X))")
+
+    def test_nested_term_with_params(self):
+        term = ASTs.TermAST("test", params=[ASTs.TermAST("something", [ASTs.TermAST("first")]),
+                                            ASTs.TermAST("second")])
+        result = CompileUtil.compile_term(term)
+        self.assertEqual(result, "test(something(first), second)")
+
+    def test_term_with_params_and_underscore_recurisve(self):
         term = ASTs.TermAST("test_term", params=[ASTs.TermAST("first_a"),
                                                  ASTs.TermAST("second_b")])
-        result = CompileUtil.compile_term(term)
+        result = CompileUtil.compile_term_recursive(term)
         self.assertEqual(result, "test_term(first_a, second_b)")
 
+
+    def test_deontic_term_translation_recursive(self):
+        term = ASTs.TermAST("power", params=[ASTs.TermAST("something")])
+        result = CompileUtil.compile_term_recursive(term)
+        self.assertEqual(result, "deontic(power, something)")
+
+    def test_deontic_term_translation(self):
+        term = ASTs.TermAST("power", params=[ASTs.TermAST("something")])
+        result = CompileUtil.compile_term(term)
+        self.assertEqual(result, "deontic(power, something)")
+
+    def test_nested_deontic_term_translation_recursive(self):
+        term = ASTs.TermAST("wrapper", [ASTs.TermAST("power", params=[ASTs.TermAST("something")])])
+        result = CompileUtil.compile_term_recursive(term)
+        self.assertEqual(result, "wrapper(deontic(power, something))")
+
+    def test_nested_deontic_term_translation(self):
+        term = ASTs.TermAST("wrapper", [ASTs.TermAST("power", params=[ASTs.TermAST("something")])])
+        result = CompileUtil.compile_term(term)
+        self.assertEqual(result, "wrapper(deontic(power, something))")
+
+    def test_bridge_deontic_term_translation_recursive(self):
+        term = ASTs.TermAST("initPower", params=[ASTs.TermAST("source"),
+                                                 ASTs.TermAST("action"),
+                                                 ASTs.TermAST("sink")])
+        result = CompileUtil.compile_term_recursive(term)
+        self.assertEqual(result, "deontic(initPower, ev(source, action, sink))")
+
+    def test_bridge_deontic_term_translation(self):
+        term = ASTs.TermAST("initPower", params=[ASTs.TermAST("source"),
+                                                 ASTs.TermAST("action"),
+                                                 ASTs.TermAST("sink")])
+        result = CompileUtil.compile_term(term)
+        self.assertEqual(result, "deontic(initPower, ev(source, action, sink))")
 
     def test_type_wrapping_no_types(self):
         result = CompileUtil.wrap_types([], ASTs.TermAST("blah"))
@@ -243,5 +299,8 @@ class TestCompilerUtils(unittest.TestCase):
 
 
 
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+
+##-- end ifmain

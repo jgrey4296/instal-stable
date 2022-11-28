@@ -1,0 +1,15 @@
+%%-*- mode: instal -*-
+%% A test institution to check the use of a simple,
+%% variable-less external event.
+institution minPerAllowed.
+
+type Example : first second third.
+
+external event basicExEvent.
+
+institutional event basicEvent_i.
+
+basicExEvent generates basicEvent_i.
+
+initially power(basicEvent_i).
+initially permitted(basicEvent_i).

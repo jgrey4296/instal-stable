@@ -34,7 +34,7 @@ fluent attacked(Castle)
 fluent gender(Person, Gender)
 fluent onlySon(Person)
 
-obligation fluent obl(serveInArmy(Person), deadline, illegal(Person), oneshot)
+achievement obligation fluent obl(serveInArmy(Person), deadline, illegal(Person))
 
 demandToFight(Castle)     generates intDemandToFight(Castle)
 register(Person)          generates intRegister(Person)

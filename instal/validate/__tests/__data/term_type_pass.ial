@@ -1,0 +1,9 @@
+institution testTermTypeCheckPass.
+
+type Book.
+type Furniture.
+
+fluent toRead(Book).
+fluent isOn(Book, Furniture).
+
+isOn(Book, Furniture) initiates toRead(Book).

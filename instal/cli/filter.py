@@ -184,5 +184,8 @@ def main():
         with open(out_path, 'w') as f:
             f.write(trace_s)
 
+##-- ifmain
 if __name__ == "__main__":
     main()
+
+##-- end ifmain

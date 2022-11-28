@@ -1,0 +1,14 @@
+institution obligationNameDuplicationFail.
+
+inst event createObl.
+
+inst event theObligation.
+inst event theDeadline.
+inst event diffDeadline.
+inst event theViolation.
+
+obligation fluent testObl(theObligation, theDeadline, theViolation).
+obligation fluent testObl(theObligation, diffDeadline, theViolation).
+
+createObl initiates testObl(theObligation, theDeadline, theViolation).
+createObl terminates testObl(theObligation, theDeadline, theViolation).

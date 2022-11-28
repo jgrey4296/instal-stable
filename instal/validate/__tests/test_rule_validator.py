@@ -72,5 +72,8 @@ class TestRuleValidator(unittest.TestCase):
         self.assertFalse(result)
 
 
+
+##-- ifmain
 if __name__ == '__main__':
     unittest.main()
+##-- end ifmain

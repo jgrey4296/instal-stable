@@ -15,7 +15,7 @@ transient fluent testFluent.
 transient fluent otherFluent.
 
 cross fluent blah.
-obligation fluent obFluent(obligation, deadline, violation, oneshot).
+achievement obligation fluent obFluent(obligation, deadline, violation).
 
 exo generates blah.
 exo generates inter.

@@ -39,10 +39,12 @@ class EventEnum(Enum):
     violation     = auto()
 
 class FluentEnum(Enum):
-    inertial    = auto()
-    transient   = auto()
-    obligation  = auto()
-    cross       = auto()
+    inertial               = auto()
+    transient              = auto()
+    cross                  = auto()
+    obligation             = auto()
+    achievement_obligation = auto()
+    maintenance_obligation = auto()
 
 class RuleEnum(Enum):
     # Event:
@@ -114,7 +116,7 @@ class InstalAST:
 @dataclass(frozen=True)
 class TermAST(InstalAST):
     value  : str             = field()
-    params : list[InstalAST] = field(default_factory=list)
+    params : list[TermAST]   = field(default_factory=list)
     is_var : bool            = field(default=False)
 
     def __post_init__(self):

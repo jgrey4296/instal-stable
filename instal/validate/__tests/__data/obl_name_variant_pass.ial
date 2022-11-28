@@ -1,0 +1,15 @@
+institution obligationNameVariantPass.
+
+type Person.
+
+inst event createObl.
+
+inst event theAction.
+inst event theDeadline.
+inst event theViolation(Person).
+
+obligation fluent testObl(theAction, theDeadline, theViolation(Person), achivement).
+
+%% fail because the obligation doesnt match its signature
+
+createObl(Person) initiates testObl(theAction, theDeadline, theViolation(Person), achievement).

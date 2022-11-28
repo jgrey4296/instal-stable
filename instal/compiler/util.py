@@ -9,6 +9,8 @@ import abc
 import logging as logmod
 from copy import deepcopy
 from dataclasses import InitVar, dataclass, field
+from collections import deque
+from enum import Enum, auto
 import re
 from re import Pattern
 from typing import (TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
@@ -19,6 +21,7 @@ from uuid import UUID, uuid1
 from weakref import ref
 
 import instal.interfaces.ast as ASTs
+from instal.defaults import DEONTICS, BRIDGE_DEONTICS
 
 if TYPE_CHECKING:
     # tc only imports
@@ -30,6 +33,12 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 type_matcher = re.compile(r"([A-Z][^0-9_]*)(?:_?([0-9]+))?")
+
+class _TermCompileEnum:
+    START_PARAM = auto()
+    STOP_PARAM  = auto()
+    COMMA = auto()
+
 
 class CompileUtil:
     @staticmethod
@@ -101,12 +110,69 @@ class CompileUtil:
 
 
     @staticmethod
-    def compile_term(term) -> str:
-        # term_name = term.value.replace("_", "")
+    def compile_term_recursive(term, top=True) -> str:
         term_name = term.value
-        match term.params:
-            case []:
+        params = ""
+        match term_name, term.params:
+            case x, [*values] if x in DEONTICS:
+                term_name = "deontic"
+                params     = "({})".format(", ".join([x] + [CompileUtil.compile_term_recursive(y, top=False) for y in values]))
+            case x, [*values] if x in BRIDGE_DEONTICS:
+                term_name = "deontic"
+                params     = "({}, ev({}))".format(x, ", ".join([CompileUtil.compile_term_recursive(y, top=False) for y in values]))
+            case _, []:
                 params = ""
-            case [*values]:
-                params = "({})".format(", ".join([CompileUtil.compile_term(x) for x in term.params]))
+            case _, [*values]:
+                params = "({})".format(", ".join([CompileUtil.compile_term_recursive(x, top=False) for x in values]))
+
         return f"{term_name}{params}"
+
+    @staticmethod
+    def compile_term(term) -> str:
+        result = []
+        queue  = deque([term])
+        param_clause_count = 0
+        while bool(queue):
+            current = queue.popleft()
+            match current:
+                case str():
+                    result.append(current)
+                case _TermCompileEnum.START_PARAM:
+                    result.append('(')
+                    param_clause_count += 1
+                case _TermCompileEnum.STOP_PARAM:
+                    result.append(')')
+                    param_clause_count -= 1
+                case ASTs.TermAST(value=x, params=[]) if x in DEONTICS or x in BRIDGE_DEONTICS:
+                    raise Exception("Deontics should wrap something", current)
+                case ASTs.TermAST(value=x, params=[*params]) if x in DEONTICS:
+                    # convert power(something) to deontic(power, something)
+                    result.append("deontic")
+                    new_form = ([_TermCompileEnum.START_PARAM, x]
+                                + params
+                                + [_TermCompileEnum.STOP_PARAM])
+                    queue.extendleft(reversed(new_form))
+                case ASTs.TermAST(value=x, params=[*params]) if x in BRIDGE_DEONTICS:
+                    # convert initPower(src, act, sink) to deontic(initPower, ev(src, act, sink))
+                    result.append("deontic")
+                    new_form = ([_TermCompileEnum.START_PARAM, x, "ev", _TermCompileEnum.START_PARAM]
+                                + params
+                                + [_TermCompileEnum.STOP_PARAM, _TermCompileEnum.STOP_PARAM])
+                    queue.extendleft(reversed(new_form))
+                case ASTs.TermAST(value=x, params=[]):
+                    result.append(x)
+                case ASTs.TermAST(value=x, params=[*params]):
+                    result.append(x)
+                    new_form = ([_TermCompileEnum.START_PARAM]
+                                + params
+                                + [_TermCompileEnum.STOP_PARAM])
+                    queue.extendleft(reversed(new_form))
+
+            if (bool(queue)
+                and bool(result)
+                and result[-1] != "("
+                and queue[0] not in {_TermCompileEnum.START_PARAM, _TermCompileEnum.STOP_PARAM}
+                and param_clause_count > 0):
+                result.append(", ")
+
+        return "".join(result)
