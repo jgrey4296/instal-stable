@@ -19,13 +19,14 @@
 ;;
 ;;; Code:
 
-(defface instal-keywords  '((t :foreground "#f2d3ab")) "")
-(defface instal-vars      '((t :foreground "#c2d368")) "")
-(defface instal-operators '((t :foreground "#c69fa5")) "")
-(defface instal-fluents   '((t :foreground "#8b6d9c")) "")
-(defface instal-fluents2  '((t :foreground "#b9a7c3")) "")
-(defface instal-events    '((t :foreground "#494d7e")) "")
-(defface instal-events2   '((t :foreground "#9194b1")) "")
+
+(defface instal-fluents-face   '((t :foreground "#cf8acb")) "")
+(defface instal-events-face    '((t :foreground "#81a38e")) "")
+(defface instal-deontics-face  '((t :foreground "#c2d368")) "")
+(defface instal-operators-face '((t :foreground "#c69fa5")) "")
+(defface instal-fluents2-face  '((t :foreground "#b9a7c3")) "")
+(defface instal-modifiers-face '((t :foreground "#494d7e")) "")
+(defface instal-highlight-face '((t :background "#4f3322" :distant-foreground "black")) "")
 
 (provide 'instal-faces)
 ;;; instal-faces.el ends here
