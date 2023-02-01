@@ -70,6 +70,9 @@ class InstalTrace(Trace_i):
 
     @staticmethod
     def from_model(model:InstalModelResult, steps:int=1, sources:list[str]=None, metadata:dict=None) -> "InstalStateTrace":
+        """
+        Given a model, construct a trace
+        """
         metadata                   = metadata or {}
         metadata['cost']           = model.cost
         metadata['current_result'] = model.number
@@ -82,7 +85,7 @@ class InstalTrace(Trace_i):
         states   = [InstalTrace.state_constructor(i)
                     for i in range(steps + 1)]
         for term in model.shown:
-            if term.name == "inst":
+            if term.name == "institution":
                 i_set.add(str(term.arguments[0]))
                 continue
 

@@ -6,5 +6,5 @@ fluent aFluent.
 
 %% fail because permissions only apply to institutional events
 %% not externals or fluents
-testEvent initiates aFluent if perm(testEvent).
-testEvent initiates aFluent if perm(aFluent).
+testEvent initiates aFluent if permitted(testEvent).
+testEvent initiates aFluent if permitted(aFluent).

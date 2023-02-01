@@ -23,7 +23,6 @@ from json import dumps
 from clingo import Control, Function, Symbol, parse_term
 from instal.solve.clingo_solver import ClingoSolver
 from instal.trace.trace import InstalTrace
-from instal.defaults import STANDARD_PRELUDE_loc
 ##-- end imports
 
 ##-- logging
@@ -32,7 +31,6 @@ logging = logmod.getLogger(__name__)
 ##-- end logging
 
 ##-- data
-inst_prelude    = files(STANDARD_PRELUDE_loc)
 ##-- end data
 
 ##-- argparse
@@ -51,31 +49,6 @@ argparser.add_argument('-n', '--number',      type=int, default=1, help='compute
 argparser.add_argument('-l', '--length',      type=int, default=3, help='length of model trace (default 3)')
 argparser.add_argument('-d', '--debug',       action="store_true", help="activate debug parser functions")
 ##-- end argparse
-
-def maybe_get_query_and_situation(query:None|str, situation:None|str) -> tuple[list[TermAST], list[TermAST]]:
-    """
-    Try to parse a query and situation specification,
-    without erroring if no targets are provided
-
-    Returns a tuple of lists of TermASTs, which are empty if the targets produce nothing
-    """
-    from instal.parser.parser import InstalPyParser
-    parser    = InstalPyParser()
-    situation = []
-    query     = []
-
-    if situation:
-        as_path    = pathlib.Path(situation).expanduser().resolve()
-        parse_this = as_path if as_path.exists() else situation.replace("\\n", "\n")
-        situation += parser.parse_situation(parse_this).body[:]
-
-    if query:
-        as_path    = pathlib.Path(query).expanduser().resolve()
-        parse_this = as_path if as_path.exists() else query.replace("\\n", "\n")
-        query     += parser.parse_query(parse_this).body[:]
-
-
-    return query, situation
 
 def main():
     ##-- logging
@@ -109,7 +82,10 @@ def main():
         console_handler.addFilter(logmod.Filter(name))
 
     logging.info("Starting Compile -> Query")
-    from instal.cli.compiler import compile_target
+    from instal.util.compilation import compile_target
+    from instal.util.misc import maybe_get_query_and_situation
+    from instal.defaults import STANDARD_PRELUDE_loc
+    inst_prelude    = files(STANDARD_PRELUDE_loc)
     compiled         = compile_target(file_group.get_sources(), args.debug)
     prelude_files    = list(inst_prelude.iterdir())
     query, situation = maybe_get_query_and_situation(args.query, args.situation)

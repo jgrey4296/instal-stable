@@ -27,6 +27,7 @@ documentation = "https://readthedocs.org/instal"
 repository    = "https://github.com/jgrey4296/instal"
 changelog     = "https://github.com/jgrey4296/instal/spam/blob/master/CHANGELOG.md"
 
+##-- scripts
 [project.scripts]
 # keep these and __main__ synced
 instal         = "instal.__main__:main"
@@ -42,12 +43,17 @@ instalv        = "instal.cli.generate_visitors:main"
 [project.entry-points."nothing"]
 # tomatoes      = "spam:main_tomatoes"
 
+##-- end scripts
+
+##-- pytest
 [tool.pytest.ini_options]
 log_cli       = false
 log_level     = "DEBUG"
 log_cli_level = "DEBUG"
 
+##-- end pytest
 
+##-- build-system
 [build-system]
 requires = [
 "setuptools",
@@ -70,6 +76,9 @@ instal= []
 [tool.setuptools.exclude-package-data]
 
 
+##-- end build-system
+
+##-- pyright
 [tool.pyright]
 # strict = instal.*
 verboseOutput               = true
@@ -87,6 +96,9 @@ reportUnknownVariableType   = "warning"
 reportUnnecessaryCast       = "information"
 reportUnnecessaryIsInstance = "warning"
 
+##-- end pyright
+
+##-- pylint
 [tool.pylint.main]
 # Analyse import fallback blocks. This can be used to support both Python 2 and 3
 # compatible code, which means that the block might have code that exists only in
@@ -608,3 +620,5 @@ ignored-argument-names = "_.*"
 # List of qualified module names which can have objects that can redefine
 # builtins.
 redefining-builtins-modules = ["six.moves", "past.builtins", "future.builtins", "builtins", "io"]
+
+##-- end pylint

@@ -168,12 +168,25 @@ class TestInstalClingoSolver(unittest.TestCase):
         solver.solve(reground=[("step", [Number(10)])])
         self.assertTrue(True)
 
+    def test_all_models(self):
+    	# Setup:
 
+        # Pre-check:
+
+        # Action
+
+        # Post-check:
+
+        self.assertFalse(True)
+
+    @unittest.skip("Not implemented")
     def test_file_load(self):
         solver = ClingoSolver([])
 
+    @unittest.skip("Not implemented")
     def test_metadata(self):
         pass
+
 
 ##-- ifmain
 if __name__ == '__main__':

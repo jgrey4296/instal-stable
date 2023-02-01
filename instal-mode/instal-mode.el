@@ -1,4 +1,5 @@
 ;;; instal-mode.el -*- lexical-binding: t; no-byte-compile: t; -*-
+;;-- header
 ;;
 ;; Copyright (C) 2021 John Grey
 ;;
@@ -18,12 +19,20 @@
 ;;
 ;;
 ;;; Code:
+;;-- end header
+
+;;-- imports
 (require 'instal-faces)
 
+;;-- end imports
+
+;;-- keymap
 (defvar-local instal-mode-map
   (make-sparse-keymap))
 
-;; List of '(regex (groupnum "face")+)
+;;-- end keymap
+
+;;-- fontlock
 (defconst instal-font-lock-keywords
   (rx-let ((w (x) (: x (1+ blank)))
            (term (: word-start (1+ word) (| word-end (group "(" (1+ any) ")") ) (0+ blank)))
@@ -100,23 +109,38 @@
        )
     )
   "Highlighting for instal-mode"
-  )(defvar instal-mode-syntax-table
+  )
+
+;;-- end fontlock
+
+;;-- syntax
+(defvar instal-mode-syntax-table
   (let ((st (make-syntax-table)))
+    ;; Punctuation
     (modify-syntax-entry ?. "." st)
     (modify-syntax-entry ?! "." st)
+    ;; Symbols
     (modify-syntax-entry ?$ "_" st)
     ;;underscores are valid parts of words:
     (modify-syntax-entry ?_ "w" st)
+    ;; Comments start with % and end with newlines
     (modify-syntax-entry ?% "<" st)
     (modify-syntax-entry ?\n ">" st)
+    ;; Strings
     (modify-syntax-entry ?\" "\"" st)
+    ;; Pair parens, brackets, braces
     (modify-syntax-entry ?\( "()" st)
     (modify-syntax-entry ?\[ "(]" st)
+    (modify-syntax-entry ?\{ "(}" st)
     (modify-syntax-entry ?: ".:2" st)
     st)
   "Syntax table for the instal-mode")
 
+;;-- end syntax
 
+
+
+;;-- mode definition
 (define-derived-mode instal-mode fundamental-mode
   "instal"
   ""
@@ -141,6 +165,8 @@
 
   )
 (add-to-list 'auto-mode-alist '("\\.ia[[:alpha:]]$" . instal-mode))
+
+;;-- end mode definition
 
 (provide 'instal-mode)
 ;;; instal-mode.el ends here

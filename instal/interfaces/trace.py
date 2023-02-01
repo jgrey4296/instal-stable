@@ -160,3 +160,20 @@ class Trace_i(Sequence):
 
     # @abc.abstractmethod
     # def conflicts(self) -> list[tuple[int, Any, Any]]: pass
+
+
+@dataclass
+class TraceTree_i:
+    """
+    Collections of traces which merge to form a tree, branching at diverging actions
+    """
+
+    # [state, [successors]]
+    states : dict[str, tuple[State_i, list[str]]
+    start  : str
+
+    def add_trace(self, trace):
+        """ Add a trace into the tree
+        comparing and discarding states until the divergent point is found.
+        """
+        pass

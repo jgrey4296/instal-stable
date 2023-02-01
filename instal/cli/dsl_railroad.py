@@ -55,6 +55,7 @@ argparser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpF
                                  epilog = "\n".join([""]))
 argparser.add_argument('--parser', default="instal.parser.v1", help="The import path to the parser package")
 argparser.add_argument('--out', required=True)
+argparser.add_argument('--defs')
 ##-- end argparse
 
 def main():
@@ -63,6 +64,9 @@ def main():
     args.out = pathlib.Path(args.out).expanduser().resolve()
     print("Outputting diagrams to: %s", args.out)
 
+    if args.defs:
+        args.defs = pl.Path(args.defs).expanduser().resolve()
+        defaults.set_defaults(args.defs)
 
     # Now import and build the argparser
     parser_import = args.parser + ".parse_funcs"
