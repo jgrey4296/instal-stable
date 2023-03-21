@@ -56,22 +56,21 @@ log_cli_level = "DEBUG"
 ##-- build-system
 [build-system]
 requires = [
-"setuptools",
-"wheel"
+         "setuptools >= 63.1.0",
+         "wheel >= 0.37.1",
 ]
 
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-# packages = ['instal']
 include-package-data = true
 
 [tool.setuptools.packages.find]
 namespaces = true
-where = ["."]
+where      = ["."]
+include    = ["instal"]
 
 [tool.setuptools.package-data]
-instal= []
 
 [tool.setuptools.exclude-package-data]
 

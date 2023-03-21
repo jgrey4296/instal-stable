@@ -169,7 +169,7 @@ class TraceTree_i:
     """
 
     # [state, [successors]]
-    states : dict[str, tuple[State_i, list[str]]
+    states : dict[str, tuple[State_i, list[str]]]
     start  : str
 
     def add_trace(self, trace):
