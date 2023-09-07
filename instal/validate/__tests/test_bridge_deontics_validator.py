@@ -7,12 +7,12 @@ from __future__ import annotations
 
 import logging as logmod
 import pathlib
-import unittest
 import warnings
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
+import pytest
 
 from instal.interfaces import ast as iAST
 from instal.interfaces import validate
@@ -21,14 +21,8 @@ from instal.validate.bridge_deontics_validator import BridgeDeonticsValidator
 from importlib.resources import files
 from instal.parser.v2.parser import InstalPyParser
 
-##-- end imports
-
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 logging = logmod.root
+
 ##-- data
 data_path = files("instal.validate.__tests.__data")
 ##-- end data
@@ -38,29 +32,14 @@ data_path = files("instal.validate.__tests.__data")
 parser = InstalPyParser()
 
 # TODO implement and test bridge deontics
-class TestBridgeDeonticValidator(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging.setLevel(logmod.NOTSET)
-        logging.addHandler(cls.file_h)
-
-
-    @classmethod
-    def tearDownClass(cls):
-        logging.removeHandler(cls.file_h)
+class TestBridgeDeonticValidator:
 
     def test_initial_ctor_with_validator(self):
         runner = validate.InstalValidatorRunner([ BridgeDeonticsValidator() ])
-        self.assertIsInstance(runner, validate.InstalValidatorRunner)
-        self.assertIsNotNone(runner.validators)
+        assert(isinstancerunner, validate.InstalValidatorRunner))
+        assert(runner.validators is not None)
 
-    @unittest.skip
+    @pytest.mark.skip(reason="TODO")
     def test_basic_pass(self):
         """
         Validator no reports are generated on proper use of events
@@ -69,13 +48,7 @@ class TestBridgeDeonticValidator(unittest.TestCase):
         runner    = validate.InstalValidatorRunner([ EventValidator() ])
 
         data = parser.parse_institution(file_name)
-        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+        assert(isinstance(data[0], iAST.InstitutionDefAST))
 
         result = runner.validate(data)
-        self.assertFalse(result)
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-##-- end ifmain
+        assert(not result)

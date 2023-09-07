@@ -6,48 +6,28 @@
 from __future__ import annotations
 
 import logging as logmod
-import unittest
 import warnings
 import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
+
+##-- end imports
+
+import pytest
+
 from instal.parser.v2.parser import InstalPyParser
 from instal.compiler.institution_compiler import InstalInstitutionCompiler
 from instal.interfaces import ast as ASTs
-from unittest import mock
-##-- end imports
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
-
-class TestInstitutionCompiler(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.getLogger(__name__)
-        logging.root.addHandler(cls.file_h)
-        logging.root.setLevel(logmod.NOTSET)
-
-    @classmethod
-    def tearDownClass(cls):
-        logmod.root.removeHandler(cls.file_h)
-
+class TestInstitutionCompiler:
 
     def test_simple_institution(self):
         compiler = InstalInstitutionCompiler()
         inst     = [ASTs.InstitutionDefAST(ASTs.TermAST("simple"))]
 
         result = compiler.compile(inst)
-        self.assertIsInstance(result, str)
+        assert(isinstance(result, str))
         expected = [
             "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
             "%% Compiled Institution",
@@ -93,11 +73,9 @@ class TestInstitutionCompiler(unittest.TestCase):
             "",
             "%% End of simple",
             ]
-        self.assertEqual(len(result.split("\n")), len(expected))
+        assert(len(result.split("\n")) ==  len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x,y)
-
-
+            assert(x == y)
 
     def test_event_compilation(self):
         compiler = InstalInstitutionCompiler()
@@ -112,9 +90,9 @@ class TestInstitutionCompiler(unittest.TestCase):
             "eventType(greet, simple, ex) :- true.",
             "",
             ]
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x,y)
+            assert(x == y)
 
     def test_multiple_event_compilation(self):
         compiler = InstalInstitutionCompiler()
@@ -135,13 +113,9 @@ class TestInstitutionCompiler(unittest.TestCase):
             "eventType(accuse, simple, ex) :- true.",
             "",
             ]
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x,y)
-
-
-
-
+            assert(x == y)
 
     def test_inst_event_compilation(self):
         compiler = InstalInstitutionCompiler()
@@ -156,13 +130,9 @@ class TestInstitutionCompiler(unittest.TestCase):
             "eventType(greet, simple, inst) :- true.",
             "",
             ]
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x,y)
-
-
-
-
+            assert(x == y)
 
     def test_violation_event_compilation(self):
         compiler = InstalInstitutionCompiler()
@@ -177,11 +147,9 @@ class TestInstitutionCompiler(unittest.TestCase):
             "eventType(greet, simple, viol) :- true.",
             "",
             ]
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x,y)
-
-
+            assert(x == y)
 
     def test_events_with_types_compilation(self):
         compiler = InstalInstitutionCompiler()
@@ -201,11 +169,9 @@ class TestInstitutionCompiler(unittest.TestCase):
             "eventType(greet(Person_1, Person_2), simple, viol) :- person(Person_1), person(Person_2), true.",
             "",
             ]
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x,y)
-
-
+            assert(x == y)
 
     def test_fluent_compilation(self):
         compiler = InstalInstitutionCompiler()
@@ -221,10 +187,9 @@ class TestInstitutionCompiler(unittest.TestCase):
             "inertialFluent(alive, simple) :- true.",
             ""
         ]
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x,y)
-
+            assert(x == y)
 
     def test_fluent_with_types_compilation(self):
         compiler = InstalInstitutionCompiler()
@@ -242,11 +207,9 @@ class TestInstitutionCompiler(unittest.TestCase):
             "inertialFluent(alive(Person), simple) :- person(Person), true.",
             ""
         ]
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x,y)
-
-
+            assert(x == y)
 
     def test_fluent_obligation(self):
         compiler = InstalInstitutionCompiler()
@@ -281,10 +244,9 @@ class TestInstitutionCompiler(unittest.TestCase):
             "",
         ]
         for x,y in zip(result, expected):
-            self.assertEqual(x.strip(), y)
+            assert(x.strip() ==  y)
 
-        self.assertEqual(len(result), len(expected))
-
+        assert(len(result) ==  len(expected))
 
     def test_fluent_non_inertial(self):
         compiler = InstalInstitutionCompiler()
@@ -300,10 +262,9 @@ class TestInstitutionCompiler(unittest.TestCase):
             "transientFluent(alive, simple) :- true.",
             ""
         ]
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x,y)
-
+            assert(x == y)
 
     def test_generation_compilation(self):
         compiler = InstalInstitutionCompiler()
@@ -364,9 +325,9 @@ class TestInstitutionCompiler(unittest.TestCase):
             "",
         ]
 
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x.strip(),y)
+            assert(x.strip() == y)
 
     def test_generation_with_types(self):
         compiler = InstalInstitutionCompiler()
@@ -427,10 +388,9 @@ class TestInstitutionCompiler(unittest.TestCase):
             "",
         ]
 
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x.strip(),y)
-
+            assert(x.strip() == y)
 
     def test_generation_with_condition(self):
         compiler = InstalInstitutionCompiler()
@@ -497,9 +457,10 @@ class TestInstitutionCompiler(unittest.TestCase):
         ]
 
         for x,y in zip(result, expected):
-            self.assertEqual(x.strip(),y)
+            assert(x.strip() == y)
 
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
+
     def test_generation_initiates(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -524,9 +485,9 @@ class TestInstitutionCompiler(unittest.TestCase):
         ]
 
         for x,y in zip(result, expected):
-            self.assertEqual(x.strip(),y)
+            assert(x.strip() == y)
 
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
 
     def test_generation_terminates(self):
         compiler = InstalInstitutionCompiler()
@@ -552,9 +513,10 @@ class TestInstitutionCompiler(unittest.TestCase):
         ]
 
         for x,y in zip(result, expected):
-            self.assertEqual(x.strip(),y)
+            assert(x.strip() == y)
 
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
+
     def test_transient_compilation(self):
         compiler = InstalInstitutionCompiler()
         inst     = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -577,9 +539,9 @@ class TestInstitutionCompiler(unittest.TestCase):
         ]
 
         for x,y in zip(result, expected):
-            self.assertEqual(x.strip(),y)
+            assert(x.strip() == y)
 
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
 
     def test_transient_with_types(self):
         compiler = InstalInstitutionCompiler()
@@ -603,9 +565,9 @@ class TestInstitutionCompiler(unittest.TestCase):
         ]
 
         for x,y in zip(result, expected):
-            self.assertEqual(x.strip(),y)
+            assert(x.strip() == y)
 
-        self.assertEqual(len(result), len(expected))
+        assert(len(result) ==  len(expected))
 
     def test_full_institution(self):
         compiler = InstalInstitutionCompiler()
@@ -682,10 +644,4 @@ class TestInstitutionCompiler(unittest.TestCase):
         ##-- end rules
 
         result = compiler.compile([inst])
-        self.assertIsInstance(result, str)
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-
-##-- end ifmain
+        assert(isinstance(result, str))

@@ -6,24 +6,18 @@
 from __future__ import annotations
 
 import logging as logmod
-import unittest
 import warnings
 import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
 
+import pytest
 import instal.parser.v2.parse_funcs as dsl
 import instal.interfaces.ast as ASTs
 from instal.interfaces.parser import InstalParserTestCase
 ##-- end imports
-
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 
 class TestSituationParser(InstalParserTestCase):
 
@@ -44,16 +38,10 @@ class TestSituationParser(InstalParserTestCase):
                                                    ):
             match data:
                 case text, inst, length:
-                    self.assertEqual(len(result), length)
-                    self.assertEqual(result[0].inst.value, inst)
+                    assert(len(result)          == length)
+                    assert(result[0].inst.value == inst)
                 case text, inst, length, fact, param:
-                    self.assertEqual(len(result), length)
-                    self.assertEqual(result[0].inst.value, inst)
-                    self.assertEqual(result[0].body[0].value, fact)
-                    self.assertEqual(result[0].body[0].params[0].value, param, "testmsg")
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-##-- end ifmain
+                    assert(len(result)                       == length)
+                    assert(result[0].inst.value              == inst)
+                    assert(result[0].body[0].value           == fact)
+                    assert(result[0].body[0].params[0].value == param, "testmsg")

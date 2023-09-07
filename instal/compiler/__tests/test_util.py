@@ -7,121 +7,97 @@ from __future__ import annotations
 
 import logging as logmod
 import pathlib
-import unittest
 import warnings
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
 
+import pytest
 from instal.compiler.util import CompileUtil
 from instal.interfaces import ast as ASTs
 from instal.parser.v2.parser import InstalPyParser
 
-##-- end imports
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
-
-class TestCompilerUtils(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.getLogger(__name__)
-        logging.root.addHandler(cls.file_h)
-        logging.root.setLevel(logmod.NOTSET)
-
-        cls.dsl = InstalPyParser()
-
-    @classmethod
-    def tearDownClass(cls):
-        logmod.root.removeHandler(cls.file_h)
+class TestCompilerUtils:
 
     def test_basic_term_recursive(self):
         term   = ASTs.TermAST("test")
         result = CompileUtil.compile_term_recursive(term)
-        self.assertEqual(result, "test")
+        assert(result ==  "test")
 
     def test_basic_term(self):
         term   = ASTs.TermAST("test")
         result = CompileUtil.compile_term(term)
-        self.assertEqual(result, "test")
+        assert(result ==  "test")
 
     def test_term_with_params_recursive(self):
         term = ASTs.TermAST("test", params=[ASTs.TermAST("first"),
                                             ASTs.TermAST("second")])
         result = CompileUtil.compile_term_recursive(term)
-        self.assertEqual(result, "test(first, second)")
+        assert(result ==  "test(first, second)")
 
     def test_term_with_params(self):
         term = ASTs.TermAST("test", params=[ASTs.TermAST("first"),
                                             ASTs.TermAST("second")])
         result = CompileUtil.compile_term(term)
-        self.assertEqual(result, "test(first, second)")
+        assert(result ==  "test(first, second)")
 
     def test_deontic_alt(self):
         term = ASTs.TermAST("permitted", [ASTs.TermAST("anAction", [ASTs.TermAST("X")])])
         result = CompileUtil.compile_term(term)
-        self.assertEqual(result, "deontic(permitted, anAction(X))")
+        assert(result ==  "deontic(permitted, anAction(X))")
 
     def test_nested_term_with_params(self):
         term = ASTs.TermAST("test", params=[ASTs.TermAST("something", [ASTs.TermAST("first")]),
                                             ASTs.TermAST("second")])
         result = CompileUtil.compile_term(term)
-        self.assertEqual(result, "test(something(first), second)")
+        assert(result ==  "test(something(first), second)")
 
     def test_term_with_params_and_underscore_recurisve(self):
         term = ASTs.TermAST("test_term", params=[ASTs.TermAST("first_a"),
                                                  ASTs.TermAST("second_b")])
         result = CompileUtil.compile_term_recursive(term)
-        self.assertEqual(result, "test_term(first_a, second_b)")
+        assert(result ==  "test_term(first_a, second_b)")
 
 
     def test_deontic_term_translation_recursive(self):
         term = ASTs.TermAST("power", params=[ASTs.TermAST("something")])
         result = CompileUtil.compile_term_recursive(term)
-        self.assertEqual(result, "deontic(power, something)")
+        assert(result ==  "deontic(power, something)")
 
     def test_deontic_term_translation(self):
         term = ASTs.TermAST("power", params=[ASTs.TermAST("something")])
         result = CompileUtil.compile_term(term)
-        self.assertEqual(result, "deontic(power, something)")
+        assert(result ==  "deontic(power, something)")
 
     def test_nested_deontic_term_translation_recursive(self):
         term = ASTs.TermAST("wrapper", [ASTs.TermAST("power", params=[ASTs.TermAST("something")])])
         result = CompileUtil.compile_term_recursive(term)
-        self.assertEqual(result, "wrapper(deontic(power, something))")
+        assert(result ==  "wrapper(deontic(power, something))")
 
     def test_nested_deontic_term_translation(self):
         term = ASTs.TermAST("wrapper", [ASTs.TermAST("power", params=[ASTs.TermAST("something")])])
         result = CompileUtil.compile_term(term)
-        self.assertEqual(result, "wrapper(deontic(power, something))")
+        assert(result ==  "wrapper(deontic(power, something))")
 
     def test_bridge_deontic_term_translation_recursive(self):
         term = ASTs.TermAST("initPower", params=[ASTs.TermAST("source"),
                                                  ASTs.TermAST("action"),
                                                  ASTs.TermAST("sink")])
         result = CompileUtil.compile_term_recursive(term)
-        self.assertEqual(result, "deontic(initPower, ev(source, action, sink))")
+        assert(result ==  "deontic(initPower, ev(source, action, sink))")
 
     def test_bridge_deontic_term_translation(self):
         term = ASTs.TermAST("initPower", params=[ASTs.TermAST("source"),
                                                  ASTs.TermAST("action"),
                                                  ASTs.TermAST("sink")])
         result = CompileUtil.compile_term(term)
-        self.assertEqual(result, "deontic(initPower, ev(source, action, sink))")
+        assert(result ==  "deontic(initPower, ev(source, action, sink))")
 
     def test_type_wrapping_no_types(self):
         result = CompileUtil.wrap_types([], ASTs.TermAST("blah"))
-        self.assertEqual(result, {"true"})
+        assert(result ==  {"true"})
 
     def test_type_wrapping(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -135,7 +111,7 @@ class TestCompilerUtils(unittest.TestCase):
         result = CompileUtil.wrap_types(inst.types,
                                         term)
 
-        self.assertEqual(result, {"book(Book)","person(Person)", "true"})
+        assert(result ==  {"book(Book)","person(Person)", "true"})
 
 
     def test_nested_type_wrapping(self):
@@ -152,7 +128,7 @@ class TestCompilerUtils(unittest.TestCase):
         result = CompileUtil.wrap_types(inst.types,
                                         term)
 
-        self.assertEqual(result, {"book(Book)", "person(Person)", "true"})
+        assert(result ==  {"book(Book)", "person(Person)", "true"})
 
     def test_multiple_same_type_wrapping(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -168,7 +144,7 @@ class TestCompilerUtils(unittest.TestCase):
         result = CompileUtil.wrap_types(inst.types,
                                         term)
 
-        self.assertEqual(result, {"book(Book1)", "book(Book2)", "true"})
+        assert(result ==  {"book(Book1)", "book(Book2)", "true"})
 
     def test_multiple_same_type_wrapping_unique(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -183,7 +159,7 @@ class TestCompilerUtils(unittest.TestCase):
 
         result = CompileUtil.wrap_types(inst.types, term)
 
-        self.assertEqual(result, {"book(Book1)", "true"})
+        assert(result ==  {"book(Book1)", "true"})
 
     def test_multiple_same_type_wrapping_underscore(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -199,7 +175,7 @@ class TestCompilerUtils(unittest.TestCase):
         result = CompileUtil.wrap_types(inst.types,
                                         term)
 
-        self.assertEqual(result, {"book(Book_1)", "book(Book_2)", "true"})
+        assert(result ==  {"book(Book_1)", "book(Book_2)", "true"})
 
 
     def test_empty_condition_compilation(self):
@@ -208,7 +184,7 @@ class TestCompilerUtils(unittest.TestCase):
         inst.types.append(ASTs.DomainSpecAST(ASTs.TermAST("Book")))
 
         result    = CompileUtil.compile_conditions(inst, [])
-        self.assertEqual(result, {"true"})
+        assert(result ==  {"true"})
 
     def test_condition_compilation(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -219,7 +195,7 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result, {"holdsat(the_world, simple, I)", "true"})
+        assert(result ==  {"holdsat(the_world, simple, I)", "true"})
 
     def test_comparison_compilation(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -232,7 +208,7 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result, {"the_world<the_universe", "true"})
+        assert(result ==  {"the_world<the_universe", "true"})
 
     def test_comparison_compilation_with_types(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -247,7 +223,7 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result, {"person(Person)",
+        assert(result ==  {"person(Person)",
                                   "person(Person_2)",
                                   "the_world(Person)<the_universe(Person_2)",
                                   "true"})
@@ -262,10 +238,7 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition, condition2])
 
-        self.assertEqual(result,
-                         {"holdsat(the_stars, simple, I)",
-                          "holdsat(the_world, simple, I)",
-                          "true"})
+        assert(result == {"holdsat(the_stars, simple, I)", "holdsat(the_world, simple, I)", "true"})
 
     def test_negated_condition_compilation(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -277,7 +250,7 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result, {"not holdsat(the_world, simple, I)", "true"})
+        assert(result ==  {"not holdsat(the_world, simple, I)", "true"})
 
     def test_condition_with_types(self):
         inst = ASTs.InstitutionDefAST(ASTs.TermAST("simple"))
@@ -292,15 +265,10 @@ class TestCompilerUtils(unittest.TestCase):
 
         result    = CompileUtil.compile_conditions(inst, [condition])
 
-        self.assertEqual(result, {"holdsat(the_world(Person, Person_2), simple, I)",
+        assert(result ==  {"holdsat(the_world(Person, Person_2), simple, I)",
                                   "person(Person)",
                                   "person(Person_2)",
                                   "true"})
 
 
 
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-
-##-- end ifmain

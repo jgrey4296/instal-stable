@@ -8,7 +8,6 @@ from __future__ import annotations
 import json
 import logging as logmod
 import pathlib
-import unittest
 import warnings
 from clingo import Symbol
 from clingo import parse_term as cpt
@@ -17,16 +16,11 @@ from importlib.resources import files
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
-
-from instal.trace.trace import InstalTrace
 ##-- end imports
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
+import pytest
+from instal.trace.trace import InstalTrace
+
 
 ##-- data
 data_path = files("instal.trace.__test.__data")
@@ -35,28 +29,12 @@ data_text = data_file.read_text()
 ##-- end data
 
 
-class TestTrace(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.getLogger(__name__)
-        logging.root.addHandler(cls.file_h)
-        logging.root.setLevel(logmod.NOTSET)
-
-
-    @classmethod
-    def tearDownClass(cls):
-        logmod.root.removeHandler(cls.file_h)
+class TestTrace:
 
     def test_load_from_json(self):
         trace = InstalTrace.from_json(json.loads(data_text))
-        self.assertIsNotNone(trace)
-        self.assertEqual(len(trace), 4)
+        assert(trace is not None)
+        assert(len(trace) == 4)
 
     def test_build_from_model_three_events(self):
         model = InstalModelResult(atoms=[],
@@ -68,11 +46,11 @@ class TestTrace(unittest.TestCase):
                                   optimal=False,
                                   type="test")
         trace = InstalTrace.from_model(model, steps=3)
-        self.assertEqual(len(trace), 4)
+        assert(len(trace) == 4)
         for state in trace:
             if state.timestep == 0:
                 continue
-            self.assertTrue(state.occurred)
+            assert(state.occurred)
 
     def test_build_from_model_holdsat(self):
         model = InstalModelResult(atoms=[],
@@ -85,8 +63,8 @@ class TestTrace(unittest.TestCase):
                                   type="test")
 
         trace = InstalTrace.from_model(model, steps=1)
-        self.assertEqual(len(trace), 2)
-        self.assertEqual(len(trace[0].holdsat['perm']), 3)
+        assert(len(trace) == 2)
+        assert(len(trace[0].holdsat['perm']) == 3)
 
 
     def test_build_from_model_holdsat(self):
@@ -100,9 +78,9 @@ class TestTrace(unittest.TestCase):
                                   type="test")
 
         trace = InstalTrace.from_model(model, steps=2)
-        self.assertEqual(len(trace), 3)
-        self.assertEqual(len(trace[1].observed), 2)
-        self.assertEqual(len(trace[2].observed), 1)
+        assert(len(trace) == 3)
+        assert(len(trace[1].observed) == 2)
+        assert(len(trace[2].observed) == 1)
 
 
 
@@ -114,7 +92,7 @@ class TestTrace(unittest.TestCase):
         reconstructed = as_json.split("\n")
         for orig, loaded in zip(data_text.split("\n"), reconstructed):
             with self.subTest(loaded):
-                self.assertEqual(orig, loaded)
+                assert(orig == loaded)
 
 
     def test_filter(self):
@@ -123,7 +101,3 @@ class TestTrace(unittest.TestCase):
     def test_fluent_intervals(self):
         pass
 
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-##-- end ifmain

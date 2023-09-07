@@ -6,41 +6,19 @@
 from __future__ import annotations
 
 import logging as logmod
-import unittest
 import warnings
 import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
+##-- end imports
+
+import pytest
 from instal.parser.v2.parser import InstalPyParser
 from instal.compiler.domain_compiler import InstalDomainCompiler
 from instal.interfaces import ast as ASTs
-from unittest import mock
-##-- end imports
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
-
-class TestDomainCompiler(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.getLogger(__name__)
-        logging.root.addHandler(cls.file_h)
-        logging.root.setLevel(logmod.NOTSET)
-
-    @classmethod
-    def tearDownClass(cls):
-        logmod.root.removeHandler(cls.file_h)
-
+class TestDomainCompiler:
     def test_one_type_domain(self):
         """ initially/iaf -> .lp """
         compiler = InstalDomainCompiler()
@@ -50,7 +28,7 @@ class TestDomainCompiler(unittest.TestCase):
                                              ASTs.TermAST("jill")]))
 
         result = compiler.compile(data)
-        self.assertIsInstance(result, str)
+        assert(result == str)
         expected = [
             "%%",
             "%-------------------------------",
@@ -65,9 +43,9 @@ class TestDomainCompiler(unittest.TestCase):
             "person(bill).",
             "person(jill).",
             ]
-        self.assertEqual(len(result.split("\n")), len(expected))
+        assert(len(result.split("\n")) == len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x,y)
+            assert(x == y)
 
     def test_two_type_domain(self):
         """ initially/iaf -> .lp """
@@ -82,7 +60,7 @@ class TestDomainCompiler(unittest.TestCase):
                                              ASTs.TermAST("book2")]))
 
         result = compiler.compile(data)
-        self.assertIsInstance(result, str)
+        assert(isinstance(result, str))
         expected = [
             "%%",
             "%-------------------------------",
@@ -100,15 +78,6 @@ class TestDomainCompiler(unittest.TestCase):
             "book(book1).",
             "book(book2).",
             ]
-        self.assertEqual(len(result.split("\n")), len(expected))
+        assert(len(result.split("\n")) == len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x,y)
-
-
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-
-##-- end ifmain
+            assert(x == y)

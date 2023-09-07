@@ -8,30 +8,25 @@ from __future__ import annotations
 #
 import logging as logmod
 import pathlib
-import unittest
 import warnings
 from importlib.resources import files
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
+
+import pytest
 
 from instal.cli.compiler import compile_target
 from instal.compiler.domain_compiler import InstalDomainCompiler
 from instal.parser.v2.parser import InstalPyParser
 from instal.solve.clingo_solver import ClingoSolver
 
-##-- end imports
 
 ##-- data
 test_files      = files("instal.__tests.model_logic.__data")
 ##-- end data
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 logging = logmod.root
 
 
@@ -42,23 +37,7 @@ def save_last(compiled, append=None):
         if bool(append):
             f.write("\n".join(str(x) for x in append))
 
-class TestInstalEvents(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.root
-        logging.setLevel(logmod.NOTSET)
-        logging.addHandler(cls.file_h)
-
-
-    @classmethod
-    def tearDownClass(cls):
-        logging.removeHandler(cls.file_h)
+class TestInstalEvents:
 
     def test_event_observation(self):
         # Compile a harness
@@ -73,11 +52,11 @@ class TestInstalEvents(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query)
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEvents)", result)
-        self.assertIn("observed(basicExEvent,0)", result)
-        self.assertNotIn("observed(null,0)", result)
+        assert("institution(minimalEvents)" in result)
+        assert("observed(basicExEvent,0)" in result)
+        assert("observed(null,0)" not in result)
 
     def test_event_observation_timestep(self):
         # Compile a harness
@@ -92,11 +71,11 @@ class TestInstalEvents(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query)
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEvents)", result)
-        self.assertIn("observed(basicExEvent,1)", result)
-        self.assertNotIn("observed(null,1)", result)
+        assert("institution(minimalEvents)" in result)
+        assert("observed(basicExEvent,1)" in result)
+        assert("observed(null,1)" not in result)
 
     def test_event_observation_twice(self):
         # Compile a harness
@@ -112,11 +91,11 @@ class TestInstalEvents(unittest.TestCase):
         # Check it is observed
         solver.solve(query)
 
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEvents)", result)
-        self.assertIn("observed(basicExEvent,0)", result)
-        self.assertIn("observed(basicExEvent,1)", result)
+        assert("institution(minimalEvents)" in result)
+        assert("observed(basicExEvent,0)" in result)
+        assert("observed(basicExEvent,1)" in result)
 
 
     def test_event_observation_null_events(self):
@@ -128,16 +107,16 @@ class TestInstalEvents(unittest.TestCase):
                                          '-c', f'horizon=2'])
         solver.solve()
 
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalInst)", result)
-        self.assertIn("observed(null,0)", result)
-        self.assertIn("observed(null,1)", result)
-        self.assertIn("occurred(null,minimalInst,0)", result)
-        self.assertIn("occurred(null,minimalInst,1)", result)
-        self.assertIn("occurred(null,minimalInst,2)", result)
+        assert("institution(minimalInst)" in result)
+        assert("observed(null,0)" in result)
+        assert("observed(null,1)" in result)
+        assert("occurred(null,minimalInst,0)" in result)
+        assert("occurred(null,minimalInst,1)" in result)
+        assert("occurred(null,minimalInst,2)" in result)
         # null events are generated:
-        # self.assertIn("observed(null,0)", result)
+        # assertIn("observed(null,0)", result)
 
 
     def test_event_observation_outside_time_bounds(self):
@@ -153,11 +132,11 @@ class TestInstalEvents(unittest.TestCase):
 
         solver.solve(query)
 
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result : str = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEvents)", result)
+        assert("institution(minimalEvents)" in result)
         # Event is not observed
-        self.assertNotIn("observed(basicExEvent,10)", result)
+        assert("observed(basicExEvent,10)" not in result)
 
     def test_event_observation_inside_extended_time_bounds(self):
         # Compile a harness
@@ -172,11 +151,11 @@ class TestInstalEvents(unittest.TestCase):
 
         solver.solve(query)
 
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result : str = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEvents)", result)
+        assert("institution(minimalEvents)" in result)
         # Event is not observed
-        self.assertIn("observed(basicExEvent,10)", result)
+        assert("observed(basicExEvent,10)" in result)
 
 
 
@@ -196,11 +175,11 @@ class TestInstalEvents(unittest.TestCase):
         # Check it is observed
         solver.solve(query)
 
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result : str = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEvents)", result)
-        self.assertIn("observed(basicExEvent,0)", result)
-        self.assertIn("observed(secondEvent,1)", result)
+        assert("institution(minimalEvents)" in result)
+        assert("observed(basicExEvent,0)" in result)
+        assert("observed(secondEvent,1)" in result)
 
 
     def test_event_observation_with_conflicting_times(self):
@@ -217,7 +196,7 @@ class TestInstalEvents(unittest.TestCase):
 
         solver.solve(query)
         # There is not model for it:
-        self.assertEqual(len(solver.results), 0)
+        assert(len(solver.results) == 0)
 
     def test_event_observation_unrecognised(self):
         # Compile a harness
@@ -232,10 +211,10 @@ class TestInstalEvents(unittest.TestCase):
                                           '-c', f'horizon=2'])
         # Check it is observed
         solver.solve(query)
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEvents)", result)
-        self.assertIn("observed(_unrecognisedEvent,0)", result)
+        assert("institution(minimalEvents)" in result)
+        assert("observed(_unrecognisedEvent,0)" in result)
 
     def test_event_with_var(self):
         # Compile a harness
@@ -251,12 +230,12 @@ class TestInstalEvents(unittest.TestCase):
         # Check it is observed
         solver.solve(query)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEvents)", result)
-        self.assertIn("observed(basicExEventWithParam(first),0)", result)
-        self.assertIn("observed(basicExEventWithParam(second),1)", result)
-        self.assertNotIn("observed(null,0)", result)
+        ("institution(minimalEvents)" in result)
+        ("observed(basicExEventWithParam(first),0)" in result)
+        ("observed(basicExEventWithParam(second),1)" in result)
+        assert("observed(null,0)" not in result)
 
 
     def test_event_with_unrecognized_var(self):
@@ -273,10 +252,10 @@ class TestInstalEvents(unittest.TestCase):
         # Check it is observed
         solver.solve(query)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEvents)", result)
-        self.assertNotIn("observed(basicExEventWithParam(other),0)", result)
+        assert("institution(minimalEvents)" in result)
+        assert("observed(basicExEventWithParam(other),0)" not in result)
 
     def test_event_with_domain_extended_var(self):
         # Compile a harness
@@ -293,10 +272,10 @@ class TestInstalEvents(unittest.TestCase):
         # Check it is observed
         solver.solve(query)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEvents)", result)
-        self.assertIn("observed(basicExEventWithParam(other),0)", result)
+        assert("institution(minimalEvents)" in result)
+        assert("observed(basicExEventWithParam(other),0)" in result)
 
     def test_event_with_multi_var(self):
         # Compile a harness
@@ -312,14 +291,7 @@ class TestInstalEvents(unittest.TestCase):
         # Check it is observed
         solver.solve(query)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) in 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalEvents)", result)
-        self.assertIn("observed(basicExEventMulti(first,second,third),0)", result)
-
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-##-- end ifmain
+        assert("institution(minimalEvents)" in result)
+        assert("observed(basicExEventMulti(first,second,third),0)" in result)

@@ -8,30 +8,24 @@ from __future__ import annotations
 #
 import logging as logmod
 import pathlib
-import unittest
 import warnings
 from importlib.resources import files
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
+
+import pytest
 
 from instal.cli.compiler import compile_target
 from instal.compiler.domain_compiler import InstalDomainCompiler
 from instal.parser.v2.parser import InstalPyParser
 from instal.solve.clingo_solver import ClingoSolver
 
-##-- end imports
 
 ##-- data
 test_files      = files("instal.__tests.model_logic.__data")
 ##-- end data
-
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 
 logging = logmod.root
 
@@ -43,23 +37,7 @@ def save_last(compiled, append=None):
             f.write("\n".join(str(x) for x in append))
 
 
-class TestInstalPrelude(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.root
-        logging.setLevel(logmod.NOTSET)
-        logging.addHandler(cls.file_h)
-
-
-    @classmethod
-    def tearDownClass(cls):
-        logging.removeHandler(cls.file_h)
+class TestInstalPrelude:
 
     def test_prelude_success(self):
         # Compile a harness
@@ -74,10 +52,10 @@ class TestInstalPrelude(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         save_last(compiled, solver.results[0].atoms)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalInst)", result)
+        assert("institution(minimalInst)" in result)
 
     def test_prelude_fail(self):
         # Compile a harness
@@ -93,11 +71,4 @@ class TestInstalPrelude(unittest.TestCase):
         # Check it is observed
         solver.solve(query)
         save_last(compiled)
-        self.assertEqual(len(solver.results), 0)
-
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-##-- end ifmain
+        assert((len(solver.results) == 0)

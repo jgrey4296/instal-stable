@@ -6,24 +6,18 @@
 from __future__ import annotations
 
 import logging as logmod
-import unittest
 import warnings
 import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
 
+import pytest
 import instal.parser.v2.parse_funcs as dsl
 import instal.interfaces.ast as ASTs
 from instal.interfaces.parser import InstalParserTestCase
-##-- end imports
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 
 class TestDomainParser(InstalParserTestCase):
 
@@ -41,32 +35,22 @@ class TestDomainParser(InstalParserTestCase):
                                                  ):
             match data:
                 case dict():
-                    self.assertEqual(len(result), data['length'])
+                    assert(len(result) == data['length'])
                     for spec in result:
-                        self.assertIsInstance(spec, ASTs.DomainSpecAST)
-                        self.assertEqual(spec.head.value, data['type_name'])
-                        self.assertAllIn((x.value for x in spec.body), data['values'])
+                        assert(isinstance(spec, ASTs.DomainSpecAST))
+                        assert(spec.head.value = data['type_name'])
+                        assert(all((x.value in data['values'] for x in spec.body))
 
                 case text, length, type_names, values if isinstance(type_names, list):
-                    self.assertEqual(len(result), length)
+                    assert(len(result) == length)
                     for spec in result:
-                        self.assertIsInstance(spec, ASTs.DomainSpecAST)
-                        self.assertIn(spec.head.value, type_names)
-                        self.assertAllIn((x.value for x in spec.body), values)
+                        assert(isinstance(spec, ASTs.DomainSpecAST))
+                        assert(spec.head.value in type_names)
+                        assert(all((x.value in values for x in spec.body))
 
                 case text, length, type_name, values:
-                    self.assertEqual(len(result), length)
+                    assert(len(result) == length)
                     for spec in result:
-                        self.assertIsInstance(spec, ASTs.DomainSpecAST)
-                        self.assertEqual(spec.head.value, type_name)
-                        self.assertTrue(all(x.value in values for x in spec.body))
-
-
-
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-
-##-- end ifmain
+                        assert(isinstance(spec, ASTs.DomainSpecAST))
+                        assert(spec.head.value == type_name)
+                        assert(all(x.value in values for x in spec.body))

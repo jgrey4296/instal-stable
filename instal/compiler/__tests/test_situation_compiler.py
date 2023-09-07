@@ -6,40 +6,18 @@
 from __future__ import annotations
 
 import logging as logmod
-import unittest
 import warnings
 import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
+##-- end imports
+import pytest
 from instal.parser.v2.parser import InstalPyParser
 from instal.interfaces import ast as ASTs
-from unittest import mock
 from instal.compiler.situation_compiler import InstalSituationCompiler
-##-- end imports
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
-
-class TestSituationCompiler(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.getLogger(__name__)
-        logging.root.addHandler(cls.file_h)
-        logging.root.setLevel(logmod.NOTSET)
-
-    @classmethod
-    def tearDownClass(cls):
-        logmod.root.removeHandler(cls.file_h)
+class TestSituationCompiler:
 
     def test_one_fact_situation(self):
         """ initially/iaf -> .lp """
@@ -49,7 +27,7 @@ class TestSituationCompiler(unittest.TestCase):
                                       inst=ASTs.TermAST("testInst")))
 
         result = compiler.compile(data)
-        self.assertIsInstance(result, str)
+        assert(isinstance(result, str))
         expected = [
             "#program base.",
             "",
@@ -61,9 +39,9 @@ class TestSituationCompiler(unittest.TestCase):
             "true.",
             ""
             ]
-        self.assertEqual(len(result.split("\n")), len(expected))
+        assert(len(result.split("\n")) ==  len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x.strip(),y)
+            assert(x.strip() == y)
 
     def test_two_fact_situation(self):
         """ initially/iaf -> .lp """
@@ -74,7 +52,7 @@ class TestSituationCompiler(unittest.TestCase):
                                       inst=ASTs.TermAST("testInst")))
 
         result = compiler.compile(data)
-        self.assertIsInstance(result, str)
+        assert(isinstance(result, str))
         expected = [
             "#program base.",
             "",
@@ -92,11 +70,9 @@ class TestSituationCompiler(unittest.TestCase):
             "holdsat(live(testInst), testInst, I),",
             "true.",
             ]
-        self.assertEqual(len(result.strip().split("\n")), len(expected))
+        assert(len(result.strip().split("\n")) ==  len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x.strip(),y)
-
-
+            assert(x.strip() == y)
 
     def test_two_situations(self):
         """ initially/iaf -> .lp """
@@ -109,7 +85,7 @@ class TestSituationCompiler(unittest.TestCase):
                                            inst=ASTs.TermAST("secondInst")))
 
         result = compiler.compile(data)
-        self.assertIsInstance(result, str)
+        assert(isinstance(result, str))
         expected = [
             "#program base.",
             "",
@@ -128,11 +104,9 @@ class TestSituationCompiler(unittest.TestCase):
             "true.",
             "",
             ]
-        self.assertEqual(len(result.split("\n")), len(expected))
+        assert(len(result.split("\n")) ==  len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x.strip(),y)
-
-
+            assert(x.strip() == y)
 
     def test_deontic_situations(self):
         """ initially/iaf -> .lp """
@@ -145,7 +119,7 @@ class TestSituationCompiler(unittest.TestCase):
                                            inst=ASTs.TermAST("simple")))
 
         result = compiler.compile(data)
-        self.assertIsInstance(result, str)
+        assert(isinstance(result, str))
         expected = [
             "#program base.",
             "",
@@ -164,9 +138,9 @@ class TestSituationCompiler(unittest.TestCase):
             "true.",
             "",
             ]
-        self.assertEqual(len(result.split("\n")), len(expected))
+        assert(len(result.split("\n")) ==  len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x.strip(),y)
+            assert(x.strip() == y)
 
     def test_deontic_with_vars_situations(self):
         """ initially/iaf -> .lp """
@@ -179,7 +153,7 @@ class TestSituationCompiler(unittest.TestCase):
                                            inst=ASTs.TermAST("simple")))
 
         result = compiler.compile(data)
-        self.assertIsInstance(result, str)
+        assert(isinstance(result, str))
         expected = [
             "#program base.",
             "",
@@ -198,11 +172,9 @@ class TestSituationCompiler(unittest.TestCase):
             "true.",
             "",
             ]
-        self.assertEqual(len(result.split("\n")), len(expected))
+        assert(len(result.split("\n")) ==  len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x.strip(),y)
-
-
+            assert(x.strip() == y)
 
     def test_deontic_situations_provided_inst(self):
         """ initially/iaf -> .lp """
@@ -214,7 +186,7 @@ class TestSituationCompiler(unittest.TestCase):
         data.append(ASTs.InitiallyAST([ASTs.TermAST("power", [ASTs.TermAST("anAction")])]))
 
         result = compiler.compile(data, inst=inst)
-        self.assertIsInstance(result, str)
+        assert(isinstance(result, str))
         expected = [
             "#program base.",
             "",
@@ -233,16 +205,10 @@ class TestSituationCompiler(unittest.TestCase):
             "true.",
             "",
             ]
-        self.assertEqual(len(result.split("\n")), len(expected))
+        assert(len(result.split("\n")) ==  len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x.strip(),y)
+            assert(x.strip() == y)
 
-
-    @unittest.skip("todo")
+    @pytest.mark.skip(reason="TODO")
     def test_fact_situation_with_conditions(self):
         pass
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-
-##-- end ifmain

@@ -7,28 +7,21 @@ from __future__ import annotations
 
 import logging as logmod
 import pathlib
-import unittest
 import warnings
 from importlib.resources import files
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
 
+import pytest
 import instal.interfaces.ast as ASTs
 import instal.parser.v2.bridge_parse_funcs as b_dsl
 from instal.interfaces.parser import InstalParserTestCase
-##-- end imports
 
 ##-- data
 data_path = files("instal.parser.v2.__tests.__data")
 ##-- end data
-
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 
 class TestInstitutionParser(InstalParserTestCase):
     def test_simple_institution(self):
@@ -47,15 +40,14 @@ class TestInstitutionParser(InstalParserTestCase):
                                                                                                               ("other", ASTs.BridgeLinkEnum.source)]),
                                                    ):
             for link, desc in zip(sorted(result[0].links, key=lambda x: x.head.value), data[1]):
-                self.assertEqual(link.head.value, desc[0])
-                self.assertEqual(link.link_type, desc[1])
+                assert(link.head.value == desc[0])
+                assert(link.link_type == desc[1])
 
     def test_types(self):
         for result, data in self.yieldParseResults(b_dsl.top_bridge,
                                                    ("bridge test;\ntype Test;\ntype Other;", ["Test", "Other"])
                                                    ):
-            types = (x.head.value for x in result[0].types)
-            self.assertAllIn(types, data[1])
+            assert(all(x.head.value in data[1] for x in result[0].types))
 
     def test_events(self):
         for result, data in self.yieldParseResults(b_dsl.top_bridge,
@@ -71,8 +63,8 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("bridge test;\nviol event blah;\nviol event other;\nviol event another;", ["blah", "other", "another"], {ASTs.EventEnum.violation}),
                                                    ):
             events = result[0].events
-            self.assertAllIn((x.head.value for x in events), data[1])
-            self.assertAllIn((x.annotation for x in events), data[2])
+            assert(all(x.head.value in data[1] for x in events))
+            assert(all(x.annotation in data[2] for x in events))
 
 
     def test_fluents(self):
@@ -90,8 +82,8 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ):
 
             fluents = result[0].fluents
-            self.assertAllIn((x.head.value for x in fluents), data[1])
-            self.assertAllIn((x.annotation for x in fluents), data[2])
+            assert(all(x.head.value in data[1] for x in fluents))
+            assert(all(x.annotation in data[2] for x in fluents))
 
     def test_generation_rules(self):
         for result, data in self.yieldParseResults(b_dsl.top_bridge,
@@ -102,9 +94,9 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("bridge test\nsomething(_) generates else(_)", ["something(_)"], ["else(_)"], {ASTs.RuleEnum.generates}),
                                                    ):
             rules = result[0].rules
-            self.assertAllIn((str(x.head) for x in rules), data[1])
-            self.assertAllIn((str(y) for x in rules for y in x.body), data[2])
-            self.assertAllIn((x.annotation for x in rules), data[3])
+            assert(all(str(x.head) in data[1] for x in rules))
+            assert(all(str(y) in data[2] for x in rules for y in x.body))
+            assert(all(x.annotation in data[3] for x in rules))
 
     def test_inertial_rules(self):
         for result, data in self.yieldParseResults(b_dsl.top_bridge,
@@ -121,9 +113,9 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("bridge test\nsomething(_) terminates else(_)", ["something(_)"], ["else(_)"], {ASTs.RuleEnum.terminates}),
                                                    ):
             rules = result[0].rules
-            self.assertAllIn((str(x.head) for x in rules), data[1])
-            self.assertAllIn((str(y) for x in rules for y in x.body), data[2])
-            self.assertAllIn((x.annotation for x in rules), data[3])
+            assert(all(str(x.head) in data[1] for x in rules))
+            assert(all(str(y) in data[2] for x in rules for y in x.body))
+            assert(all(x.annotation in data[3] for x in rules))
 
 
 
@@ -141,13 +133,13 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ):
             transients = result[0].rules
             # all rules should have one body result:
-            self.assertTrue(all(1 == len(x.body) for x in transients))
-            self.assertTrue(all(x.head is None for x in transients))
+            assert(all(1 == len(x.body) for x in transients))
+            assert(all(x.head is None for x in transients))
             # Check the result of the rule:
-            self.assertAllIn((str(y) for x in transients for y in x.body), data[1])
+            assert(all(str(y) in data[1] for x in transients for y in x.body))
             # Check the conditions of the rule:
-            self.assertAllIn((str(y.head) for x in transients for y in x.conditions), data[2])
-            self.assertAllIn((x.annotation for x in transients), data[3])
+            assert(all(str(y.head) in data[2] for x in transients for y in x.conditions))
+            assert(all(x.annotation in data[3] for x in transients))
 
 
     def test_initially(self):
@@ -158,10 +150,10 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("bridge test;\ninitially something(_,SecondVar);", ["something(_,SecondVar)"]),
                                                    ):
             initial = result[0].initial
-            self.assertAllIn((str(y) for x in initial for y in x.body), data[1])
+            assert(all(str(y) in data[1] for x in initial for y in x.body))
 
 
-    @unittest.skip("TODO")
+    @pytest.mark.skip(reason="TODO")
     def test_condition_parsing(self):
         pass
 
@@ -169,10 +161,3 @@ class TestInstitutionParser(InstalParserTestCase):
         self.assertFilesParse(b_dsl.top_bridge,
                               "test_bridge.iab",
                               loc=data_path)
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-
-##-- end ifmain
