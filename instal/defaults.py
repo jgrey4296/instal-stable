@@ -6,47 +6,31 @@
 from __future__ import annotations
 
 import os
+import pathlib as pl
+from importlib.resources import files
+import tomler
+
 ##-- end imports
 
-##-- file extensions
-COMPILED_EXT = ".lp"
+default_toml  = files("instal.__data") / "defaults.toml"
 
-INST_EXT      = ".ial"
-BRIDGE_EXT    = ".iab"
-DOMAIN_EXT    = ".idc"
+data = tomler.load(default_toml.read_text())
+__loaded_toml = data.tool.instal
 
-QUERY_EXT     = ".iaq"
+def __getattr__(attr):
+    result = __loaded_toml.get(attr)
+    if result is None:
+        raise TomlAccessError(attr)
 
-# Equivalent:
-FACT_EXT      = ".iaf"
-SITUATION_EXT = ".iaf"
+    if isinstance(result, dict):
+        return TomlAccessor(attr, result)
 
-##-- end file extensions
-
-##-- parser selection
-# Parser import string:
-PARSER = "instal.parser.v2.parser.InstalPyParser"
-
-##-- end parser selection
-
-##-- data locations
-# Data:
-COMP_DATA_loc        = "instal.__data.compilation_templates.v2"
-STANDARD_PRELUDE_loc = "instal.__data.standard_prelude.v2"
-
-TEX_loc              = "instal.__data.tex"
-
-##-- end data locations
-
-##-- trace fluent groupings
-# Default groupings of holdsat in instal.interfaces.trace.State_i
-STATE_HOLDSAT_GROUPS = ["fluent", "gpow", "ipow", "obl", "other", "perm", "pow", "tpow"]
-
-##-- end trace fluent groupings
-
-DEONTICS        = ["power", "permitted"]
-BRIDGE_DEONTICS = ["genPower", "initPower", "termPower"]
+    return result
 
 
-# DEBUG controls:
-SUPPRESS_PARSER_EXCEPTION_TRACE = True
+def __dir__():
+    return list(__loaded_toml.keys())
+
+def set_defaults(path: pl.Path):
+    global __loaded_toml
+    __loaded_toml = tomler.load(path.read_text()).tool.instal

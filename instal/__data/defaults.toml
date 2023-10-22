@@ -1,0 +1,61 @@
+## Instal Defaults File
+## Format: Toml
+## All tables start with 'tool.instal'
+## to be usable in pyproject.toml
+
+[tool.instal.logging]
+# TODO set logging details here
+
+[tool.instal.debug]
+SUPPRESS_PARSER_EXCEPTION_TRACE = true
+
+##-- file extensions
+[tool.instal.extensions]
+# File Extensions, checked against pathlib.Path.suffix
+# ie: includes the `.` separating stem from stuffix
+
+# The extension of compiled logic files:
+COMPILED_EXT = ".lp"
+
+# Extensions of Instal DSL files:
+INST_EXT      = ".ial"
+BRIDGE_EXT    = ".iab"
+DOMAIN_EXT    = ".idc"
+QUERY_EXT     = ".iaq"
+SITUATION_EXT = ".iaf"
+
+##-- end file extensions
+
+##-- parser selection
+[tool.instal.dsl]
+# The parser class to use, as an import string (not a path)
+# Must be an instance of insta.interfaces.parser.InstalParser_i
+PARSER          = "instal.parser.v2.parser.InstalPyParser"
+
+# Keywords used in the parser for deontics
+DEONTICS        = ["power", "permitted"]
+BRIDGE_DEONTICS = ["genPower", "initPower", "termPower"]
+
+##-- end parser selection
+
+##-- compilation
+[tool.instal.compilation]
+# The import string (not path) to data packages
+COMP_DATA_loc        = "instal.__data.compilation_templates.v2"
+STANDARD_PRELUDE_loc = "instal.__data.standard_prelude.v2"
+
+##-- end compilation
+
+##-- reports
+[tool.instal.reports]
+# The import string (not path) to a data package of tex templates
+TEX_loc              = "instal.__data.tex"
+
+##-- end reports
+
+##-- traces
+[tool.instal.traces]
+# Default groupings of holdsat in instal.interfaces.trace.State_i
+STATE_HOLDSAT_GROUPS = ["fluent", "gpow", "ipow", "obl", "other", "perm", "pow", "tpow"]
+
+##-- end traces

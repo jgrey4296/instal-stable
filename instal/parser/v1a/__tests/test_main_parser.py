@@ -7,28 +7,21 @@ from __future__ import annotations
 
 import logging as logmod
 import pathlib
-import unittest
 import warnings
 from importlib.resources import files
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
 
+import pytest
 import instal.interfaces.ast as ASTs
 import instal.parser.v1a.parse_funcs as dsl
 from instal.interfaces.parser import InstalParserTestCase
-##-- end imports
 
 ##-- data
 data_path = files("instal.parser.v1a.__tests.__data")
 ##-- end data
-
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 
 class TestInstitutionParser(InstalParserTestCase):
     def test_simple_institution(self):
@@ -48,8 +41,8 @@ class TestInstitutionParser(InstalParserTestCase):
                                                                                                               ("other", ASTs.BridgeLinkEnum.source)]),
                                                    ):
             for link, desc in zip(sorted(result[0].links, key=lambda x: x.head.value), data[1]):
-                self.assertEqual(link.head.value, desc[0])
-                self.assertEqual(link.link_type, desc[1])
+                assert(link.head.value == desc[0])
+                assert(link.link_type == desc[1])
 
 
     def test_types(self):
@@ -57,7 +50,7 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("institution test;\ntype Test;\ntype Other;", ["Test", "Other"])
                                                    ):
             types = (x.head.value for x in result[0].types)
-            self.assertAllIn(types, data[1])
+            assert(all(x in data[1] for x in types))
 
     def test_events(self):
         for result, data in self.yieldParseResults(dsl.top_institution,
@@ -68,8 +61,8 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("institution test;\nviolation event blah;\nviolation event other;\nviolation event another;", ["blah", "other", "another"], {ASTs.EventEnum.violation}),
                                                    ):
             events = result[0].events
-            self.assertAllIn((x.head.value for x in events), data[1])
-            self.assertAllIn((x.annotation for x in events), data[2])
+            assert(all(x.head.value in data[1] for x in events))
+            assert(all(x.annotation for x in events), data[2]))
 
 
     def test_fluents(self):
@@ -85,8 +78,8 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ):
 
             fluents = result[0].fluents
-            self.assertAllIn((x.head.value for x in fluents), data[1])
-            self.assertAllIn((x.annotation for x in fluents), data[2])
+            assert(all((x.head.value in data[1] for x in fluents))
+            assert(all((x.annotation in data[2] for x in fluents))
 
     def test_generation_rules(self):
         for result, data in self.yieldParseResults(dsl.top_institution,
@@ -94,9 +87,9 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("institution test;\nsomething generates else;", ["something"], ["else"], {ASTs.RuleEnum.generates}),
                                                    ):
             rules = result[0].rules
-            self.assertAllIn((x.head.value for x in rules), data[1])
-            self.assertAllIn((y.value for x in rules for y in x.body), data[2])
-            self.assertAllIn((x.annotation for x in rules), data[3])
+            assert(all(x.head.value in data[1] for x in rules))
+            assert(all(y.value in data[2] for x in rules for y in x.body))
+            assert(all(x.annotation in data[3] for x in rules))
 
     def test_transient_rules(self):
         for result, data in self.yieldParseResults(dsl.top_institution,
@@ -104,8 +97,8 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("institution test;\nsomething when else;", ["something"], ["else"]),
                                                    ):
             transients = result[0].rules
-            self.assertAllIn((str(y) for x in transients for y in x.body), data[1])
-            self.assertAllIn((str(y.head) for x in transients for y in x.conditions), data[2])
+            assert(all(str(y) in data[1] for x in transients for y in x.body))
+            assert(all(str(y.head) in data[2] for x in transients for y in x.conditions))
 
 
     def test_initially(self):
@@ -113,7 +106,7 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("institution test;\ninitially something;", ["something"]),
                                                    ):
             initial = result[0].initial
-            self.assertAllIn((y.value for x in initial for y in x.body), data[1])
+            assert(all(y.value in data[1] for x in initial for y in x.body))
 
 
     def test_condition_parsing(self):
@@ -132,12 +125,12 @@ class TestInstitutionParser(InstalParserTestCase):
                                                                                                rhs=ASTs.TermAST("testOther"))])
                                                    ):
             result_list = result[:]
-            self.assertEqual(len(result_list), len(data[1]))
+            assert(len(result_list) == len(data[1]))
             for resultCond, expectedCond in zip(result_list, data[1]):
-                self.assertEqual(resultCond.head, expectedCond.head)
-                self.assertEqual(resultCond.negated, expectedCond.negated)
-                self.assertEqual(resultCond.operator, expectedCond.operator)
-                self.assertEqual(resultCond.rhs, expectedCond.rhs)
+                assert(resultCond.head     == expectedCond.head)
+                assert(resultCond.negated  == expectedCond.negated)
+                assert(resultCond.operator == expectedCond.operator)
+                assert(resultCond.rhs      == expectedCond.rhs)
 
     def test_rule_with_condition_parsing(self):
         for result, data in self.yieldParseResults(dsl.RULE,
@@ -145,16 +138,16 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("anEv initiates someFluent if testVal;", ASTs.InertialRuleAST, [ASTs.ConditionAST(ASTs.TermAST("testVal"))]),
                                                    ):
             the_rule = result[:][0]
-            self.assertIsInstance(the_rule, ASTs.RuleAST)
-            self.assertIsInstance(the_rule, data[1])
-            self.assertIsInstance(the_rule.conditions, list)
-            self.assertEqual(len(the_rule.conditions), len(data[2]))
+            assert(isinstance(the_rule, ASTs.RuleAST))
+            assert(isinstance(the_rule, data[1]))
+            assert(isinstance(the_rule.conditions, list))
+            assert(len(the_rule.conditions) == len(data[2]))
             for resultCond, expectedCond in zip(the_rule.conditions, data[2]):
-                self.assertIsInstance(resultCond, ASTs.ConditionAST)
-                self.assertEqual(resultCond.head, expectedCond.head)
-                self.assertEqual(resultCond.negated, expectedCond.negated)
-                self.assertEqual(resultCond.operator, expectedCond.operator)
-                self.assertEqual(resultCond.rhs, expectedCond.rhs)
+                assert(isinstance(resultCond, ASTs.ConditionAST))
+                assert((resultCond.head    == expectedCond.head)
+                assert(resultCond.negated  == expectedCond.negated)
+                assert(resultCond.operator == expectedCond.operator)
+                assert(resultCond.rhs      == expectedCond.rhs)
 
 
     def test_simple_full(self):
@@ -163,10 +156,3 @@ class TestInstitutionParser(InstalParserTestCase):
                               "test_inst2.ial",
                               "test_inst3.ial",
                               loc=data_path)
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-
-##-- end ifmain

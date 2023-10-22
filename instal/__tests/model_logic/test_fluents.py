@@ -7,19 +7,19 @@ from __future__ import annotations
 
 import logging as logmod
 import pathlib
-import unittest
 import warnings
 from importlib.resources import files
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
+
+import pytest
 
 from instal.cli.compiler import compile_target
 from instal.parser.v2.parser import InstalPyParser
 from instal.solve.clingo_solver import ClingoSolver
 from instal.defaults import STANDARD_PRELUDE_loc
-##-- end imports
 
 ##-- data
 test_files      = files("instal.__tests.model_logic.__data")
@@ -40,23 +40,7 @@ def save_last(compiled, append=None):
             f.write("\n%% Resulting Atoms:\n ")
             f.write("\n".join(str(x) for x in append))
 
-class TestInstalFluents(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.root
-        logging.setLevel(logmod.NOTSET)
-        logging.addHandler(cls.file_h)
-
-
-    @classmethod
-    def tearDownClass(cls):
-        logging.removeHandler(cls.file_h)
+class TestInstalFluents:
 
     def test_minimal_fluent(self):
         # Compile a harness
@@ -66,18 +50,18 @@ class TestInstalFluents(unittest.TestCase):
         situation = parser.parse_situation("initially testFact in minimalFluents")
         query     = []
         # Solve
-        self.assertTrue(compiled)
-        self.assertTrue(situation)
+        assert(compiled)
+        assert(situation)
         solver   = ClingoSolver("\n".join(compiled),
                                 options=['-n', "1",
                                          '-c', f'horizon=2'])
 
         # Check it is observed
         solver.solve(query + situation)
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalFluents)", result)
-        self.assertIn("holdsat(testFact,minimalFluents,0)", result)
+        assert("institution(minimalFluents)" in result)
+        assert("holdsat(testFact,minimalFluents,0)" in result)
 
     def test_minimal_fluent_negated(self):
         # Compile a harness
@@ -93,10 +77,10 @@ class TestInstalFluents(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query + situation)
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalFluents)", result)
-        self.assertNotIn("holdsat(testFact,minimalFluents,0)", result)
+        assert("institution(minimalFluents)" in result)
+        assert("holdsat(testFact,minimalFluents,0)" not in result)
 
     def test_minimal_fluent_initiate(self):
         # Compile a harness
@@ -112,18 +96,18 @@ class TestInstalFluents(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query + situation)
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result = str(solver.results[0].shown)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertIn("institution(minimalFluents)", result)
-        self.assertIn("holdsat(deontic(permitted,basicInstEvent(init)),minimalFluents,0)", result)
+        assert("institution(minimalFluents)" in result)
+        assert("holdsat(deontic(permitted,basicInstEvent(init)),minimalFluents,0)" in result)
         # Starts off not holding
-        self.assertNotIn("holdsat(testFact,minimalFluents,0)", result)
+        assert("holdsat(testFact,minimalFluents,0)" not in result)
         # initiation happens
-        self.assertIn("observed(basicEvent(init),1)", result)
-        self.assertIn("occurred(basicInstEvent(init),minimalFluents,1)", result)
+        assert("observed(basicEvent(init),1)" in result)
+        assert("occurred(basicInstEvent(init),minimalFluents,1)" in result)
         # next time step, fact holds
-        self.assertIn("holdsat(testFact,minimalFluents,2)", result)
+        assert("holdsat(testFact,minimalFluents,2)" in result)
 
     def test_minimal_fluent_propagation(self):
         # Compile a harness
@@ -139,19 +123,19 @@ class TestInstalFluents(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query + situation)
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results) == 1)
         result = str(solver.results[0].shown)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertIn("institution(minimalFluents)", result)
-        self.assertIn("holdsat(deontic(permitted,basicInstEvent(init)),minimalFluents,0)", result)
+        assert("institution(minimalFluents)" in result)
+        assert("holdsat(deontic(permitted,basicInstEvent(init)),minimalFluents,0)" in result)
         # Starts off not holding
-        self.assertNotIn("holdsat(testFact,minimalFluents,0)", result)
+        assert("holdsat(testFact,minimalFluents,0)" not in result)
         # Once it does,
-        self.assertIn("holdsat(testFact,minimalFluents,2)", result)
+        assert("holdsat(testFact,minimalFluents,2)" in result)
         # It continues holding
-        self.assertIn("holdsat(testFact,minimalFluents,3)", result)
-        self.assertIn("holdsat(testFact,minimalFluents,4)", result)
-        self.assertIn("holdsat(testFact,minimalFluents,5)", result)
+        assert("holdsat(testFact,minimalFluents,3)" in result)
+        assert("holdsat(testFact,minimalFluents,4)" in result)
+        assert("holdsat(testFact,minimalFluents,5)" in result)
 
 
 
@@ -169,21 +153,14 @@ class TestInstalFluents(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query + situation)
-        self.assertEqual(len(solver.results), 1)
+        assert(len(solver.results)== 1)
         result = str(solver.results[0].shown)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertIn("institution(minimalFluents)", result)
+        assert("institution(minimalFluents)" in result)
         # Initially holds:
-        self.assertIn("holdsat(deontic(permitted,basicInstEvent(term)),minimalFluents,0)", result)
-        self.assertIn("holdsat(testFact,minimalFluents,0)", result)
+        assert("holdsat(deontic(permitted,basicInstEvent(term)),minimalFluents,0)" in result)
+        assert("holdsat(testFact,minimalFluents,0)" in result)
         # termination happens:
-        self.assertIn("occurred(basicInstEvent(term),minimalFluents,1)", result)
+        assert("occurred(basicInstEvent(term),minimalFluents,1)" in result)
         # not longer holds on the next step
-        self.assertNotIn("holdsat(testFact,minimalFluents,2)", result)
-
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-##-- end ifmain
+        assert("holdsat(testFact,minimalFluents,2)" not in result)

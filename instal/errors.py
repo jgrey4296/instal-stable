@@ -1,8 +1,6 @@
 ##-- imports
 from __future__ import annotations
 
-from unittest import SkipTest
-
 ##-- end imports
 
 class InstalError(Exception):

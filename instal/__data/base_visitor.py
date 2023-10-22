@@ -9,7 +9,7 @@ logging = logmod.getLogger(__name__)
 
 @dataclass
 class InstalBaseASTVisitor(InstalASTVisitor_i):
-"""
+    """
     A Base AST Visitor
     to generate visitor methods onto using
     instal.cli.generate_visitors

@@ -6,40 +6,19 @@
 from __future__ import annotations
 
 import logging as logmod
-import unittest
 import warnings
 import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
+##-- end imports
+import pytest
+
 from instal.parser.v2.parser import InstalPyParser
 from instal.interfaces import ast as ASTs
 from instal.compiler.query_compiler import InstalQueryCompiler
-from unittest import mock
-##-- end imports
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
-
-class TestQueryCompiler(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.getLogger(__name__)
-        logging.root.addHandler(cls.file_h)
-        logging.root.setLevel(logmod.NOTSET)
-
-    @classmethod
-    def tearDownClass(cls):
-        logmod.root.removeHandler(cls.file_h)
+class TestQueryCompiler:
 
     def test_single_query(self):
         """ query/iaq -> lp """
@@ -49,7 +28,7 @@ class TestQueryCompiler(unittest.TestCase):
 
         result = compiler.compile(data)
 
-        self.assertIsInstance(result, str)
+        assert(isinstance(result, str))
         expected = ["%%",
                     "%-------------------------------",
                     "% Query Specification",
@@ -64,9 +43,9 @@ class TestQueryCompiler(unittest.TestCase):
                     "_eventSet(0).",
                     "",
                     ]
-        self.assertEqual(len(result.split("\n")), len(expected))
+        assert(len(result.split("\n")) ==  len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x,y)
+            assert(x == y)
 
     def test_two_query(self):
         """ query/iaq -> lp """
@@ -77,7 +56,7 @@ class TestQueryCompiler(unittest.TestCase):
 
         result = compiler.compile(data)
 
-        self.assertIsInstance(result, str)
+        assert(isinstance(result, str))
         expected = ["%%",
                     "%-------------------------------",
                     "% Query Specification",
@@ -96,9 +75,9 @@ class TestQueryCompiler(unittest.TestCase):
                     "_eventSet(1).",
                     "",
                     ]
-        self.assertEqual(len(result.split("\n")), len(expected))
+        assert(len(result.split("\n")) ==  len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x,y)
+            assert(x == y)
 
     def test_explicit_time_query(self):
         """ query/iaq -> lp """
@@ -109,7 +88,7 @@ class TestQueryCompiler(unittest.TestCase):
 
         result = compiler.compile(data)
 
-        self.assertIsInstance(result, str)
+        assert(isinstance(result, str))
         expected = ["%%",
                     "%-------------------------------",
                     "% Query Specification",
@@ -128,9 +107,9 @@ class TestQueryCompiler(unittest.TestCase):
                     "_eventSet(3).",
                     ""
                     ]
-        self.assertEqual(len(result.split("\n")), len(expected))
+        assert(len(result.split("\n")) ==  len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x,y)
+            assert(x == y)
 
     def test_explicit_source_query(self):
         """ query/iaq -> lp """
@@ -141,7 +120,7 @@ class TestQueryCompiler(unittest.TestCase):
 
         result = compiler.compile(data)
 
-        self.assertIsInstance(result, str)
+        assert(isinstance(result, str))
         expected = ["%%",
                     "%-------------------------------",
                     "% Query Specification",
@@ -156,14 +135,6 @@ class TestQueryCompiler(unittest.TestCase):
                     "_eventSet(0).",
                     ""
                     ]
-        self.assertEqual(len(result.split("\n")), len(expected))
+        assert(len(result.split("\n")) ==  len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x,y)
-
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-
-##-- end ifmain
+            assert(x == y)

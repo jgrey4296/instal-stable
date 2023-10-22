@@ -1,0 +1,59 @@
+%%
+%% The 'Lord' institution from p168:
+%% @thesis{li14_normat_confl_detec_resol_cooper_instit_,
+%%   author = {Li, TingTing},
+%%   school = {University of Bath},
+%%   title  = {Normative Conflict Detection and Resolution in Cooperating Institutions},
+%%   year   = {2014},
+%% }
+%%
+institution lord.
+
+type Person.
+type Age.
+type Gender.
+type Castle.
+
+external event deadline.
+external event demandToFight(Castle).
+external event goToWar(Castle).
+external event register(Person).
+external event releaseSolePolicy(Person).
+external event serveInArmy(Person).
+
+inst event intDemandToFight(Castle).
+inst event intRegister(Person).
+inst event intReleaseSolePolicy(Person).
+inst event intServeInArmy(Person).
+
+violation event illegal(Person).
+
+fluent ageOlder(Person, Age).
+fluent attacked(Castle).
+fluent gender(Person, Gender).
+fluent onlySon(Person).
+
+achievement obligation fluent obl(serveInArmy(Person), deadline, illegal(Person)).
+
+demandToFight(Castle)     generates intDemandToFight(Castle).
+register(Person)          generates intRegister(Person).
+releaseSolePolicy(Person) generates intReleaseSolePolicy(Person).
+serveInArmy(Person)       generates intServeInArmy(Person).
+
+intRegister(Person)          initiates obl(serveInArmy(Person), deadline, illegal(Person)), permitted(serveInArmy(Person)) if ageOlder(Person, sixteen), gender(Person, male).
+intDemandToFight(Castle)     initiates permitted(goToWar(Castle)) if attacked(Castle).
+
+intReleaseSolePolicy(Person) terminates obl(serveInArmy(Person), deadline, illegal(Person)), permitted(serveInArmy(Person)) if onlySon(Person).
+
+initially ageOlder(bob,sixteen).
+initially ageOlder(tom,sixteen).
+initially attacked(eastCastle).
+initially gender(bob,male).
+initially gender(tom,male).
+initially onlySon(tom).
+initially permitted(deadline).
+initially permitted(demandToFight(Castle)), permitted(intDemandToFight(Castle)), power(intDemandToFight(Castle)).
+initially permitted(register(Person)), power(intRegister(Person)), permitted(intRegister(Person)).
+initially permitted(releaseSolePolicy(Person)), permitted(intReleaseSolePolicy(Person)), power(intReleaseSolePolicy(Person)).
+
+test initiates blah(Person) if something(Test, else), X > 2.

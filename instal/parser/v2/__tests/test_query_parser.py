@@ -6,24 +6,18 @@
 from __future__ import annotations
 
 import logging as logmod
-import unittest
 import warnings
 import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
 
+import pytest
 import instal.parser.v2.parse_funcs as dsl
 import instal.interfaces.ast as ASTs
 from instal.interfaces.parser import InstalParserTestCase
-##-- end imports
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 
 class TestInstitutionParser(InstalParserTestCase):
     def test_simple_query(self):
@@ -40,9 +34,9 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ):
             match data:
                 case text, length, terms:
-                    self.assertEqual(len(result), length)
+                    assert(len(result) == length)
                     for term in result:
-                        self.assertAllIn((x.value for x in term.head.params), terms)
+                        assert(all(x.value in terms for x in term.head.params))
 
     def test_query_at_time(self):
         for result, data in self.yieldParseResults(dsl.top_query,
@@ -52,18 +46,12 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ("observed person(bob) at 1",   1),
                                                    ("observed person(bob) at 100", 100),
                                                    ):
-            self.assertEqual(result[0].time, data[1])
+            assert(result[0].time == data[1])
 
     def test_query_multiple_at_time(self):
         for result, data in self.yieldParseResults(dsl.top_query,
                                                    ("observed person(bob) at 5\nobserved person(bill) at 10", 5, 10),
                                                    ("observed basicExEvent(first) at 0\nobserved basicExEvent(second)  at 1", 0, 1)
                                                    ):
-            self.assertEqual(result[0].time, data[1])
-            self.assertEqual(result[1].time, data[2])
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-##-- end ifmain
+            assert(result[0].time == data[1])
+            assert(result[1].time == data[2])

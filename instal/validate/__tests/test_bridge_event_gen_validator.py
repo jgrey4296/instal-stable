@@ -7,55 +7,33 @@ from __future__ import annotations
 
 import logging as logmod
 import pathlib
-import unittest
 import warnings
 from importlib.resources import files
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
 
+import pytest
 from instal.validate.bridge_event_gen_validator import BridgeEventGenValidator
 from instal.interfaces import ast as iAST
 from instal.interfaces import validate
 from instal.parser.v2.parser import InstalPyParser
 
-##-- end imports
-
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 logging = logmod.root
+
 ##-- data
 data_path = files("instal.validate.__tests.__data")
 ##-- end data
 
 parser = InstalPyParser()
 
-
-class TestBridgeEventGenValidator(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging.setLevel(logmod.NOTSET)
-        logging.addHandler(cls.file_h)
-
-
-    @classmethod
-    def tearDownClass(cls):
-        logging.removeHandler(cls.file_h)
+class TestBridgeEventGenValidator:
 
     def test_initial_ctor_with_validator(self):
         runner = validate.InstalValidatorRunner([ BridgeEventGenValidator() ])
-        self.assertIsInstance(runner, validate.InstalValidatorRunner)
-        self.assertIsNotNone(runner.validators)
+        assert(isinstance(runner, validate.InstalValidatorRunner))
+        assert(runner.validators is not None)
 
     def test_basic_pass(self):
         """
@@ -65,10 +43,10 @@ class TestBridgeEventGenValidator(unittest.TestCase):
         runner    = validate.InstalValidatorRunner([ BridgeEventGenValidator() ])
 
         data = parser.parse_bridge(file_name)
-        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+        assert(isinstance(data[0], iAST.InstitutionDefAST))
 
         result = runner.validate(data)
-        self.assertFalse(result)
+        assert(not result)
 
     def test_basic_with_rules_fail(self):
         """
@@ -81,17 +59,17 @@ class TestBridgeEventGenValidator(unittest.TestCase):
         bridge_data      = parser.parse_bridge(file_name_bridge)
         inst_data        = parser.parse_institution(file_name_insts)
 
-        self.assertIsInstance(bridge_data[0], iAST.BridgeDefAST)
-        self.assertIsInstance(inst_data[0], iAST.InstitutionDefAST)
+        assert(isinstance(bridge_data[0], iAST.BridgeDefAST))
+        assert(isinstance(inst_data[0], iAST.InstitutionDefAST))
 
-        with self.assertRaises(Exception) as cm:
+        with pytest.raises(Exception) as cm:
             runner.validate(bridge_data + inst_data)
 
         the_exc = cm.exception
         results = the_exc.args[1]
-        self.assertTrue(results)
-        self.assertIn(logmod.ERROR, results)
-        self.assertEqual(len(results[logmod.ERROR]), 2)
+        assert(results)
+        assert(logmod.ERROR in results)
+        assert(len(results[logmod.ERROR]) == 2)
 
     def test_basic_with_rules_pass(self):
         """
@@ -104,17 +82,9 @@ class TestBridgeEventGenValidator(unittest.TestCase):
         bridge_data = parser.parse_bridge(bridge_file_name)
         inst_data   = parser.parse_institution(inst_file_name)
 
-        self.assertIsInstance(bridge_data[0], iAST.BridgeDefAST)
-        self.assertTrue(inst_data)
+        assert(isinstance(bridge_data[0], iAST.BridgeDefAST))
+        assert(inst_data)
 
         results = runner.validate(bridge_data + inst_data)
 
-        self.assertFalse(results)
-
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-
-##-- end ifmain
+        assert(not results)

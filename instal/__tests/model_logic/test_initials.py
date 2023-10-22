@@ -8,30 +8,25 @@ from __future__ import annotations
 #
 import logging as logmod
 import pathlib
-import unittest
 import warnings
 from importlib.resources import files
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
+
+import pytest
 
 from instal.cli.compiler import compile_target
 from instal.compiler.domain_compiler import InstalDomainCompiler
 from instal.parser.v2.parser import InstalPyParser
 from instal.solve.clingo_solver import ClingoSolver
 
-##-- end imports
 
 ##-- data
 test_files      = files("instal.__tests.model_logic.__data")
 ##-- end data
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 logging = logmod.root
 
 def save_last(compiled, append=None):
@@ -43,23 +38,7 @@ def save_last(compiled, append=None):
 
 
 
-class TestInstalInitials(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.root
-        logging.setLevel(logmod.NOTSET)
-        logging.addHandler(cls.file_h)
-
-
-    @classmethod
-    def tearDownClass(cls):
-        logging.removeHandler(cls.file_h)
+class TestInstalInitials:
 
     def test_initial(self):
         # Compile a harness
@@ -74,11 +53,11 @@ class TestInstalInitials(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         save_last(compiled, solver.results[0].atoms)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalInitials)", result)
-        self.assertIn("holdsat(aFact,minimalInitials,0)", result)
+        assert("institution(minimalInitials)" in result)
+        assert("holdsat(aFact,minimalInitials,0)" in result)
 
     def test_not_initial(self):
         # Compile a harness
@@ -93,11 +72,11 @@ class TestInstalInitials(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         save_last(compiled, solver.results[0].atoms)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalInitials)", result)
-        self.assertNotIn("holdsat(notInitialised,minimalInitials,0)", result)
+        assert("institution(minimalInitials)" in result)
+        assert("holdsat(notInitialised,minimalInitials,0)" not in result)
 
 
     def test_initial_with_param(self):
@@ -113,11 +92,11 @@ class TestInstalInitials(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         save_last(compiled, solver.results[0].atoms)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalInitials)", result)
-        self.assertIn("holdsat(withParam(first),minimalInitials,0)", result)
+        assert("institution(minimalInitials)" in result)
+        assert("holdsat(withParam(first),minimalInitials,0)" in result)
 
     def test_initial_with_multi_param(self):
         # Compile a harness
@@ -132,11 +111,11 @@ class TestInstalInitials(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         save_last(compiled, solver.results[0].atoms)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalInitials)", result)
-        self.assertIn("holdsat(multiParam(first,second,first),minimalInitials,0)", result)
+        assert("institution(minimalInitials)" in result)
+        assert("holdsat(multiParam(first,second,first),minimalInitials,0)" in result)
 
     def test_initial_with_condition(self):
         # Compile a harness
@@ -151,11 +130,11 @@ class TestInstalInitials(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         save_last(compiled, solver.results[0].atoms)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalInitials)", result)
-        self.assertIn("holdsat(successfulConditionalFluent,minimalInitials,0)", result)
+        assert("institution(minimalInitials)" in result)
+        assert("holdsat(successfulConditionalFluent,minimalInitials,0)" in result)
 
     def test_initial_with_failed_condition(self):
         # Compile a harness
@@ -170,18 +149,9 @@ class TestInstalInitials(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         save_last(compiled, solver.results[0].atoms)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalInitials)", result)
-        self.assertNotIn("holdsat(notInitialised,minimalInitials,0)", result)
-        self.assertNotIn("holdsat(failedConditionalFluent,minimalInitials,0)", result)
-
-
-
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-##-- end ifmain
+        assert("institution(minimalInitials)" in result)
+        assert("holdsat(notInitialised,minimalInitials,0)" not in result)
+        assert("holdsat(failedConditionalFluent,minimalInitials,0)" not in result)

@@ -6,24 +6,18 @@
 from __future__ import annotations
 
 import logging as logmod
-import unittest
 import warnings
 import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
 
+import pytest
 import instal.parser.v1a.parse_funcs as dsl
 import instal.interfaces.ast as ASTs
 from instal.interfaces.parser import InstalParserTestCase
-##-- end imports
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 
 class TestInstitutionParser(InstalParserTestCase):
     def test_simple_query(self):
@@ -40,13 +34,6 @@ class TestInstitutionParser(InstalParserTestCase):
                                                    ):
             match data:
                 case text, length, terms:
-                    self.assertEqual(len(result), length)
+                    assert(len(result) == length)
                     for term in result:
-                        self.assertAllIn((x.value for x in term.head.params), terms)
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-
-##-- end ifmain
+                        assert(all(x.value in terms for x in term.head.params))

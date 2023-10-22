@@ -7,27 +7,20 @@ from __future__ import annotations
 
 import logging as logmod
 import pathlib
-import unittest
 import warnings
 from importlib.resources import files
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
 
+import pytest
 from instal.validate.bridge_fluent_gen_validator import BridgeFluentGenValidator
 from instal.interfaces import ast as iAST
 from instal.interfaces import validate
 from instal.parser.v2.parser import InstalPyParser
 from instal.parser.v2.utils import TERM
 
-##-- end imports
-
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 logging = logmod.root
 ##-- data
 data_path = files("instal.validate.__tests.__data")
@@ -36,27 +29,12 @@ data_path = files("instal.validate.__tests.__data")
 parser = InstalPyParser()
 
 # TODO implemenet and test bridge fluent gen
-class TestBridgeFluentGenValidator(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging.setLevel(logmod.NOTSET)
-        logging.addHandler(cls.file_h)
-
-
-    @classmethod
-    def tearDownClass(cls):
-        logging.removeHandler(cls.file_h)
+class TestBridgeFluentGenValidator:
 
     def test_initial_ctor_with_validator(self):
         runner = validate.InstalValidatorRunner([ BridgeFluentGenValidator() ])
-        self.assertIsInstance(runner, validate.InstalValidatorRunner)
-        self.assertIsNotNone(runner.validators)
+        assert(isinstance(runner, validate.InstalValidatorRunner))
+        assert(runner.validators is not None)
 
     def test_basic_pass(self):
         """
@@ -66,14 +44,7 @@ class TestBridgeFluentGenValidator(unittest.TestCase):
         runner    = validate.InstalValidatorRunner([ BridgeFluentGenValidator() ])
 
         data = parser.parse_bridge(file_name)
-        self.assertIsInstance(data[0], iAST.InstitutionDefAST)
+        assert(isinstance(data[0], iAST.InstitutionDefAST))
 
         result = runner.validate(data)
-        self.assertFalse(result)
-
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-
-##-- end ifmain
+        assert(not result)

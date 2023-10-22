@@ -14,7 +14,6 @@ from typing import (IO, TYPE_CHECKING, Any, Callable, ClassVar, Final, Generic,
                     Iterable, Iterator, List, Mapping, Match, MutableMapping,
                     Protocol, Sequence, Tuple, TypeAlias, TypeGuard, TypeVar,
                     cast, final, overload, runtime_checkable)
-from unittest import TestCase, skip
 from unittest.util import safe_repr
 
 import instal.interfaces.ast as InASTs

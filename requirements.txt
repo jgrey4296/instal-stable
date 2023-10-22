@@ -1,5 +1,4 @@
-cffi==1.15.1
-clingo==5.6.0
--e git+https://github.com/instsuite/instal-stable.git@d0b6056b90f71300586278233ba6450d7c33d459#egg=instal
-pycparser==2.21
+clingo==5.6.2
+networkx==2.8.4
 pyparsing==3.0.9
+tomler==0.1.0

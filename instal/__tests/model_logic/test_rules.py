@@ -9,30 +9,24 @@ from __future__ import annotations
 #
 import logging as logmod
 import pathlib
-import unittest
 import warnings
 from importlib.resources import files
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
+
+import pytest
 
 from instal.cli.compiler import compile_target
 from instal.compiler.domain_compiler import InstalDomainCompiler
 from instal.parser.v2.parser import InstalPyParser
 from instal.solve.clingo_solver import ClingoSolver
 
-##-- end imports
-
 ##-- data
 test_files      = files("instal.__tests.model_logic.__data")
 ##-- end data
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 logging = logmod.root
 
 def save_last(compiled, append=None):
@@ -42,24 +36,7 @@ def save_last(compiled, append=None):
         if bool(append):
             f.write("\n".join(str(x) for x in append))
 
-
-class TestInstalGeneration(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.root
-        logging.setLevel(logmod.NOTSET)
-        logging.addHandler(cls.file_h)
-
-
-    @classmethod
-    def tearDownClass(cls):
-        logging.removeHandler(cls.file_h)
+class TestInstalGeneration:
 
     def test_simple_generation(self):
         # Compile a harness
@@ -76,11 +53,11 @@ class TestInstalGeneration(unittest.TestCase):
         # Check it is observed
         solver.solve(query + situation)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalRules)", result)
-        self.assertIn("observed(basicExEventWithParam(first),0)", result)
-        self.assertIn("occurred(instBasicEvent(first),minimalRules,0)", result)
+        assert("institution(minimalRules)" in result)
+        assert("observed(basicExEventWithParam(first),0)" in result)
+        assert("occurred(instBasicEvent(first),minimalRules,0)" in result)
 
     def test_simple_generation_var_change(self):
         # Compile a harness
@@ -97,14 +74,11 @@ class TestInstalGeneration(unittest.TestCase):
         # Check it is observed
         solver.solve(query + situation)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalRules)", result)
-        self.assertIn("observed(basicExEventWithParam(second),0)", result)
-        self.assertIn("occurred(instBasicEvent(second),minimalRules,0)", result)
-
-
-
+        assert("institution(minimalRules)" in result)
+        assert("observed(basicExEventWithParam(second),0)" in result)
+        assert("occurred(instBasicEvent(second),minimalRules,0)" in result)
 
     def test_simple_generation_time_responsive(self):
         # Compile a harness
@@ -121,12 +95,11 @@ class TestInstalGeneration(unittest.TestCase):
         # Check it is observed
         solver.solve(query + situation)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalRules)", result)
-        self.assertIn("observed(basicExEventWithParam(first),1)", result)
-        self.assertIn("occurred(instBasicEvent(first),minimalRules,1)", result)
-
+        assert("institution(minimalRules)" in result)
+        assert("observed(basicExEventWithParam(first),1)" in result)
+        assert("occurred(instBasicEvent(first),minimalRules,1)" in result)
 
     def test_event_with_multi_var(self):
         # Compile a harness
@@ -142,11 +115,11 @@ class TestInstalGeneration(unittest.TestCase):
         # Check it is observed
         solver.solve(query)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalRules)", result)
-        self.assertIn("observed(basicExEventMulti(first,second),0)", result)
-        self.assertIn("occurred(instMultiVar(first,first),minimalRules,0)", result)
+        assert("institution(minimalRules)" in result)
+        assert("observed(basicExEventMulti(first,second),0)" in result)
+        assert("occurred(instMultiVar(first,first),minimalRules,0)" in result)
 
     def test_event_with_multi_var_double_generation(self):
         # Compile a harness
@@ -162,14 +135,12 @@ class TestInstalGeneration(unittest.TestCase):
         # Check it is observed
         solver.solve(query)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalRules)", result)
-        self.assertIn("observed(basicExEventMulti(first,second),0)", result)
-        self.assertIn("occurred(instMultiVar(first,first),minimalRules,0)", result)
-        self.assertIn("occurred(instMultiVar(second,second),minimalRules,0)", result)
-
-
+        assert("institution(minimalRules)" in result)
+        assert("observed(basicExEventMulti(first,second),0)" in result)
+        assert("occurred(instMultiVar(first,first),minimalRules,0)" in result)
+        assert("occurred(instMultiVar(second,second),minimalRules,0)" in result)
 
     def test_event_with_chained_generation(self):
         # Compile a harness
@@ -186,13 +157,13 @@ class TestInstalGeneration(unittest.TestCase):
         # Check it is observed
         solver.solve(query + situation)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalRules)", result)
-        self.assertIn("observed(basicExEventWithParam(first),1)", result)
-        self.assertIn("occurred(instChainStart(first),minimalRules,1)", result)
-        self.assertIn("occurred(instChainMid(first),minimalRules,1)", result)
-        self.assertIn("occurred(instChainEnd(first),minimalRules,1)", result)
+        assert("institution(minimalRules)" in result)
+        assert("observed(basicExEventWithParam(first),1)" in result)
+        assert("occurred(instChainStart(first),minimalRules,1)" in result)
+        assert("occurred(instChainMid(first),minimalRules,1)" in result)
+        assert("occurred(instChainEnd(first),minimalRules,1)" in result)
 
     def test_event_with_chained_interrupted(self):
         # Compile a harness
@@ -209,14 +180,14 @@ class TestInstalGeneration(unittest.TestCase):
         # Check it is observed
         solver.solve(query + situation)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         result = str(solver.results[0].shown)
-        self.assertIn("institution(minimalRules)", result)
-        self.assertIn("observed(basicExEventWithParam(first),1)", result)
-        self.assertIn("occurred(instChainStart(first),minimalRules,1)", result)
-        self.assertNotIn("occurred(instChainMid(first),minimalRules,1)", result)
-        self.assertNotIn("occurred(instChainEnd(first),minimalRules,1)", result)
-        self.assertIn("occurred(_unempoweredEvent(instChainMid(first)),minimalRules,1)", result)
+        assert("institution(minimalRules)" in result)
+        assert("observed(basicExEventWithParam(first),1)" in result)
+        assert("occurred(instChainStart(first),minimalRules,1)" in result)
+        assert("occurred(instChainMid(first),minimalRules,1)" not in result)
+        assert("occurred(instChainEnd(first),minimalRules,1)" not in result)
+        assert("occurred(_unempoweredEvent(instChainMid(first)),minimalRules,1)" in result)
 
     def test_minimal_transient_rule(self):
         """
@@ -235,29 +206,24 @@ class TestInstalGeneration(unittest.TestCase):
 
         # Check it is observed
         solver.solve(query + situation)
-        self.assertEqual(len(solver.results), 1)
+        assert((len(solver.results) == 1)
         result = str(solver.results[0].shown)
         save_last(compiled, append=solver.results[0].atoms)
-        self.assertIn("institution(minimalRules)", result)
+        assert("institution(minimalRules)" in result)
 
-        self.assertNotIn("holdsat(testTransient,minimalRules,0)", result)
+        assert("holdsat(testTransient,minimalRules,0)" not in result)
 
-        self.assertIn("observed(basicExEventWithParam(first),1)", result)
-        self.assertIn("occurred(instBasicEvent(first),minimalRules,1)", result)
-        self.assertNotIn("holdsat(testTransient,minimalRules,1)", result)
+        assert("observed(basicExEventWithParam(first),1)" in result)
+        assert("occurred(instBasicEvent(first),minimalRules,1)" in result)
+        assert("holdsat(testTransient,minimalRules,1)" not in result)
 
-        self.assertIn("holdsat(testFluent,minimalRules,2)", result)
-        self.assertIn("holdsat(testTransient,minimalRules,2)", result)
+        assert("holdsat(testFluent,minimalRules,2)" in result)
+        assert("holdsat(testTransient,minimalRules,2)" in result)
 
-        self.assertIn("observed(basicExEventWithParam(second),3)", result)
-        self.assertIn("occurred(instBasicEvent(second),minimalRules,3)", result)
-        self.assertIn("holdsat(testFluent,minimalRules,3)", result)
-        self.assertIn("holdsat(testTransient,minimalRules,3)", result)
+        assert("observed(basicExEventWithParam(second),3)" in result)
+        assert("occurred(instBasicEvent(second),minimalRules,3)" in result)
+        assert("holdsat(testFluent,minimalRules,3)" in result)
+        assert("holdsat(testTransient,minimalRules,3)" in result)
 
-        self.assertNotIn("holdsat(testFluent,minimalRules,4)", result)
-        self.assertNotIn("holdsat(testTransient,minimalRules,4)", result)
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-##-- end ifmain
+        assert("holdsat(testFluent,minimalRules,4)" not in result)
+        assert("holdsat(testTransient,minimalRules,4)" not in result)

@@ -6,24 +6,19 @@
 from __future__ import annotations
 
 import logging as logmod
-import unittest
 import warnings
 import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
-from unittest import mock
+##-- end imports
+
+import pytest
 
 from instal.interfaces.parser import InstalParserTestCase
 from instal.parser.v1a.parse_funcs import TERM
 import instal.interfaces.ast as ASTs
-##-- end imports
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
 
 class TestTermParser(InstalParserTestCase):
 
@@ -67,8 +62,8 @@ class TestTermParser(InstalParserTestCase):
                                                    ("basic", "basic"),
                                                    ("other", "other")
                                                    ):
-            self.assertIsInstance(result[0], ASTs.TermAST)
-            self.assertEqual(result[0].value, vals[1])
+            assert(isinstance(result[0], ASTs.TermAST))
+            assert(result[0].value == vals[1])
 
     def test_numbers_in_term(self):
         self.assertParseResults(TERM,
@@ -76,10 +71,4 @@ class TestTermParser(InstalParserTestCase):
                                 ("blah(2)", ASTs.TermAST("blah", [ASTs.TermAST(2)])),
                                 ("blah(aweg(-2), other)", ASTs.TermAST("blah", [ASTs.TermAST("aweg", [ASTs.TermAST(-2)]),
                                                                                 ASTs.TermAST("other")]))
-                                )
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-
-##-- end ifmain
+    )

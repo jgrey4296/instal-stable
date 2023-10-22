@@ -52,11 +52,11 @@ def model_cb(self, model:clingo.Model):
     Which is why we don't just store the model itself
     """
     self.results.append(InstalModelResult(model.symbols(atoms=True),
-                                            model.symbols(shown=True),
-                                            model.cost,
-                                            model.number,
-                                            model.optimality_proven,
-                                            model.type))
+                                          model.symbols(shown=True),
+                                          model.cost,
+                                          model.number,
+                                          model.optimality_proven,
+                                          model.type))
 
 @dataclass
 class ClingoSolver(SolverWrapper_i):

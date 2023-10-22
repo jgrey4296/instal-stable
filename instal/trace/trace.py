@@ -70,6 +70,9 @@ class InstalTrace(Trace_i):
 
     @staticmethod
     def from_model(model:InstalModelResult, steps:int=1, sources:list[str]=None, metadata:dict=None) -> "InstalStateTrace":
+        """
+        Given a model, construct a trace
+        """
         metadata                   = metadata or {}
         metadata['cost']           = model.cost
         metadata['current_result'] = model.number
@@ -82,7 +85,7 @@ class InstalTrace(Trace_i):
         states   = [InstalTrace.state_constructor(i)
                     for i in range(steps + 1)]
         for term in model.shown:
-            if term.name == "inst":
+            if term.name == "institution":
                 i_set.add(str(term.arguments[0]))
                 continue
 
@@ -104,8 +107,6 @@ class InstalTrace(Trace_i):
         metadata['institutions'] += list(i_set)
         trace = InstalTrace(states, metadata=metadata)
         return trace
-
-
 
     def __repr__(self) -> str:
         result = []
@@ -132,9 +133,9 @@ class InstalTrace(Trace_i):
 
         return json.dumps(trace_obj, sort_keys=True, indent=4)
 
-
     def check(self, conditions:list) -> bool:
         pass
+
     def filter(self, allow:list[str], reject:list[str], start:None|int=None, end:None|int=None) -> Trace_i:
         logging.info("Filtering")
         start           = start or 0
@@ -147,7 +148,6 @@ class InstalTrace(Trace_i):
         filtered_trace  = InstalTrace(filtered_states, metadata=self.metadata.copy())
 
         return filtered_trace
-
 
     def fluent_intervals(self) -> list[tuple[str, int, int]]:
         """

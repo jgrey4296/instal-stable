@@ -6,40 +6,19 @@
 from __future__ import annotations
 
 import logging as logmod
-import unittest
 import warnings
 import pathlib
 from typing import (Any, Callable, ClassVar, Generic, Iterable, Iterator,
                     Mapping, Match, MutableMapping, Sequence, Tuple, TypeAlias,
                     TypeVar, cast)
+##-- end imports
+
+import pytest
 from instal.parser.v2.parser import InstalPyParser
 from instal.compiler.bridge_compiler import InstalBridgeCompiler
 from instal.interfaces import ast as ASTs
-from unittest import mock
-##-- end imports
 
-##-- warnings
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    pass
-##-- end warnings
-
-class TestBridgeCompiler(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        LOGLEVEL      = logmod.DEBUG
-        LOG_FILE_NAME = "log.{}".format(pathlib.Path(__file__).stem)
-
-        cls.file_h        = logmod.FileHandler(LOG_FILE_NAME, mode="w")
-        cls.file_h.setLevel(LOGLEVEL)
-
-        logging = logmod.getLogger(__name__)
-        logging.root.addHandler(cls.file_h)
-        logging.root.setLevel(logmod.NOTSET)
-
-    @classmethod
-    def tearDownClass(cls):
-        logmod.root.removeHandler(cls.file_h)
+class TestBridgeCompiler:
 
     def test_simple_bridge(self):
         compiler = InstalBridgeCompiler()
@@ -48,7 +27,7 @@ class TestBridgeCompiler(unittest.TestCase):
                                             ASTs.BridgeLinkAST(ASTs.TermAST("sinkTest"), ASTs.BridgeLinkEnum.sink)])
 
         result = compiler.compile([inst])
-        self.assertIsInstance(result, str)
+        assert(isinstance(result, str))
         expected = [
             "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
             "%% Compiled Bridge",
@@ -100,9 +79,9 @@ class TestBridgeCompiler(unittest.TestCase):
             "",
             "%% End of simple",
             ]
-        # self.assertEqual(len(result.split("\n")), len(expected))
+        # assert(len(result.split("\n")) == len(expected))
         for x,y in zip(result.split("\n"), expected):
-            self.assertEqual(x,y)
+            assert(x == y)
 
 
 
@@ -128,9 +107,9 @@ class TestBridgeCompiler(unittest.TestCase):
             "true.",
             ""
             ]
-        # self.assertEqual(len(result.split("\n")), len(expected))
+        # assert(len(result.split("\n")) == len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x.strip(),y)
+            assert(x.strip() == y)
 
     def test_cross_generation(self):
         compiler = InstalBridgeCompiler()
@@ -154,9 +133,9 @@ class TestBridgeCompiler(unittest.TestCase):
             "true.",
             ""
             ]
-        # self.assertEqual(len(result.split("\n")), len(expected))
+        # assert(len(result.split("\n")) == len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x.strip(),y.strip())
+            assert(x.strip() == y.strip())
 
     def test_cross_initiates(self):
         compiler = InstalBridgeCompiler()
@@ -181,9 +160,9 @@ class TestBridgeCompiler(unittest.TestCase):
             "true.",
             ""
             ]
-        # self.assertEqual(len(result.split("\n")), len(expected))
+        # assert(len(result.split("\n")) == len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x.strip(),y.strip())
+            assert(x.strip() == y.strip())
 
 
     def test_cross_terminates(self):
@@ -209,12 +188,6 @@ class TestBridgeCompiler(unittest.TestCase):
             "true.",
             ""
             ]
-        # self.assertEqual(len(result.split("\n")), len(expected))
+        # assert(len(result.split("\n")) == len(expected))
         for x,y in zip(result, expected):
-            self.assertEqual(x.strip(),y.strip())
-
-##-- ifmain
-if __name__ == '__main__':
-    unittest.main()
-
-##-- end ifmain
+            assert(x.strip() == y.strip())
