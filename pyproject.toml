@@ -14,11 +14,16 @@ classifiers     = [
 "Programming Language :: Python"
 ]
 
-dependencies   = []
+dependencies   = [
+               "tomlguard",
+               "clingo",
+               "networkx",
+               "pyparsing",
+]
 
 [project.optional-dependencies]
 test = [
-"pytest < 5.0.0",
+     "pytest",
 ]
 
 [project.urls]
