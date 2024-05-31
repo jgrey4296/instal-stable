@@ -1,0 +1,8 @@
+#+TITLE: Instal Todos
+
+* Instal
+** reintegrate original pytests
+** docs
+
+
+* Links
