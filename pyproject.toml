@@ -1,6 +1,6 @@
 [project]
 name            = "instal"
-version         = "0.0.1"
+version         = "0.1.1"
 description     = "InstAL: Institutional Action Language Framework and Tools"
 readme          = "README.md"
 requires-python = ">=3.10"
@@ -14,16 +14,21 @@ classifiers     = [
 "Programming Language :: Python"
 ]
 
-dependencies   = []
+dependencies   = [
+               "tomlguard",
+               "clingo",
+               "networkx",
+               "pyparsing",
+]
 
 [project.optional-dependencies]
 test = [
-"pytest < 5.0.0",
+     "pytest",
 ]
 
 [project.urls]
 homepage      = "http://instsuite.github.io/"
-documentation = "https://readthedocs.org/instal"
+documentation = "https://instal.readthedocs.io/en/latest"
 repository    = "https://github.com/jgrey4296/instal"
 changelog     = "https://github.com/jgrey4296/instal/spam/blob/master/CHANGELOG.md"
 
@@ -73,7 +78,6 @@ include    = ["instal"]
 [tool.setuptools.package-data]
 
 [tool.setuptools.exclude-package-data]
-
 
 ##-- end build-system
 
@@ -621,3 +625,25 @@ ignored-argument-names = "_.*"
 redefining-builtins-modules = ["six.moves", "past.builtins", "future.builtins", "builtins", "io"]
 
 ##-- end pylint
+
+##-- bumpver
+[tool.bumpver]
+current_version    = "0.1.1"
+version_pattern    = "MAJOR.MINOR.PATCH"
+commit_message     = "[bump]: version {old_version} -> {new_version}"
+tag_message        = "{new_version}"
+tag_scope          = "default"
+# commit             = true
+# tag                = true
+# pre_commit_hook  = ""
+# post_commit_hook = ""
+# push             = true
+
+[tool.bumpver.file_patterns]
+"pyproject.toml"   = [
+                   '^version\s+=\s+"{version}"',
+                   '^current_version\s+=\s+"{version}"'
+]
+"instal/__init__.py" = ['^__version__\s+=\s+"{version}"']
+
+##-- end bumpver

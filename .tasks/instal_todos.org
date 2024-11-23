@@ -1,0 +1,9 @@
+#+TITLE: Instal Todos
+#+STARTUP: agenda
+
+* Instal
+** [∅] reintegrate original pytests
+** [∅] docs
+
+
+* Links

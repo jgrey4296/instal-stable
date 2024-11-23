@@ -8,22 +8,22 @@ from __future__ import annotations
 import os
 import pathlib as pl
 from importlib.resources import files
-import tomler
+import tomlguard as TG
 
 ##-- end imports
 
 default_toml  = files("instal.__data") / "defaults.toml"
 
-data = tomler.load(default_toml.read_text())
+data = TG.load(default_toml.read_text())
 __loaded_toml = data.tool.instal
 
 def __getattr__(attr):
     result = __loaded_toml.get(attr)
     if result is None:
-        raise TomlAccessError(attr)
+        raise TG.TomlAccessError(attr)
 
     if isinstance(result, dict):
-        return TomlAccessor(attr, result)
+        return TG.TomlAccessor(attr, result)
 
     return result
 
@@ -33,4 +33,4 @@ def __dir__():
 
 def set_defaults(path: pl.Path):
     global __loaded_toml
-    __loaded_toml = tomler.load(path.read_text()).tool.instal
+    __loaded_toml = TG.load(path.read_text()).tool.instal

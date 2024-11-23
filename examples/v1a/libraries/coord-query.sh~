@@ -1,7 +1,0 @@
-#!/bin/bash
-~/Projects/instsuite/instal-stable/instalsolve.py $@ \
--i InstALFiles/libB.ial InstALFiles/pubA.ial InstALFiles/libC.ial \
--d DomainFiles/domain.idc \
--t coord-trace.tex \
--g coord-gantt.tex \
-TestTrace/coord-events.iaq
