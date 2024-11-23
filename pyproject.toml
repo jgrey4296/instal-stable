@@ -28,7 +28,7 @@ test = [
 
 [project.urls]
 homepage      = "http://instsuite.github.io/"
-documentation = "https://readthedocs.org/instal"
+documentation = "https://instal.readthedocs.io/en/latest"
 repository    = "https://github.com/jgrey4296/instal"
 changelog     = "https://github.com/jgrey4296/instal/spam/blob/master/CHANGELOG.md"
 
