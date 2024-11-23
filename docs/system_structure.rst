@@ -1,3 +1,0 @@
-.. _system:
-System Structure
-===========================
