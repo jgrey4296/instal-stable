@@ -1,4 +1,0 @@
-clingo==5.6.2
-networkx==2.8.4
-pyparsing==3.0.9
-tomlguard==0.1.0
