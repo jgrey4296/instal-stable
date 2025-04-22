@@ -26,7 +26,13 @@ html_js_files  = []
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['**/flycheck_*.py', "**/__tests/*"]
+exclude_patterns = [
+    '**/flycheck_*.py',
+    "**/__tests/*",
+    "_docs/_templates/*",
+    # "_docs/*.py",
+    "README.md",
+]
 
 # -- Project information -----------------------------------------------------
 
@@ -36,49 +42,37 @@ author    = 'John Grey'
 release   = '0.13.0'
 
 # -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
+# Add any Sphinx extension module names here, as strings. They can be
+# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
+# ones.
 extensions = [
     'sphinx.ext.doctest',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
+    # 'sphinx.ext.autodoc',
+    # 'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
     'sphinx.ext.extlinks',
-    'sphinx_rtd_theme'
+    "sphinx.ext.duration",
+    'sphinx_rtd_theme',
+    "sphinx.ext.graphviz",
+    'myst_parser',
+    "autoapi.extension",
+    "sphinx.ext.coverage",
+    "sphinx.ext.imgconverter",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.viewcode",
     ]
+
+root_doc = "index"
 
 # -- Options for HTML output -------------------------------------------------
 html_theme       = "sphinx_rtd_theme"
-
-##-- alabaster options
-# https://alabaster.readthedocs.io/en/latest/index.html
-extlinks         = {}
-html_sidebars    = {
-    "**": [
-        "about.html",
-        "searchfield.html",
-        "navigation.html",
-        "relations.html",
-    ]
-}
-
-html_theme_options = {
-    "description": "Doot, a simple TOML based task runner",
-    "github_user": "jgrey4296",
-    "github_repo": "doot",
-    "fixed_sidebar": True,
-    "github_banner": False,
-    "show_related" : True,
-}
-
-##-- end alabaster
 
 ##-- rtd options
 # https://sphinx-rtd-theme.readthedocs.io/en/stable/configuring.html
 
 html_theme_options = {
     'logo_only'                   : False,
-    'display_version'             : True,
     'prev_next_buttons_location'  : 'bottom',
     'style_external_links'        : False,
     'vcs_pageview_mode'           : '',
@@ -94,5 +88,40 @@ html_theme_options = {
 
 ##-- end rtd options
 
-# Imports --------------------------------------------------
- # import instal
+# -- Extension Options -------------------------------------------------
+# https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html
+autoapi_keep_files        = False
+autoapi_generate_api_docs = True
+autoapi_add_toctree_entry = False
+autoapi_type              = "python"
+autoapi_template_dir      = "_docs/_templates/autoapi"
+autoapi_root              = "_docs/autoapi"
+autoapi_dirs              = ['.']
+autoapi_file_patterns     = ["*.py", "*.pyi"]
+autoapi_ignore            = [*exclude_patterns, "*_docs/conf.py"]
+autoapi_member_order      = "groupwise"
+autoapi_options           = [
+    # 'imported-members',
+    # "inherited-members",
+    # 'show-inheritance-diagram',
+    'members',
+    'undoc-members',
+    'private-members',
+    'special_members',
+    'show-inheritance',
+    'show-module-summary',
+]
+
+def filter_contains(val:list|str, *needles:str) -> bool:
+    match val:
+        case str():
+            return any(x in val for x in needles)
+        case list():
+            joined = " ".join(val)
+            return any(x in joined for x in needles)
+        case _:
+            return False
+
+def autoapi_prepare_jinja_env(jinja_env: jinja2.Environment) -> None:
+    jinja_env.add_extension("jinja2.ext.debug")
+    jinja_env.tests['contains'] = filter_contains
