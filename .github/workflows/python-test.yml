@@ -13,7 +13,7 @@ name: Run Tests
 on:
   workflow_dispatch: 
   push:
-    branches: [actiontest]
+    branches: [main]
     
 permissions:
   contents: read

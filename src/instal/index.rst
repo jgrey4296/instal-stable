@@ -49,13 +49,14 @@ Indices and Tables
    :maxdepth: 3
    :hidden:
 
-   getting_started
-   cli
+   _abstract/index
+      
+   [a-z]*/index
 
-   examples/overview
-   architecture/overview
-   FAQ <faq>
-   api
+   ../_docs/*
+   genindex
+   modindex
+   API Reference <../docs/_autoapi/instal/index>
 
 
 .. .. Links
